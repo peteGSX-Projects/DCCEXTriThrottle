@@ -111,11 +111,11 @@ void updateTurntables() {
     Menu* ttMenu=menuSystem.findMenuByLabel("Turntables");
     if (!ttMenu) return;
     for (Turntable* tt=dccexProtocol.turntables->getFirst(); tt; tt=tt->getNext()) {
-      char* ttName=tt->getName();
+      const char* ttName=tt->getName();
       Menu* newTTMenu=new Menu(ttName);
       ttMenu->addMenuItem(newTTMenu);
       for (TurntableIndex* idx=tt->getFirstIndex(); idx; idx=idx->getNextIndex()) {
-        char* idxName=idx->getName();
+        const char* idxName=idx->getName();
         newTTMenu->addMenuItem(new ActionMenuItem(idxName, rotateTurntable, idx));
       }
     }
