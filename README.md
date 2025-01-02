@@ -1,13 +1,13 @@
-# DCC-EX Serial Throttle
+# DCC-EX Tri Throttle
 
-A serial throttle using three linear potentiometers, an OLED, and a 4 x 3 keypad designed for use with DCC-EX EX-CommandStation.
+A serial throttle using three rotary encoders, an OLED, and a 4 x 3 keypad designed for use with DCC-EX EX-CommandStation.
 
 ## Hardware
 
 - STM32F103C8 Bluepill
 - SPI or I2C OLED
 - 4 x 3 Keypad
-- 3 x 10K linear potentiometers
+- 3 x mouse wheel style rotary encoders with micro switches
 
 ## Pins
 
