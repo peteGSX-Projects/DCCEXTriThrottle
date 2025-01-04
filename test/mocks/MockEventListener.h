@@ -15,53 +15,15 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DCCEXPROTOCOL_H
-#define DCCEXPROTOCOL_H
+#ifndef MOCKEVENTLISTENER_H
+#define MOCKEVENTLISTENER_H
 
+#include "EventListener.h"
 #include <gmock/gmock.h>
 
-/**
- * @brief Mock DCCEXProtocol class
- */
-
-enum TrackPower {
-  PowerOff = 0,
-  PowerOn = 1,
-  PowerUnknown = 2,
+class MockEventListener : public EventListener {
+public:
+  MOCK_METHOD(void, onEvent, (Event & event), (override));
 };
 
-// Valid TrackManager types
-enum TrackManagerMode {
-  MAIN, // Normal DCC track mode
-  PROG, // Programming DCC track mode
-  DC,   // DC mode
-  DCX,  // Reverse polarity DC mode
-  NONE, // Track is unused
-};
-
-enum Direction {
-  Reverse = 0,
-  Forward = 1,
-};
-
-enum LocoSource {
-  LocoSourceRoster = 0,
-  LocoSourceEntry = 1,
-};
-
-enum Facing {
-  FacingForward = 0,
-  FacingReversed = 1,
-};
-
-class Loco {};
-
-class Turnout {};
-
-class Route {};
-
-class Turntable {};
-
-class DCCEXProtocol {};
-
-#endif // DCCEXPROTOCOL_H
+#endif // MOCKEVENTLISTENER_H

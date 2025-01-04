@@ -28,6 +28,9 @@ public:
   /// @brief Virtual method to implement in the inheriting class to respond to events
   /// @param event The event to respond to
   virtual void onEvent(Event &event) = 0;
+
+  /// @brief Virtual destructor for an EventListener instance
+  virtual ~EventListener() = default;
 };
 
 #endif // EVENTLISTENER_H

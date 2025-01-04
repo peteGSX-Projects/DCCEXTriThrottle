@@ -15,6 +15,9 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "LocoMenuItem.h"
+#include "Menu.h"
+#include "SubMenuItem.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -26,3 +29,33 @@ protected:
 
   void TearDown() override {}
 };
+
+/// @brief Tests for the LocoMenuItem
+TEST_F(MenuItemTests, LocoMenuItem) {
+  // Test creating an item and validate it
+  Loco *loco = new Loco();
+  LocoMenuItem *item = new LocoMenuItem("Mock Loco", loco);
+
+  EXPECT_STREQ(item->getName(), "Mock Loco");
+  EXPECT_EQ(item->getIndex(), -1);
+  EXPECT_EQ(item->getNext(), nullptr);
+  EXPECT_EQ(item->getItemType(), MenuItemType::LocoType);
+
+  // Clean up
+  delete item;
+}
+
+/// @brief Tests for a menu item type containing another menu
+TEST_F(MenuItemTests, SubMenuItem) {
+  // Create a menu and a SubMenuItem and validate
+  Menu *menu = new Menu("Test Menu");
+  SubMenuItem *item = new SubMenuItem(menu);
+
+  EXPECT_STREQ(item->getName(), "Test Menu");
+  EXPECT_EQ(item->getIndex(), -1);
+  EXPECT_EQ(item->getNext(), nullptr);
+  EXPECT_EQ(item->getItemType(), MenuItemType::SubMenuType);
+
+  // Clean up
+  delete item;
+}

@@ -15,19 +15,16 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * @file DCCEXTriThrottle.ino
- * @mainpage
- * @brief 
- * 
- * @details
- * 
- * @author {author} ({email})
- * @date {date}
- */
+#include "LocoMenuItem.h"
 
-#include <Arduino.h>
+LocoMenuItem::LocoMenuItem(const char *name, Loco *loco)
+    : BaseMenuItem(name, MenuItemType::LocoType), _loco(loco) {}
 
-void setup() {}
+BaseMenuItem *LocoMenuItem::clone() const { return new LocoMenuItem(*this); }
 
-void loop() {}
+LocoMenuItem::~LocoMenuItem() {
+  if (_loco != nullptr) {
+    delete _loco;
+    _loco = nullptr;
+  }
+}

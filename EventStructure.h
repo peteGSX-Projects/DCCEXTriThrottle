@@ -21,8 +21,9 @@
 #include <Arduino.h>
 #include <DCCEXProtocol.h>
 
-/// @brief Enum containing all the event types that subscribers can listen for, and publishers can publish
-/// Listeners and publishers must use one of these when creating or listening for a valid Event
+/// @brief Enum containing all the event types that subscribers can listen for,
+/// and publishers can publish Listeners and publishers must use one of these
+/// when creating or listening for a valid Event
 enum EventType {
   CommandStationSelected,
   ReceivedRosterList,
@@ -30,20 +31,43 @@ enum EventType {
   ReceivedLocoUpdate,
   ReceivedTrackPower,
   ReceivedReadLoco,
-  ToggleTrackPower
+  ToggleTrackPower,
+  ReceivedLocoBroadcast
 };
 
-/// @brief Structure to enable supporting EventData that has various different types
-/// Byte - caters for 8 bit unsigned integer data (uint8_t x)
-/// Integer - caters for signed integer data (int y)
-/// Loco - caters for a pointer to a DCCEXProtocol Loco object (Loco *loco)
-/// None - caters for events that contain no data and are notification only
+/// @brief Structure for data relating to a Loco broadcast that can be contained
+/// within EventData.
+/// address - DCC adress of the Loco the braodcast is for
+/// speed - Speed of the loco as interpreted from the speed byte
+/// direction - Direction of the loco as interpreted from the speed byte
+/// functionMap - Current state of the functions for the Loco
+struct LocoBroadcast {
+  int address;
+  int speed;
+  Direction direction;
+  int functionMap;
+};
+
+/// @brief Structure to enable supporting EventData that has various different
+/// types ByteData - caters for 8 bit unsigned integer data (uint8_t x)
+/// IntegerData - caters for signed integer data (int y)
+/// LocoData - caters for a pointer to a DCCEXProtocol Loco object (Loco *loco)
+/// NoneData - caters for events that contain no data and are notification only
+/// TrackPowerData - caters for events containing track power updates
+/// LocoBroadcaseData - caters for events containing Loco broadcasts
 /// When adding new data types:
 /// - Add type to the DataType enum
 /// - Add the type to the union
 /// - Add a new constructor for EventData
 struct EventData {
-  enum class DataType { ByteData, IntegerData, LocoData, NoneData, TrackPowerData };
+  enum class DataType {
+    ByteData,
+    IntegerData,
+    LocoData,
+    NoneData,
+    TrackPowerData,
+    LocoBroadcastData
+  };
   DataType dataType;
 
   union {
@@ -51,6 +75,7 @@ struct EventData {
     int intValue;
     Loco *locoValue;
     TrackPower trackPowerValue;
+    LocoBroadcast locoBroadcastValue;
   };
 
   /// @brief Constructor for events with a uint8_t parameter
@@ -69,7 +94,13 @@ struct EventData {
   EventData() : dataType(DataType::NoneData) {}
 
   /// @brief Constructor for events containing track power
-  EventData(TrackPower value) : dataType(DataType::TrackPowerData), trackPowerValue(value) {}
+  EventData(TrackPower value)
+      : dataType(DataType::TrackPowerData), trackPowerValue(value) {}
+
+  /// @brief Constructor for events containing loco broadcast information
+  /// @param value LocoBroadcast data
+  EventData(LocoBroadcast value)
+      : dataType(DataType::LocoBroadcastData), locoBroadcastValue(value) {}
 };
 
 /// @brief Structure for each Event that is published
@@ -80,7 +111,8 @@ struct Event {
   /// @brief Constructor for each event
   /// @param eventType A valid EventType
   /// @param eventData Valid EventData
-  Event(EventType eventType, EventData eventData) : eventType(eventType), eventData(eventData) {}
+  Event(EventType eventType, EventData eventData)
+      : eventType(eventType), eventData(eventData) {}
 };
 
 #endif // EVENTSTRUCTURE_H

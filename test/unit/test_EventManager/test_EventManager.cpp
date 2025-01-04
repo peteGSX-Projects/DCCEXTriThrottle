@@ -15,6 +15,9 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "EventManager.h"
+#include "test/mocks/MockEventListener.h"
+#include <DCCEXProtocol.h>
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -22,7 +25,202 @@ using namespace testing;
 /// @brief Test harness for the EventManager
 class EventManagerTests : public Test {
 protected:
-  void SetUp() override {}
+  MockEventListener *listener;
+  EventManager *eventManager;
 
-  void TearDown() override {}
+  void SetUp() override {
+    listener = new MockEventListener();
+    eventManager = new EventManager();
+  }
+
+  void TearDown() override {
+    delete listener;
+    delete eventManager;
+  }
 };
+
+/// @brief Test an EventListener can subscribe to and unsubscribe from events
+TEST_F(EventManagerTests, TestSubscribeUnsubscribe) {
+  // To start with, our listener should not be subscribed to
+  // ReceivedLocoBroadcast events
+  EXPECT_FALSE(
+      eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+
+  // Subscribe and validate
+  eventManager->subscribe(listener, EventType::ReceivedLocoBroadcast);
+
+  // Now, our listener should be subscribed to ReceivedLocoBroadcast events
+  EXPECT_TRUE(
+      eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+
+  // Then, unsubscribe and validate
+  eventManager->unsubscribe(listener, EventType::ReceivedLocoBroadcast);
+
+  // Now, our listener should be subscribed to ReceivedLocoBroadcast events
+  EXPECT_FALSE(
+      eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+}
+
+/// @brief Test an event with ByteData can be published and received by a
+/// Listener
+TEST_F(EventManagerTests, TestByteData) {
+  // Subscribe to CommandStationSelected which would typically use a uint8_t
+  eventManager->subscribe(listener, EventType::CommandStationSelected);
+
+  // Expect a uint8_t value of 1 with CommandStationSelected
+  Event expectedEvent(EventType::CommandStationSelected, EventData((uint8_t)1));
+  EXPECT_CALL(
+      *listener,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType,
+                           EventType::CommandStationSelected),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::dataType,
+                                            EventData::DataType::ByteData)),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::byteValue, 1)))))
+      .Times(1);
+
+  // Publish a CommandStationSelected event
+  uint8_t csSelected = 1;
+  EventData data(csSelected);
+  eventManager->publish(EventType::CommandStationSelected, data);
+}
+
+/// @brief Test an event with IntegerData can be published and received by a
+/// Listener
+TEST_F(EventManagerTests, TestIntegerData) {
+  // Subscribe to ReceivedReadLoco which would typically use int
+  eventManager->subscribe(listener, EventType::ReceivedReadLoco);
+
+  // Expect int value of -1 with ReceivedReadLoco
+  Event expectedEvent(EventType::ReceivedReadLoco, EventData((int)-1));
+  EXPECT_CALL(
+      *listener,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::ReceivedReadLoco),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::dataType,
+                                            EventData::DataType::IntegerData)),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::intValue, -1)))))
+      .Times(1);
+
+  // Publish a ReceivedReadLoco event
+  int readLoco = -1;
+  EventData data(readLoco);
+  eventManager->publish(EventType::ReceivedReadLoco, data);
+}
+
+/// @brief Test an event with LocoData can be published and received by a
+/// Listener
+TEST_F(EventManagerTests, TestLocoData) {
+  // Subscribe to ReceivedLocoUpdate which would use a Loco instance
+  eventManager->subscribe(listener, EventType::ReceivedLocoUpdate);
+
+  // Create a dummy Loco instance
+  Loco *loco = new Loco;
+
+  // Expect our dummy Loco instance with ReceivedLocoUpdate
+  Event expectedEvent(EventType::ReceivedLocoUpdate, EventData(loco));
+  EXPECT_CALL(
+      *listener,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::ReceivedLocoUpdate),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::dataType,
+                                            EventData::DataType::LocoData)),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::locoValue, loco)))))
+      .Times(1);
+
+  // Publish a ReceivedLocoUpdate event
+  EventData data(loco);
+  eventManager->publish(EventType::ReceivedLocoUpdate, data);
+
+  // Clean up
+  delete loco;
+}
+
+/// @brief Test an event with NoneData can be published and received by a
+/// Listener
+TEST_F(EventManagerTests, TestNoneData) {
+  // Subscribe to ReceivedRosterList which is a notification only with no data
+  eventManager->subscribe(listener, EventType::ReceivedRosterList);
+
+  // Expect empty data
+  Event expectedEvent(EventType::ReceivedRosterList, EventData());
+  EXPECT_CALL(
+      *listener,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::ReceivedRosterList),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::dataType,
+                                            EventData::DataType::NoneData)))))
+      .Times(1);
+
+  // Publish a ReceivedRosterList event with empty data
+  EventData data;
+  eventManager->publish(EventType::ReceivedRosterList, data);
+}
+
+/// @brief Test an event with TrackPowerData can be published and received by a
+/// Listener
+TEST_F(EventManagerTests, TestTrackPowerData) {
+  // Subscribe to ReceivedTrackPower which would use a Loco instance
+  eventManager->subscribe(listener, EventType::ReceivedTrackPower);
+
+  // Expect TrackPower value of TrackPower::PowerOn with ReceivedTrackPower
+  Event expectedEvent(EventType::ReceivedTrackPower,
+                      EventData(TrackPower::PowerOn));
+  EXPECT_CALL(
+      *listener,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::ReceivedTrackPower),
+          ::testing::Field(
+              &Event::eventData,
+              ::testing::Field(&EventData::dataType,
+                               EventData::DataType::TrackPowerData)),
+          ::testing::Field(&Event::eventData,
+                           ::testing::Field(&EventData::trackPowerValue,
+                                            TrackPower::PowerOn)))))
+      .Times(1);
+
+  // Publish a ReceivedTrackPower event
+  EventData data(TrackPower::PowerOn);
+  eventManager->publish(EventType::ReceivedTrackPower, data);
+}
+
+/// @brief Test an event with LocoBroadcastData can be published and received by
+/// a Listener
+TEST_F(EventManagerTests, TestLocoBroadcastData) {
+  // Subscribe the listener to all event types
+  eventManager->subscribe(listener, EventType::ReceivedLocoBroadcast);
+
+  // Expect a LocoBroadcast event type with LocoBroadcastData
+  EXPECT_CALL(
+      *listener,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::ReceivedLocoBroadcast),
+          ::testing::Field(
+              &Event::eventData,
+              ::testing::Field(&EventData::dataType,
+                               EventData::DataType::LocoBroadcastData)),
+          ::testing::Field(
+              &Event::eventData,
+              ::testing::Field(
+                  &EventData::locoBroadcastValue,
+                  ::testing::AllOf(
+                      ::testing::Field(&LocoBroadcast::address, 3),
+                      ::testing::Field(&LocoBroadcast::speed, 50),
+                      ::testing::Field(&LocoBroadcast::direction,
+                                       Direction::Forward),
+                      ::testing::Field(&LocoBroadcast::functionMap, 2)))))))
+      .Times(1);
+
+  // Publish a ReceivedLocoBroadcast event for loco 3 moving forward at speed
+  // 50, with functions 0 and 1 on (2)
+  LocoBroadcast broadcast = {3, 50, Direction::Forward, 2};
+  EventData broadcastData(broadcast);
+  eventManager->publish(EventType::ReceivedLocoBroadcast, broadcastData);
+}

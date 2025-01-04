@@ -15,19 +15,27 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * @file DCCEXTriThrottle.ino
- * @mainpage
- * @brief 
- * 
- * @details
- * 
- * @author {author} ({email})
- * @date {date}
- */
+#ifndef LOCOMENUITEM_H
+#define LOCOMENUITEM_H
 
-#include <Arduino.h>
+#include "BaseMenuItem.h"
+#include <DCCEXProtocol.h>
 
-void setup() {}
+class LocoMenuItem : public BaseMenuItem {
+public:
+  /// @brief Constructor for this LocoMenuItem
+  /// @param loco Pointer to the associated Loco instance
+  LocoMenuItem(const char *name, Loco *loco);
 
-void loop() {}
+  /// @brief Override to return the pointer to this instance for polymorphic clean up
+  /// @return Pointer to this instance as a BaseMenuItem
+  BaseMenuItem *clone() const override;
+
+  /// @brief Destructor for this LocoMenuItem
+  ~LocoMenuItem();
+
+private:
+  Loco *_loco; /** Loco instance associated with this item */
+};
+
+#endif // LOCOMENUITEM_H

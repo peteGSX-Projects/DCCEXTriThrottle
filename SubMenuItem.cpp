@@ -15,19 +15,19 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * @file DCCEXTriThrottle.ino
- * @mainpage
- * @brief 
- * 
- * @details
- * 
- * @author {author} ({email})
- * @date {date}
- */
+#include "SubMenuItem.h"
+#include "Menu.h"
 
-#include <Arduino.h>
+SubMenuItem::SubMenuItem(Menu *menu)
+    : BaseMenuItem(menu->getName(), MenuItemType::SubMenuType), _menu(menu) {}
 
-void setup() {}
+Menu *SubMenuItem::getMenu() { return _menu; }
 
-void loop() {}
+BaseMenuItem *SubMenuItem::clone() const { return new SubMenuItem(*this); }
+
+SubMenuItem::~SubMenuItem() {
+  if (_menu != nullptr) {
+    delete _menu;
+    _menu = nullptr;
+  }
+}

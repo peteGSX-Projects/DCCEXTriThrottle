@@ -17,12 +17,15 @@
 
 #include "EventManager.h"
 
-EventManager::EventManager() { _firstEventSubscriber = nullptr; }
+EventManager::EventManager()
+    : _firstEventSubscriber(nullptr), _logger(nullptr) {}
 
-void EventManager::subscribe(EventListener *eventListener, EventType eventType) {
+void EventManager::subscribe(EventListener *eventListener,
+                             EventType eventType) {
   if (eventListener == nullptr)
     return;
-  EventSubscriber *newSubscriber = new EventSubscriber(eventListener, eventType);
+  EventSubscriber *newSubscriber =
+      new EventSubscriber(eventListener, eventType);
   if (_firstEventSubscriber == nullptr) {
     // If we don't have a first subscriber, this is it
     _firstEventSubscriber = newSubscriber;
@@ -36,13 +39,16 @@ void EventManager::subscribe(EventListener *eventListener, EventType eventType) 
   }
 }
 
-void EventManager::unsubscribe(EventListener *eventListener, EventType eventType) {
+void EventManager::unsubscribe(EventListener *eventListener,
+                               EventType eventType) {
   if (_firstEventSubscriber == nullptr || eventListener == nullptr) {
     // If we don't have a list, nothing to unsubscribe
     return;
   }
-  if (_firstEventSubscriber->eventListener == eventListener && _firstEventSubscriber->eventType == eventType) {
-    // If it's the first in the list, make the next one the first one, then delete it
+  if (_firstEventSubscriber->eventListener == eventListener &&
+      _firstEventSubscriber->eventType == eventType) {
+    // If it's the first in the list, make the next one the first one, then
+    // delete it
     EventSubscriber *deleteSubscriber = _firstEventSubscriber;
     _firstEventSubscriber = _firstEventSubscriber->next;
     delete deleteSubscriber;
@@ -52,7 +58,8 @@ void EventManager::unsubscribe(EventListener *eventListener, EventType eventType
   EventSubscriber *currentSubscriber = _firstEventSubscriber;
   EventSubscriber *previousSubscriber = nullptr;
   while (currentSubscriber != nullptr) {
-    if (currentSubscriber->eventListener == eventListener && currentSubscriber->eventType == eventType) {
+    if (currentSubscriber->eventListener == eventListener &&
+        currentSubscriber->eventType == eventType) {
       // Bypass the subscriber we're deleting
       previousSubscriber->next = currentSubscriber->next;
       delete currentSubscriber;
@@ -63,14 +70,17 @@ void EventManager::unsubscribe(EventListener *eventListener, EventType eventType
   }
 }
 
-bool EventManager::isSubscribed(EventListener *eventListener, EventType eventType) {
+bool EventManager::isSubscribed(EventListener *eventListener,
+                                EventType eventType) {
   if (_firstEventSubscriber == nullptr || eventListener == nullptr) {
-    // If we don't have a list or the provided listener is a nullptr, return false
+    // If we don't have a list or the provided listener is a nullptr, return
+    // false
     return false;
   }
-  for (EventSubscriber *eventSubscriber = _firstEventSubscriber; eventSubscriber;
-       eventSubscriber = eventSubscriber->next) {
-    if (eventSubscriber->eventListener == eventListener && eventSubscriber->eventType == eventType) {
+  for (EventSubscriber *eventSubscriber = _firstEventSubscriber;
+       eventSubscriber; eventSubscriber = eventSubscriber->next) {
+    if (eventSubscriber->eventListener == eventListener &&
+        eventSubscriber->eventType == eventType) {
       // We have a match, return true
       return true;
     }
@@ -81,10 +91,26 @@ bool EventManager::isSubscribed(EventListener *eventListener, EventType eventTyp
 
 void EventManager::publish(EventType eventType, EventData eventData) {
   Event event(eventType, eventData);
-  for (EventSubscriber *eventSubscriber = _firstEventSubscriber; eventSubscriber;
-       eventSubscriber = eventSubscriber->next) {
+  for (EventSubscriber *eventSubscriber = _firstEventSubscriber;
+       eventSubscriber; eventSubscriber = eventSubscriber->next) {
     if (eventSubscriber->eventType == event.eventType) {
       eventSubscriber->eventListener->onEvent(event);
     }
   }
+}
+
+void EventManager::setLogger(Logger *logger) { _logger = logger; }
+
+EventManager::~EventManager() {
+  if (_firstEventSubscriber != nullptr) {
+    EventSubscriber *subscriber = _firstEventSubscriber;
+    EventSubscriber *nextSubscriber = nullptr;
+    while (subscriber) {
+      nextSubscriber = subscriber->next;
+      delete subscriber;
+      subscriber = nextSubscriber;
+    }
+    _firstEventSubscriber = nullptr;
+  }
+  _logger = nullptr;
 }
