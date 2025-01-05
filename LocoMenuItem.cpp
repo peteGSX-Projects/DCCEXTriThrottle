@@ -17,8 +17,24 @@
 
 #include "LocoMenuItem.h"
 
-LocoMenuItem::LocoMenuItem(const char *name, Loco *loco)
-    : BaseMenuItem(name, MenuItemType::LocoType), _loco(loco) {}
+LocoMenuItem::LocoMenuItem(Loco *loco)
+    : BaseMenuItem(loco->getName(), MenuItemType::LocoType), _loco(loco) {
+  // If there's no name for this loco, set the address as the name
+  if (loco->getName() == nullptr) {
+    if (_name != nullptr) {
+      delete[] _name;
+    }
+    // Get the address
+    int address = loco->getAddress();
+    // Use log10 to get the number of digits, or 1 if it is 0
+    int digits = (address == 0) ? 1 : (int)log10(abs(address)) + 1;
+    // Add null terminator
+    int charSize = digits + 1;
+    // Now create the new char array and allocate to _name
+    _name = new char[charSize];
+    snprintf(_name, charSize, "%d", address);
+  }
+}
 
 BaseMenuItem *LocoMenuItem::clone() const { return new LocoMenuItem(*this); }
 

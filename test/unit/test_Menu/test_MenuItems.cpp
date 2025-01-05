@@ -33,10 +33,11 @@ protected:
 /// @brief Tests for the LocoMenuItem
 TEST_F(MenuItemTests, LocoMenuItem) {
   // Test creating an item and validate it
-  Loco *loco = new Loco();
-  LocoMenuItem *item = new LocoMenuItem("Mock Loco", loco);
+  Loco *loco = new Loco(123, LocoSource::LocoSourceEntry);
+  loco->setName("Loco 123");
+  LocoMenuItem *item = new LocoMenuItem(loco);
 
-  EXPECT_STREQ(item->getName(), "Mock Loco");
+  EXPECT_STREQ(item->getName(), "Loco 123");
   EXPECT_EQ(item->getIndex(), -1);
   EXPECT_EQ(item->getNext(), nullptr);
   EXPECT_EQ(item->getItemType(), MenuItemType::LocoType);

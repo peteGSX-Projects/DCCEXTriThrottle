@@ -64,19 +64,29 @@ TEST_F(MenuTests, NestedMenus) {
 /// @brief Test creating a simple menu structure of items
 TEST_F(MenuTests, SimpleMenuStructure) {
   Menu *mainMenu = new Menu("Main Menu");
-  Loco *loco0 = new Loco();
-  Loco *loco1 = new Loco();
-  Loco *loco2 = new Loco();
-  mainMenu->addItem(new LocoMenuItem("Menu Item 0", loco0));
-  mainMenu->addItem(new LocoMenuItem("Menu Item 1", loco1));
-  mainMenu->addItem(new LocoMenuItem("Menu Item 2", loco2));
+  Loco *loco0 = new Loco(123, LocoSource::LocoSourceEntry);
+  loco0->setName("Loco 123");
+  Loco *loco1 = new Loco(234, LocoSource::LocoSourceEntry);
+  loco1->setName("Loco 234");
+  Loco *loco2 = new Loco(555, LocoSource::LocoSourceEntry);
+  mainMenu->addItem(new LocoMenuItem(loco0));
+  mainMenu->addItem(new LocoMenuItem(loco1));
+  mainMenu->addItem(new LocoMenuItem(loco2));
 
-  // Validate each menu item has the correct auto generated index
+  // Validate each menu item has the correct auto generated index and name is
+  // the Loco name
   int i = 0;
   for (LocoMenuItem *item =
            static_cast<LocoMenuItem *>(mainMenu->getFirstItem());
        item; item = static_cast<LocoMenuItem *>(item->getNext())) {
     EXPECT_EQ(item->getIndex(), i);
+    if (i == 0) {
+      EXPECT_STREQ(item->getName(), loco0->getName());
+    } else if (i == 1) {
+      EXPECT_STREQ(item->getName(), loco1->getName());
+    } else if (i == 2) {
+      EXPECT_STREQ(item->getName(), "555");
+    }
     i++;
   }
 
@@ -89,17 +99,17 @@ TEST_F(MenuTests, MenuWithSubMenu) {
   // Create a main menu and a submenu with three items each
   Menu *mainMenu = new Menu("Main Menu");
   Menu *subMenu = new Menu("SubMenu");
-  Loco *loco0 = new Loco();
-  Loco *loco1 = new Loco();
-  Loco *loco2 = new Loco();
-  Loco *loco3 = new Loco();
-  Loco *loco4 = new Loco();
+  Loco *loco0 = new Loco(222, LocoSource::LocoSourceEntry);
+  Loco *loco1 = new Loco(8, LocoSource::LocoSourceEntry);
+  Loco *loco2 = new Loco(1, LocoSource::LocoSourceEntry);
+  Loco *loco3 = new Loco(9999, LocoSource::LocoSourceEntry);
+  Loco *loco4 = new Loco(12, LocoSource::LocoSourceEntry);
   mainMenu->addItem(new SubMenuItem(subMenu));
-  mainMenu->addItem(new LocoMenuItem("Menu Item 1", loco0));
-  mainMenu->addItem(new LocoMenuItem("Menu Item 2", loco1));
-  subMenu->addItem(new LocoMenuItem("Submenu Item 0", loco2));
-  subMenu->addItem(new LocoMenuItem("Submenu Item 1", loco3));
-  subMenu->addItem(new LocoMenuItem("Submenu Item 2", loco4));
+  mainMenu->addItem(new LocoMenuItem(loco0));
+  mainMenu->addItem(new LocoMenuItem(loco1));
+  subMenu->addItem(new LocoMenuItem(loco2));
+  subMenu->addItem(new LocoMenuItem(loco3));
+  subMenu->addItem(new LocoMenuItem(loco4));
 
   // Validate main menu items
   EXPECT_EQ(mainMenu->getFirstItem()->getItemType(), MenuItemType::SubMenuType);

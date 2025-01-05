@@ -15,27 +15,14 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef LOCOMENUITEM_H
-#define LOCOMENUITEM_H
+#ifndef PRINT_H
+#define PRINT_H
 
-#include "BaseMenuItem.h"
-#include <DCCEXProtocol.h>
+#include <gmock/gmock.h>
 
-class LocoMenuItem : public BaseMenuItem {
-public:
-  /// @brief Constructor for this LocoMenuItem
-  /// @param loco Pointer to the associated Loco instance
-  LocoMenuItem(Loco *loco);
+/**
+ * @brief Mock Print class to satisfy DCCEXInbound.h
+ */
+class Print {};
 
-  /// @brief Override to return the pointer to this instance for polymorphic clean up
-  /// @return Pointer to this instance as a BaseMenuItem
-  BaseMenuItem *clone() const override;
-
-  /// @brief Destructor for this LocoMenuItem
-  ~LocoMenuItem();
-
-private:
-  Loco *_loco; /** Loco instance associated with this item */
-};
-
-#endif // LOCOMENUITEM_H
+#endif // PRINT_H

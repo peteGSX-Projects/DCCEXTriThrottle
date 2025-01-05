@@ -18,6 +18,7 @@
 #ifndef DCCEXPROTOCOL_H
 #define DCCEXPROTOCOL_H
 
+#include "DCCEXLoco.h"
 #include <gmock/gmock.h>
 
 /**
@@ -38,23 +39,6 @@ enum TrackManagerMode {
   DCX,  // Reverse polarity DC mode
   NONE, // Track is unused
 };
-
-enum Direction {
-  Reverse = 0,
-  Forward = 1,
-};
-
-enum LocoSource {
-  LocoSourceRoster = 0,
-  LocoSourceEntry = 1,
-};
-
-enum Facing {
-  FacingForward = 0,
-  FacingReversed = 1,
-};
-
-class Loco {};
 
 class Turnout {};
 

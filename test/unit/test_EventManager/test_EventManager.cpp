@@ -119,7 +119,7 @@ TEST_F(EventManagerTests, TestLocoData) {
   eventManager->subscribe(listener, EventType::ReceivedLocoUpdate);
 
   // Create a dummy Loco instance
-  Loco *loco = new Loco;
+  Loco *loco = new Loco(42, LocoSource::LocoSourceEntry);
 
   // Expect our dummy Loco instance with ReceivedLocoUpdate
   Event expectedEvent(EventType::ReceivedLocoUpdate, EventData(loco));

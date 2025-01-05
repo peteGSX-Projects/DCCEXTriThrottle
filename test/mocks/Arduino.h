@@ -22,6 +22,7 @@
 #ifndef ARDUINO_H
 #define ARDUINO_H
 
+#include "Print.h"
 #include "Stream.h"
 #include <cstdarg>
 #include <gmock/gmock.h>
