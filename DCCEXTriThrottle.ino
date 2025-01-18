@@ -17,17 +17,42 @@
 
 /**
  * @file DCCEXTriThrottle.ino
- * @mainpage
- * @brief 
- * 
+ * @mainpage DCC-EX Tri Throttle
+ * @brief
+ *
  * @details
- * 
- * @author {author} ({email})
- * @date {date}
+ *
  */
 
+#include "RotaryEncoder.h"
 #include <Arduino.h>
 
-void setup() {}
+RotaryEncoder *encoder1 = new RotaryEncoder(PC14, PC15, RotaryEncoderMode::HalfStep);
+RotaryEncoder *encoder2 = new RotaryEncoder(PB0, PB1, RotaryEncoderMode::FullStep);
+RotaryEncoder *encoder3 = new RotaryEncoder(PB10, PB11, RotaryEncoderMode::HalfStep);
 
-void loop() {}
+void setup() {
+  Serial.begin(115200);
+  Serial.println("DCC-EX Tri Throttle");
+  encoder1->begin();
+  encoder2->begin();
+  encoder3->begin();
+}
+
+void loop() {
+  if (encoder1->check() == RotaryEncoderDirection::CW) {
+    Serial.println("Encoder1 - CW");
+  } else if (encoder1->check() == RotaryEncoderDirection::CCW) {
+    Serial.println("Encoder1 - CCW");
+  }
+  if (encoder2->check() == RotaryEncoderDirection::CW) {
+    Serial.println("Encoder2 - CW");
+  } else if (encoder2->check() == RotaryEncoderDirection::CCW) {
+    Serial.println("Encoder2 - CCW");
+  }
+  if (encoder3->check() == RotaryEncoderDirection::CW) {
+    Serial.println("Encoder3 - CW");
+  } else if (encoder3->check() == RotaryEncoderDirection::CCW) {
+    Serial.println("Encoder3 - CCW");
+  }
+}

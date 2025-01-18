@@ -40,6 +40,9 @@
 // Define common Arduino types
 typedef uint8_t byte;
 
+// Declare micros so it can be mocked/returned
+static unsigned long _currentMicros = 0;
+
 // Declare millis so it can be mocked/returned
 static unsigned long _currentMillis = 0;
 
@@ -61,10 +64,12 @@ inline void pinMode(int pin, int mode) { MockArduino::getInstance().mockPinMode(
 inline void digitalWrite(int pin, int value) { MockArduino::getInstance().mockDigitalWrite(pin, value); }
 inline int digitalRead(int pin) { return 0; }
 inline void delay(unsigned long ms) {}
+inline unsigned long micros() { return _currentMicros; }
 inline unsigned long millis() { return _currentMillis; }
 inline void analogWrite(int pin, int value) {}
 inline int analogRead(int pin) { return 0; }
 
+inline void advanceMicros(unsinged long us) { _currentMicros += us; }
 inline void advanceMillis(unsigned long ms) { _currentMillis += ms; }
 
 #endif // ARDUINO_H
