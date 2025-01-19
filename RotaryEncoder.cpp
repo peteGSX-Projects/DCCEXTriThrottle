@@ -17,37 +17,38 @@
 
 #include "RotaryEncoder.h"
 
-RotaryEncoder::RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoderMode mode, byte inputMode)
-    : _dtPin(dtPin), _clkPin(clkPin), _mode(mode), _inputMode(inputMode), _state(0) {}
+RotaryEncoder::RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode mode, byte inputMode)
+    : _dtPin(dtPin), _clkPin(clkPin), _mode(mode), _inputMode(inputMode), _state(R_START) {}
 
 void RotaryEncoder::begin() {
   pinMode(_clkPin, _inputMode);
   pinMode(_dtPin, _inputMode);
-  _state = 0; // R_START
+  _state = R_START;
 }
 
-RotaryEncoderDirection RotaryEncoder::check() {
-  uint8_t currentState = (digitalRead(_clkPin) << 1) | digitalRead(_dtPin); // Read the current pin states
+RotaryEncoder::Direction RotaryEncoder::check() {
+  uint8_t pinState = (digitalRead(_clkPin) << 1) | digitalRead(_dtPin); // Read the current pin states
 
-  // Get the new state from the appropriate state table
-  if (_mode == RotaryEncoderMode::HalfStep) {
-    _state = _halfStepTable[_state & 0xf][currentState];
-  } else {
-    _state = _fullStepTable[_state & 0xf][currentState];
-  }
+  // Update state and get direction in one operation
+  const uint8_t result = (_mode == RotaryEncoder::Mode::HalfStep) ? _halfStepTable[_state & 0xf][pinState]
+                                                                  : _fullStepTable[_state & 0xf][pinState];
+
+  _state = result & 0xf; // Update state
+
+  const uint8_t direction = result & 0x30; // Check direction bits
 
   // Return direction based on the state bits
-  switch (_state & 0x30) {
+  switch (direction) {
   case DIR_CW:
-    return RotaryEncoderDirection::CW;
+    return RotaryEncoder::Direction::CW;
   case DIR_CCW:
-    return RotaryEncoderDirection::CCW;
+    return RotaryEncoder::Direction::CCW;
   default:
-    return RotaryEncoderDirection::None;
+    return RotaryEncoder::Direction::None;
   }
 }
 
-void RotaryEncoder::setMode(RotaryEncoderMode mode) {
+void RotaryEncoder::setMode(RotaryEncoder::Mode mode) {
   _mode = mode;
-  _state = 0; // Reset to R_START
+  _state = R_START; // Reset to R_START
 }

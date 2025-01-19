@@ -69,7 +69,7 @@ inline unsigned long millis() { return _currentMillis; }
 inline void analogWrite(int pin, int value) {}
 inline int analogRead(int pin) { return 0; }
 
-inline void advanceMicros(unsinged long us) { _currentMicros += us; }
+inline void advanceMicros(unsigned long us) { _currentMicros += us; }
 inline void advanceMillis(unsigned long ms) { _currentMillis += ms; }
 
 #endif // ARDUINO_H

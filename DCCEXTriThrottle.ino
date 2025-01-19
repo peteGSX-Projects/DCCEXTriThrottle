@@ -27,9 +27,9 @@
 #include "RotaryEncoder.h"
 #include <Arduino.h>
 
-RotaryEncoder *encoder1 = new RotaryEncoder(PC14, PC15, RotaryEncoderMode::HalfStep);
-RotaryEncoder *encoder2 = new RotaryEncoder(PB0, PB1, RotaryEncoderMode::FullStep);
-RotaryEncoder *encoder3 = new RotaryEncoder(PB10, PB11, RotaryEncoderMode::HalfStep);
+RotaryEncoder *encoder1 = new RotaryEncoder(PC14, PC15, RotaryEncoder::Mode::HalfStep);
+RotaryEncoder *encoder2 = new RotaryEncoder(PB0, PB1, RotaryEncoder::Mode::HalfStep);
+RotaryEncoder *encoder3 = new RotaryEncoder(PB10, PB11, RotaryEncoder::Mode::HalfStep);
 
 void setup() {
   Serial.begin(115200);
@@ -40,19 +40,22 @@ void setup() {
 }
 
 void loop() {
-  if (encoder1->check() == RotaryEncoderDirection::CW) {
+  RotaryEncoder::Direction enc1 = encoder1->check();
+  if (enc1 == RotaryEncoder::Direction::CW) {
     Serial.println("Encoder1 - CW");
-  } else if (encoder1->check() == RotaryEncoderDirection::CCW) {
+  } else if (enc1 == RotaryEncoder::Direction::CCW) {
     Serial.println("Encoder1 - CCW");
   }
-  if (encoder2->check() == RotaryEncoderDirection::CW) {
+  RotaryEncoder::Direction enc2 = encoder2->check();
+  if (enc2 == RotaryEncoder::Direction::CW) {
     Serial.println("Encoder2 - CW");
-  } else if (encoder2->check() == RotaryEncoderDirection::CCW) {
+  } else if (enc2 == RotaryEncoder::Direction::CCW) {
     Serial.println("Encoder2 - CCW");
   }
-  if (encoder3->check() == RotaryEncoderDirection::CW) {
+  RotaryEncoder::Direction enc3 = encoder3->check();
+  if (enc3 == RotaryEncoder::Direction::CW) {
     Serial.println("Encoder3 - CW");
-  } else if (encoder3->check() == RotaryEncoderDirection::CCW) {
+  } else if (enc3 == RotaryEncoder::Direction::CCW) {
     Serial.println("Encoder3 - CCW");
   }
 }
