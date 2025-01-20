@@ -15,17 +15,12 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * @file DCCEXTriThrottle.ino
- * @mainpage DCC-EX Tri Throttle
- * @brief A throttle for DCC-EX to simultaneously control three locos via the DCC-EX Protocol
- *
- * @details
- *
- */
+#ifndef BUTTON_H
+#define BUTTON_H
 
-#include <Arduino.h>
+class Button {
+public:
+private:
+};
 
-void setup() {}
-
-void loop() {}
+#endif // BUTTON_H

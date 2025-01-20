@@ -15,17 +15,12 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * @file DCCEXTriThrottle.ino
- * @mainpage DCC-EX Tri Throttle
- * @brief A throttle for DCC-EX to simultaneously control three locos via the DCC-EX Protocol
- *
- * @details
- *
- */
+#ifndef ADVANCEDKEYPAD_H
+#define ADVANCEDKEYPAD_H
 
-#include <Arduino.h>
+class AdvancedKeypad {
+public:
+private:
+};
 
-void setup() {}
-
-void loop() {}
+#endif // ADVANCEDKEYPAD_H
