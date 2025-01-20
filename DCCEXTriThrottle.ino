@@ -25,7 +25,18 @@
  */
 
 #include <Arduino.h>
+#include "AdvancedKeypad.h"
 
-void setup() {}
+AdvancedKeypad keypad;
 
-void loop() {}
+void setup() {
+  Serial.begin(115200);
+  keypad.begin();
+}
+
+void loop() {
+  AdvancedKeypad::KeyEvent event = keypad.checkKeypad();
+  if (event.key != '\0') {
+    Serial.println(event.key);
+  }
+}

@@ -18,9 +18,118 @@
 #ifndef ADVANCEDKEYPAD_H
 #define ADVANCEDKEYPAD_H
 
+#include <Arduino.h>
+
+/**
+ * @brief Define default keypad pins if not customised elsewhere
+ */
+#ifndef KEYPAD_PIN1
+#define KEYPAD_PIN1 PB3
+#endif // KEYPAD_PIN1
+#ifndef KEYPAD_PIN2
+#define KEYPAD_PIN2 PB4
+#endif // KEYPAD_PIN2
+#ifndef KEYPAD_PIN3
+#define KEYPAD_PIN3 PB5
+#endif // KEYPAD_PIN3
+#ifndef KEYPAD_PIN4
+#define KEYPAD_PIN4 PB6
+#endif // KEYPAD_PIN4
+#ifndef KEYPAD_PIN5
+#define KEYPAD_PIN5 PB7
+#endif // KEYPAD_PIN5
+#ifndef KEYPAD_PIN6
+#define KEYPAD_PIN6 PB8
+#endif // KEYPAD_PIN6
+#ifndef KEYPAD_PIN7
+#define KEYPAD_PIN7 PB9
+#endif // KEYPAD_PIN7
+
+/**
+ * @brief Define debounce, double press, and hold times
+ */
+#ifndef KEYPAD_DEBOUNCE_TIME
+#define KEYPAD_DEBOUNCE_TIME 10
+#endif // KEYPAD_DEBOUNCE_TIME
+#ifndef KEYPAD_DOUBLE_PRESS_TIME
+#define KEYPAD_DOUBLE_PRESS_TIME 250
+#endif // KEYPAD_DOUBLE_PRESS_TIME
+#ifndef KEYPAD_LONG_PRESS_TIME
+#define KEYPAD_LONG_PRESS_TIME 500
+#endif // KEYPAD_LONG_PRESS_TIME
+
 class AdvancedKeypad {
 public:
+  /**
+   * @brief Event types available for key presses
+   */
+  enum class EventType { None, SinglePress, DoublePress, LongPress };
+
+  /**
+   * @brief Structure for a key press event to get both the key pressed and the event type
+   */
+  struct KeyEvent {
+    char key;
+    EventType type;
+  };
+
+  /**
+   * @brief Construct a new Advanced Keypad object
+   * @param keypadPin1
+   * @param keypadPin2
+   * @param keypadPin3
+   * @param keypadPin4
+   * @param keypadPin5
+   * @param keypadPin6
+   * @param keypadPin7
+   * @param keypadPinMode
+   * @param debounceTime
+   * @param doublePressTime
+   * @param longPressTime
+   */
+  AdvancedKeypad(byte keypadPin1 = KEYPAD_PIN1, byte keypadPin2 = KEYPAD_PIN2, byte keypadPin3 = KEYPAD_PIN3,
+                 byte keypadPin4 = KEYPAD_PIN4, byte keypadPin5 = KEYPAD_PIN5, byte keypadPin6 = KEYPAD_PIN6,
+                 byte keypadPin7 = KEYPAD_PIN7, unsigned long debounceTime = KEYPAD_DEBOUNCE_TIME,
+                 unsigned long doublePressTime = KEYPAD_DOUBLE_PRESS_TIME,
+                 unsigned long longPressTime = KEYPAD_LONG_PRESS_TIME);
+
+  /**
+   * @brief
+   */
+  void begin();
+
+  /**
+   * @brief Call checkKeypad() frequently to check for key press events
+   * @return KeyEvent Key that is pressed, and the event type of the press
+   */
+  KeyEvent checkKeypad();
+
 private:
+  const byte _rowPins[4];               /** Array of pin numbers the rows are connected to */
+  const byte _columnPins[3];            /** Array of pin numbers the columns are connected to */
+  const unsigned long _debounceTime;    /** Debounce delay in ms */
+  const unsigned long _doublePressTime; /** Time in ms in which a double press must occur */
+  const unsigned long _longPressTime;   /** Time in ms to hold to record a long press */
+
+  const char _keymap[4][3] = {
+      /** Key mappings */
+      {'1', '2', '3'}, /** Row 1 */
+      {'4', '5', '6'}, /** Row 2 */
+      {'7', '8', '9'}, /** Row 3 */
+      {'*', '0', '#'}  /** Row 4 */
+  };
+
+  char _lastKey;                 /** Track the last key pressed for debouncing etc. */
+  unsigned long _lastPressTime;  /** Time of last press for calculations */
+  unsigned long _pressStartTime; /** Time press started for calculations */
+  uint8_t _pressCount;           /** Number of times pressed for calculations */
+  bool _isPressed;               /** Track if pressed for calculations */
+
+  /**
+   * @brief Scan keypad using writes/reads to detect a key being pressed
+   * @return char Key currently being pressed
+   */
+  char _scanKeypad();
 };
 
 #endif // ADVANCEDKEYPAD_H
