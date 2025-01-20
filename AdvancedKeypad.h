@@ -130,6 +130,11 @@ private:
    * @return char Key currently being pressed
    */
   char _scanKeypad();
+
+  /**
+   * @brief Update the current keypad state including debouncing and key press count
+   */
+  void _updateKeypadState();
 };
 
 #endif // ADVANCEDKEYPAD_H

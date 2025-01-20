@@ -24,8 +24,8 @@
  *
  */
 
-#include <Arduino.h>
 #include "AdvancedKeypad.h"
+#include <Arduino.h>
 
 AdvancedKeypad keypad;
 
@@ -37,6 +37,21 @@ void setup() {
 void loop() {
   AdvancedKeypad::KeyEvent event = keypad.checkKeypad();
   if (event.key != '\0') {
-    Serial.println(event.key);
+    Serial.print("Key|Event: ");
+    Serial.print(event.key);
+    Serial.print("|");
+    switch (event.type) {
+    case AdvancedKeypad::EventType::SinglePress:
+      Serial.println("SinglePress");
+      break;
+    case AdvancedKeypad::EventType::DoublePress:
+      Serial.println("DoublePress");
+      break;
+    case AdvancedKeypad::EventType::LongPress:
+      Serial.println("LongPress");
+      break;
+    default:
+      break;
+    }
   }
 }

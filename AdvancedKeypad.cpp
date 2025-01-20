@@ -33,8 +33,23 @@ void AdvancedKeypad::begin() {
 }
 
 AdvancedKeypad::KeyEvent AdvancedKeypad::checkKeypad() {
-  char temp = _scanKeypad();
-  return {temp, AdvancedKeypad::EventType::SinglePress};
+  _updateKeypadState();
+  unsigned long currentTime = millis();
+  if (!_isPressed && _lastKey != '\0') {
+    if (_pressCount == 1 && (currentTime - _lastPressTime) > _doublePressTime) {
+      char key = _lastKey;
+      _lastKey = 0;
+      return {key, EventType::SinglePress};
+    } else if (_pressCount == 2) {
+      char key = _lastKey;
+      _lastKey = 0;
+      _pressCount = 0;
+      return {key, EventType::DoublePress};
+    }
+  } else if (_isPressed && (currentTime - _pressStartTime) > _longPressTime) {
+    return {_lastKey, EventType::LongPress};
+  }
+  return {'\0', EventType::None};
 }
 
 char AdvancedKeypad::_scanKeypad() {
@@ -49,4 +64,26 @@ char AdvancedKeypad::_scanKeypad() {
     digitalWrite(_rowPins[row], HIGH);
   }
   return '\0';
+}
+
+void AdvancedKeypad::_updateKeypadState() {
+  char currentKey = _scanKeypad();
+  unsigned long currentTime = millis();
+  if (currentKey != 0) {
+    if (!_isPressed && (currentTime - _lastPressTime) > _debounceTime) {
+      _isPressed = true;
+      _pressStartTime = currentTime;
+      if (currentKey == _lastKey && (currentTime - _lastPressTime) < _doublePressTime) {
+        _pressCount++;
+      } else {
+        _pressCount = 1;
+      }
+      _lastKey = currentKey;
+      _lastPressTime = currentTime;
+    }
+  } else {
+    if (_isPressed && (currentTime - _lastPressTime) > _debounceTime) {
+      _isPressed = false;
+    }
+  }
 }
