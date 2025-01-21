@@ -49,10 +49,10 @@
  * @brief Define debounce, double press, and hold times
  */
 #ifndef KEYPAD_DEBOUNCE_TIME
-#define KEYPAD_DEBOUNCE_TIME 10
+#define KEYPAD_DEBOUNCE_TIME 20
 #endif // KEYPAD_DEBOUNCE_TIME
 #ifndef KEYPAD_DOUBLE_PRESS_TIME
-#define KEYPAD_DOUBLE_PRESS_TIME 250
+#define KEYPAD_DOUBLE_PRESS_TIME 200
 #endif // KEYPAD_DOUBLE_PRESS_TIME
 #ifndef KEYPAD_LONG_PRESS_TIME
 #define KEYPAD_LONG_PRESS_TIME 500
@@ -75,17 +75,16 @@ public:
 
   /**
    * @brief Construct a new Advanced Keypad object
-   * @param keypadPin1
-   * @param keypadPin2
-   * @param keypadPin3
-   * @param keypadPin4
-   * @param keypadPin5
-   * @param keypadPin6
-   * @param keypadPin7
-   * @param keypadPinMode
-   * @param debounceTime
-   * @param doublePressTime
-   * @param longPressTime
+   * @param keypadPin1 Pin the first keypad row pin is connected to
+   * @param keypadPin2 Pin the second keypad row pin is connected to
+   * @param keypadPin3 Pin the third keypad row pin is connected to
+   * @param keypadPin4 Pin the fourth keypad row pin is connected to
+   * @param keypadPin5 Pin the first keypad column pin is connected to
+   * @param keypadPin6 Pin the second keypad column pin is connected to
+   * @param keypadPin7 Pin the third keypad column pin is connected to
+   * @param debounceTime Debounce time in ms, adjust to suit the physical keypad (default 20ms)
+   * @param doublePressTime Time in ms in which a double press must occur (default 200ms)
+   * @param longPressTime Time in ms a key must be held to flag a long press (default 500ms)
    */
   AdvancedKeypad(byte keypadPin1 = KEYPAD_PIN1, byte keypadPin2 = KEYPAD_PIN2, byte keypadPin3 = KEYPAD_PIN3,
                  byte keypadPin4 = KEYPAD_PIN4, byte keypadPin5 = KEYPAD_PIN5, byte keypadPin6 = KEYPAD_PIN6,
@@ -94,7 +93,7 @@ public:
                  unsigned long longPressTime = KEYPAD_LONG_PRESS_TIME);
 
   /**
-   * @brief
+   * @brief Initialise all keypad pins
    */
   void begin();
 
@@ -105,6 +104,7 @@ public:
   KeyEvent checkKeypad();
 
 private:
+  // Const attributes
   const byte _rowPins[4];               /** Array of pin numbers the rows are connected to */
   const byte _columnPins[3];            /** Array of pin numbers the columns are connected to */
   const unsigned long _debounceTime;    /** Debounce delay in ms */
@@ -119,11 +119,13 @@ private:
       {'*', '0', '#'}  /** Row 4 */
   };
 
+  // Variable attributes
   char _lastKey;                 /** Track the last key pressed for debouncing etc. */
   unsigned long _lastPressTime;  /** Time of last press for calculations */
   unsigned long _pressStartTime; /** Time press started for calculations */
   uint8_t _pressCount;           /** Number of times pressed for calculations */
   bool _isPressed;               /** Track if pressed for calculations */
+  bool _longPressActivated;      /** Track to prevent repetitive long press events */
 
   /**
    * @brief Scan keypad using writes/reads to detect a key being pressed

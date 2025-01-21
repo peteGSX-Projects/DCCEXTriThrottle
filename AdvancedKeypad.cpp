@@ -21,7 +21,14 @@ AdvancedKeypad::AdvancedKeypad(byte keypadPin1, byte keypadPin2, byte keypadPin3
                                byte keypadPin6, byte keypadPin7, unsigned long debounceTime,
                                unsigned long doublePressTime, unsigned long longPressTime)
     : _rowPins{keypadPin2, keypadPin7, keypadPin6, keypadPin4}, _columnPins{keypadPin3, keypadPin1, keypadPin5},
-      _debounceTime(debounceTime), _doublePressTime(doublePressTime), _longPressTime(longPressTime) {}
+      _debounceTime(debounceTime), _doublePressTime(doublePressTime), _longPressTime(longPressTime) {
+  _lastKey = '\0';
+  _lastPressTime = 0;
+  _pressStartTime = 0;
+  _pressCount = 0;
+  _isPressed = false;
+  _longPressActivated = false;
+}
 
 void AdvancedKeypad::begin() {
   for (int i = 0; i < 4; i++) {
@@ -35,20 +42,40 @@ void AdvancedKeypad::begin() {
 AdvancedKeypad::KeyEvent AdvancedKeypad::checkKeypad() {
   _updateKeypadState();
   unsigned long currentTime = millis();
-  if (!_isPressed && _lastKey != '\0') {
-    if (_pressCount == 1 && (currentTime - _lastPressTime) > _doublePressTime) {
-      char key = _lastKey;
-      _lastKey = 0;
-      return {key, EventType::SinglePress};
-    } else if (_pressCount == 2) {
-      char key = _lastKey;
-      _lastKey = 0;
-      _pressCount = 0;
-      return {key, EventType::DoublePress};
+
+  if (_isPressed && (currentTime - _pressStartTime) > _longPressTime) {
+    if (!_longPressActivated) {
+      _longPressActivated = true;
+      return {_lastKey, EventType::LongPress};
     }
-  } else if (_isPressed && (currentTime - _pressStartTime) > _longPressTime) {
-    return {_lastKey, EventType::LongPress};
+    // Long press already reported, don't report again
+    return {'\0', EventType::None};
   }
+
+  if (!_isPressed && _lastKey != '\0') {
+    char key = _lastKey;
+    EventType eventType;
+
+    if (_longPressActivated) {
+      // Key released after long press, don't report as single press
+      _longPressActivated = false;
+      _lastKey = '\0';
+      _pressCount = 0;
+      return {'\0', EventType::None};
+    }
+
+    if (_pressCount == 1 && (currentTime - _lastPressTime) > _doublePressTime) {
+      eventType = EventType::SinglePress;
+    } else if (_pressCount == 2) {
+      eventType = EventType::DoublePress;
+    } else {
+      return {'\0', EventType::None};
+    }
+    _lastKey = '\0';
+    _pressCount = 0;
+    return {key, eventType};
+  }
+
   return {'\0', EventType::None};
 }
 
