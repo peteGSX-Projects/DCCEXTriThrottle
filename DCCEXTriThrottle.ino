@@ -25,13 +25,26 @@
  */
 
 #include "AdvancedKeypad.h"
+#include "Button.h"
+#include "Defines.h"
+#include "RotaryEncoder.h"
 #include <Arduino.h>
 
 AdvancedKeypad keypad;
+RotaryEncoder encoder1(ENCODER1_DT, ENCODER1_CLK, RotaryEncoder::Mode::FullStep);
+RotaryEncoder encoder2(ENCODER2_DT, ENCODER2_CLK, RotaryEncoder::Mode::FullStep);
+RotaryEncoder encoder3(ENCODER3_DT, ENCODER3_CLK, RotaryEncoder::Mode::FullStep);
+
+int enc1Counter = 0;
+int enc2Counter = 0;
+int enc3Counter = 0;
 
 void setup() {
   Serial.begin(115200);
   keypad.begin();
+  encoder1.begin();
+  encoder2.begin();
+  encoder3.begin();
 }
 
 void loop() {
@@ -53,5 +66,35 @@ void loop() {
     default:
       break;
     }
+  }
+  RotaryEncoder::Direction encoder1Dir = encoder1.check();
+  if (encoder1Dir == RotaryEncoder::Direction::CW) {
+    enc1Counter++;
+  } else if (encoder1Dir == RotaryEncoder::Direction::CCW) {
+    enc1Counter--;
+  }
+  if (encoder1Dir != RotaryEncoder::Direction::None) {
+    Serial.print("Encoder1 counter: ");
+    Serial.println(enc1Counter);
+  }
+  RotaryEncoder::Direction encoder2Dir = encoder2.check();
+  if (encoder2Dir == RotaryEncoder::Direction::CW) {
+    enc2Counter++;
+  } else if (encoder2Dir == RotaryEncoder::Direction::CCW) {
+    enc2Counter--;
+  }
+  if (encoder2Dir != RotaryEncoder::Direction::None) {
+    Serial.print("Encoder2 counter: ");
+    Serial.println(enc2Counter);
+  }
+  RotaryEncoder::Direction encoder3Dir = encoder3.check();
+  if (encoder3Dir == RotaryEncoder::Direction::CW) {
+    enc3Counter++;
+  } else if (encoder3Dir == RotaryEncoder::Direction::CCW) {
+    enc3Counter--;
+  }
+  if (encoder3Dir != RotaryEncoder::Direction::None) {
+    Serial.print("Encoder3 counter: ");
+    Serial.println(enc3Counter);
   }
 }

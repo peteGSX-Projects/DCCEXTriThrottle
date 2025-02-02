@@ -18,6 +18,9 @@
 #ifndef ADVANCEDKEYPAD_H
 #define ADVANCEDKEYPAD_H
 
+// Do not use this for testing
+#ifndef PIO_UNIT_TESTING
+
 #include <Arduino.h>
 
 /**
@@ -138,5 +141,7 @@ private:
    */
   void _updateKeypadState();
 };
+
+#endif // PIO_UNIT_TESTING
 
 #endif // ADVANCEDKEYPAD_H

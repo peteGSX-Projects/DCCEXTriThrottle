@@ -11,11 +11,14 @@ A serial throttle using three rotary encoders, an OLED, and a 4 x 3 keypad desig
 
 ## Pins
 
-### Analog potentiometer inputs
+### Rotary Encoder connections
 
-- PA0
-- PA1
-- PA2
+| Encoder | DT | CLK | Button |
+|---------|----|-----|--------|
+| 1 | PC14 | PC15 | PA0 |
+| 2 | PB0 | PB1 | PA1 |
+| 3 (Bluepill) | PB10 | PB11 | PA2 |
+| 3 (Blackpill) | PB12 | PB13 | PA2 |
 
 ### SPI
 
