@@ -31,6 +31,9 @@
 #include <Arduino.h>
 
 AdvancedKeypad keypad;
+Button button1(ENCODER1_BUTTON);
+Button button2(ENCODER2_BUTTON);
+Button button3(ENCODER3_BUTTON);
 RotaryEncoder encoder1(ENCODER1_DT, ENCODER1_CLK, RotaryEncoder::Mode::FullStep);
 RotaryEncoder encoder2(ENCODER2_DT, ENCODER2_CLK, RotaryEncoder::Mode::FullStep);
 RotaryEncoder encoder3(ENCODER3_DT, ENCODER3_CLK, RotaryEncoder::Mode::FullStep);
@@ -45,6 +48,9 @@ void setup() {
   encoder1.begin();
   encoder2.begin();
   encoder3.begin();
+  button1.begin();
+  button2.begin();
+  button3.begin();
 }
 
 void loop() {
@@ -96,5 +102,22 @@ void loop() {
   if (encoder3Dir != RotaryEncoder::Direction::None) {
     Serial.print("Encoder3 counter: ");
     Serial.println(enc3Counter);
+  }
+  Button::EventType button1Event = button1.checkButton();
+  switch (button1Event) {
+  case (Button::EventType::SingleClick):
+    Serial.println("Button 1 SingleClick");
+    break;
+  case (Button::EventType::DoubleClick):
+    Serial.println("Button 1 DoubleClick");
+    break;
+  case (Button::EventType::LongClick):
+    Serial.println("Button 1 LongClick");
+    break;
+  case (Button::EventType::Held):
+    Serial.println("Button 1 Held");
+    break;
+  default:
+    break;
   }
 }
