@@ -120,4 +120,38 @@ void loop() {
   default:
     break;
   }
+  Button::EventType button2Event = button2.checkButton();
+  switch (button2Event) {
+  case (Button::EventType::SingleClick):
+    Serial.println("Button 2 SingleClick");
+    break;
+  case (Button::EventType::DoubleClick):
+    Serial.println("Button 2 DoubleClick");
+    break;
+  case (Button::EventType::LongClick):
+    Serial.println("Button 2 LongClick");
+    break;
+  case (Button::EventType::Held):
+    Serial.println("Button 2 Held");
+    break;
+  default:
+    break;
+  }
+  Button::EventType button3Event = button3.checkButton();
+  switch (button3Event) {
+  case (Button::EventType::SingleClick):
+    Serial.println("Button 3 SingleClick");
+    break;
+  case (Button::EventType::DoubleClick):
+    Serial.println("Button 3 DoubleClick");
+    break;
+  case (Button::EventType::LongClick):
+    Serial.println("Button 3 LongClick");
+    break;
+  case (Button::EventType::Held):
+    Serial.println("Button 3 Held");
+    break;
+  default:
+    break;
+  }
 }

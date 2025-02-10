@@ -27,7 +27,7 @@
  * @brief Define default debounce, double press, and hold times
  */
 #ifndef BUTTON_DEBOUNCE_TIME
-#define BUTTON_DEBOUNCE_TIME 20
+#define BUTTON_DEBOUNCE_TIME 30
 #endif // BUTTON_DEBOUNCE_TIME
 #ifndef BUTTON_DOUBLE_CLICK_TIME
 #define BUTTON_DOUBLE_CLICK_TIME 200
