@@ -18,7 +18,7 @@
 #include "Button.h"
 
 // Do not use this for testing
-#ifndef PIO_UNIT_TESTING
+#ifndef NATIVE_TESTING
 
 Button::Button(byte pin, unsigned long debounceTime, unsigned long doubleClickTime, unsigned long longClickTime)
     : _pin(pin), _debounceTime(debounceTime), _doubleClickTime(doubleClickTime), _longClickTime(longClickTime) {
@@ -89,4 +89,4 @@ void Button::_updateButtonState() {
   }
 }
 
-#endif // PIO_UNIT_TESTING
+#endif // NATIVE_TESTING

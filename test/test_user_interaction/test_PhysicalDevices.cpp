@@ -15,6 +15,8 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef NATIVE_TESTING
+
 #include "AdvancedKeypad.h"
 #include "Button.h"
 #include "RotaryEncoder.h"
@@ -39,3 +41,5 @@ void setup() {
 }
 
 void loop() {}
+
+#endif // NATIVE_TESTING

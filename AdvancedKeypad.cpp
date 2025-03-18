@@ -18,7 +18,7 @@
 #include "AdvancedKeypad.h"
 
 // Do not use when testing
-#ifndef PIO_UNIT_TESTING
+#ifndef NATIVE_TESTING
 
 AdvancedKeypad::AdvancedKeypad(byte keypadPin1, byte keypadPin2, byte keypadPin3, byte keypadPin4, byte keypadPin5,
                                byte keypadPin6, byte keypadPin7, unsigned long debounceTime,
@@ -118,4 +118,4 @@ void AdvancedKeypad::_updateKeypadState() {
   }
 }
 
-#endif // PIO_UNIT_TESTING
+#endif // NATIVE_TESTING

@@ -18,6 +18,8 @@
 #ifndef ROTARYENCODER_H
 #define ROTARYENCODER_H
 
+#ifndef NATIVE_TESTING
+
 #include <Arduino.h>
 
 /**
@@ -204,5 +206,7 @@ private:
       {F_CCW_NEXT, F_CCW_FINAL, F_CCW_BEGIN, R_START},       // F_CCW_NEXT
   };
 };
+
+#endif // NATIVE_TESTING
 
 #endif // ROTARYENCODER_H

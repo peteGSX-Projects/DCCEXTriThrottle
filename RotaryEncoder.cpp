@@ -15,6 +15,8 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef NATIVE_TESTING
+
 #include "RotaryEncoder.h"
 
 RotaryEncoder::RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode mode, byte inputMode)
@@ -52,3 +54,5 @@ void RotaryEncoder::setMode(RotaryEncoder::Mode mode) {
   _mode = mode;
   _state = R_START; // Reset to R_START
 }
+
+#endif // NATIVE_TESTING

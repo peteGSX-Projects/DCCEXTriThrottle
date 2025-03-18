@@ -19,7 +19,7 @@
 #define BUTTON_H
 
 // Do not use this for testing
-#ifndef PIO_UNIT_TESTING
+#ifndef NATIVE_TESTING
 
 #include <Arduino.h>
 
@@ -85,6 +85,6 @@ private:
   void _updateButtonState();
 };
 
-#endif // PIO_UNIT_TESTING
+#endif // NATIVE_TESTING
 
 #endif // BUTTON_H
