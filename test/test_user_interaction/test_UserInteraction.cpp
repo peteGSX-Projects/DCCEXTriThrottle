@@ -131,6 +131,8 @@ void promptButtonTest(const char *prompt, Button *button, Button::EventType expe
 }
 
 void setup() {
+  Serial.begin(115200);
+  delay(3000);
   UNITY_BEGIN();
   keypad.begin();
   encoder1.begin();
@@ -139,7 +141,6 @@ void setup() {
   button1.begin();
   button2.begin();
   button3.begin();
-  Serial.begin(115200);
 
   // Test 1 - Single press 1
   promptKeypadTest("Press the number 1 briefly", '1', AdvancedKeypad::EventType::SinglePress, 3000);
