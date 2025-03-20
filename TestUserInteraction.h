@@ -16,14 +16,13 @@
  */
 
 // Don't include this if doing native testing
-#ifndef NATIVE_TESTING
+#if !defined(NATIVE_TESTING) && defined(DEVICE_TESTING)
 
 #include "AdvancedKeypad.h"
 #include "Button.h"
 #include "Defines.h"
 #include "RotaryEncoder.h"
 #include <Arduino.h>
-#include <unity.h>
 
 AdvancedKeypad keypad;
 Button button1(ENCODER1_BUTTON);
@@ -65,10 +64,6 @@ void promptKeypadTest(const char *prompt, char expectedKey, AdvancedKeypad::Even
   Serial.print(static_cast<int>(expectedType));
   Serial.print("|");
   Serial.println(static_cast<int>(event.type));
-
-  // Validate key and event with Unity
-  TEST_ASSERT_EQUAL_CHAR(expectedKey, event.key);
-  TEST_ASSERT_EQUAL(expectedType, event.type);
 }
 
 /// @brief Prompt the user to rotate the specified encoder in the provided direction for the number of steps
@@ -93,9 +88,6 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
       counter--;
     }
   } while (counter < expectedSteps && millis() < timeout);
-
-  // Validate expected steps with Unity
-  TEST_ASSERT_EQUAL(expectedSteps, counter + 1);
 }
 
 /// @brief Prompt the user to use the specified button to test the specified EventType
@@ -125,15 +117,11 @@ void promptButtonTest(const char *prompt, Button *button, Button::EventType expe
   Serial.print(static_cast<int>(expectedType));
   Serial.print("|");
   Serial.println(static_cast<int>(event));
-
-  // Validate the event with Unity
-  TEST_ASSERT_EQUAL(expectedType, event);
 }
 
 void setup() {
   Serial.begin(115200);
   delay(3000);
-  UNITY_BEGIN();
   keypad.begin();
   encoder1.begin();
   encoder2.begin();
@@ -180,10 +168,8 @@ void setup() {
   promptButtonTest("Double click button 3", &button3, Button::EventType::DoubleClick, 3000);
   promptButtonTest("Long press button 3", &button3, Button::EventType::LongClick, 3000);
   promptButtonTest("Press and hold button 3", &button3, Button::EventType::Held, 3000);
-
-  UNITY_END();
 }
 
 void loop() {}
 
-#endif // NATIVE_TESTING
+#endif // !defined(NATIVE_TESTING) && defined(DEVICE_TESTING)

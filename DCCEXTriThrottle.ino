@@ -24,13 +24,21 @@
  *
  */
 
-// Don't do anything with this if testing
-#ifndef PIO_UNIT_TESTING
+// Don't do standard Arduino stuff if testing
+#if !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
 
 #include <Arduino.h>
 
-void setup() {}
+void setup() {
+  Serial.begin(115200);
+  delay(3000);
+  Serial.println("DCC-EX Tri Throttle");
+}
 
 void loop() {}
 
-#endif // PIO_UNIT_TESTING
+// Include if doing device testing
+#elif defined(DEVICE_TESTING)
+#include "TestUserInteraction.h"
+
+#endif // !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
