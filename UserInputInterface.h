@@ -30,7 +30,24 @@ public:
    */
   enum class UserInputAction { None, SinglePress, DoublePress, LongPress };
 
+  /**
+   * @brief Structure for a UserInputEvent containing the key pressed and type of press
+   */
+  struct UserInputEvent {
+    char key;
+    UserInputAction action;
+  };
+
+  /**
+   * @brief Implement this to perform any initial startup methods or activities
+   */
   virtual void begin() = 0;
+
+  /**
+   * @brief Check for user input, should be called at least once per main loop iteration
+   * @return UserInputEvent
+   */
+  virtual UserInputEvent check() = 0;
 
 private:
 };

@@ -40,7 +40,7 @@ public:
    * @brief Get the User Selection Action object, this should be called at least once per main loop iteration
    * @return UserSelectionAction
    */
-  virtual UserSelectionAction getUserSelectionAction() = 0;
+  virtual UserSelectionAction check() = 0;
 
   /**
    * @brief Destroy the User Selection Interface object

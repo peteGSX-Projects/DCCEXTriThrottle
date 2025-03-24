@@ -42,7 +42,7 @@ public:
    * @brief Get the User Confirmation Action, this should be called at least once per main loop iteration
    * @return UserConfirmationAction
    */
-  virtual UserConfirmationAction getUserConfirmationAction() = 0;
+  virtual UserConfirmationAction check() = 0;
 
   /**
    * @brief Destroy the User Confirmation Interface object
