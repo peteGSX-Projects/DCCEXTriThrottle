@@ -15,25 +15,25 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MOCKKEYPAD_H
-#define MOCKKEYPAD_H
+#ifndef MOCKBUTTON_H
+#define MOCKBUTTON_H
 
-#include "UserInputInterface.h"
+#include "UserConfirmationInterface.h"
 #include <gmock/gmock.h>
 
 /**
- * @brief Mock for UserInputInterface, can be used to test for calls and for testing user input
+ * @brief Mock for UserConfirmationInterface, can be used to test for calls and for testing user input
  */
-class MockKeypad : public UserInputInterface {
+class MockButton : public UserConfirmationInterface {
 public:
   MOCK_METHOD(void, begin, (), (override));
 
-  UserInputEvent check() override { return _event; }
+  UserConfirmationAction check() override { return _action; }
 
-  void setInputEvent(UserInputEvent event) { _event = event; }
+  void setInputAction(UserConfirmationAction action) { _action = action; }
 
 private:
-  UserInputEvent _event;
+  UserConfirmationAction _action;
 };
 
-#endif // MOCKKEYPAD_H
+#endif // MOCKBUTTON_H

@@ -15,25 +15,27 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MOCKKEYPAD_H
-#define MOCKKEYPAD_H
+#include "test/mocks/MockButton.h"
+#include <gtest/gtest.h>
 
-#include "UserInputInterface.h"
-#include <gmock/gmock.h>
+using namespace testing;
 
-/**
- * @brief Mock for UserInputInterface, can be used to test for calls and for testing user input
- */
-class MockKeypad : public UserInputInterface {
-public:
-  MOCK_METHOD(void, begin, (), (override));
+class UserConfirmationInterfaceTests : public Test {
+protected:
+  MockButton button;
 
-  UserInputEvent check() override { return _event; }
+  void SetUp() override {}
 
-  void setInputEvent(UserInputEvent event) { _event = event; }
-
-private:
-  UserInputEvent _event;
+  void TearDown() override {}
 };
 
-#endif // MOCKKEYPAD_H
+/**
+ * @brief Ensure the mock works to set and retrieve a proper button action
+ */
+TEST_F(UserConfirmationInterfaceTests, CheckActionRetrieval) {
+  UserConfirmationInterface::UserConfirmationAction setAction =
+      UserConfirmationInterface::UserConfirmationAction::DoubleClick;
+  button.setInputAction(setAction);
+  UserConfirmationInterface::UserConfirmationAction action = button.check();
+  EXPECT_EQ(setAction, action);
+}
