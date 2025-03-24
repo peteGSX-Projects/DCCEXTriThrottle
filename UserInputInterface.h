@@ -48,8 +48,6 @@ public:
    * @return UserInputEvent
    */
   virtual UserInputEvent check() = 0;
-
-private:
 };
 
 #endif // USERINPUTINTERFACE_H

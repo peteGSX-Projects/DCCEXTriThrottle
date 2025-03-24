@@ -15,23 +15,6 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
- *  © 2024 Peter Cole
- *
- *  This is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  It is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 #include "Logger.h"
 #include <gtest/gtest.h>
 
@@ -70,12 +53,10 @@ TEST_F(LoggerTests, LogErrorMessage) {
   const char *errorMessage = "Unknown error";
   int errorNumber = 2;
   // Log this as an error
-  logger->log(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber,
-              errorMessage);
+  logger->log(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber, errorMessage);
 
   // Construct expected output
-  std::string expectedOutput =
-      "[ERROR] Encountered an error: 2 - Unknown error\r\n";
+  std::string expectedOutput = "[ERROR] Encountered an error: 2 - Unknown error\r\n";
 
   // Check the buffer to see if it contains this
   EXPECT_EQ(stream.buffer, expectedOutput);
@@ -145,20 +126,17 @@ TEST_F(LoggerTests, TestMacro) {
   Logger *_logger = new Logger(&stream);
 
   // Log this as an error
-  LOG(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber,
-      errorMessage);
+  LOG(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber, errorMessage);
 
   // Construct expected output
-  std::string expectedOutput =
-      "[ERROR] Encountered an error: 2 - Unknown error\r\n";
+  std::string expectedOutput = "[ERROR] Encountered an error: 2 - Unknown error\r\n";
 
   // Check the buffer to see if it contains this
   EXPECT_EQ(stream.buffer, expectedOutput);
   stream.clear();
 
   // Now log as info, which shouldn't log
-  LOG(LogLevel::LOG_INFO, "Encountered an error: %d - %s", errorNumber,
-      errorMessage);
+  LOG(LogLevel::LOG_INFO, "Encountered an error: %d - %s", errorNumber, errorMessage);
   EXPECT_EQ(stream.buffer, "");
 
   // Verify all expectations were made

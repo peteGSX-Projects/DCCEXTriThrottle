@@ -15,25 +15,27 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MOCKKEYPAD_H
-#define MOCKKEYPAD_H
+#include "test/mocks/MockKeypad.h"
+#include <gtest/gtest.h>
 
-#include "UserInputInterface.h"
-#include <gmock/gmock.h>
+using namespace testing;
 
-/**
- * @brief Mock for UserInputInterface, can be used to test for calls and for testing user input
- */
-class MockKeypad : public UserInputInterface {
-public:
-  MOCK_METHOD(void, begin, (), (override));
+class UserInputInterfaceTests : public Test {
+protected:
+  MockKeypad keypad;
 
-  UserInputEvent check() override { return _event; }
+  void SetUp() override {}
 
-  void setInputEvent(UserInputEvent event) { _event = event; }
-
-private:
-  UserInputEvent _event;
+  void TearDown() override {}
 };
 
-#endif // MOCKEVENTLISTENER_H
+/**
+ * @brief Ensure the mock works to set and retrieve a proper keypad event
+ */
+TEST_F(UserInputInterfaceTests, CheckEventRetrieval) {
+  UserInputInterface::UserInputEvent setEvent = {'1', UserInputInterface::UserInputAction::SinglePress};
+  keypad.setInputEvent(setEvent);
+  UserInputInterface::UserInputEvent event = keypad.check();
+  EXPECT_EQ(setEvent.key, event.key);
+  EXPECT_EQ(setEvent.action, setEvent.action);
+}
