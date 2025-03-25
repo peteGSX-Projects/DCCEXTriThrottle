@@ -15,25 +15,27 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MOCKKEYPAD_H
-#define MOCKKEYPAD_H
+#include "test/mocks/MockRotaryEncoder.h"
+#include <gtest/gtest.h>
 
-#include "UserInputInterface.h"
-#include <gmock/gmock.h>
+using namespace testing;
 
-/**
- * @brief Mock for UserInputInterface, can be used to test for calls and for testing user input
- */
-class MockKeypad : public UserInputInterface {
-public:
-  MOCK_METHOD(void, begin, (), (override));
+class UserSelectionInterfaceTests : public Test {
+protected:
+  MockRotaryEncoder encoder;
 
-  UserInputEvent check() override { return _event; }
+  void SetUp() override {}
 
-  void setInputEvent(UserInputEvent event) { _event = event; }
-
-private:
-  UserInputEvent _event = {'\0', UserInputAction::None};
+  void TearDown() override {}
 };
 
-#endif // MOCKKEYPAD_H
+/**
+ * @brief Ensure the mock works to set and retrieve a proper rotary encoder action
+ */
+TEST_F(UserSelectionInterfaceTests, CheckActionRetrieval) {
+  UserSelectionInterface::UserSelectionAction setAction =
+      UserSelectionInterface::UserSelectionAction::DownFastest;
+  encoder.setInputAction(setAction);
+  UserSelectionInterface::UserSelectionAction action = encoder.check();
+  EXPECT_EQ(setAction, action);
+}

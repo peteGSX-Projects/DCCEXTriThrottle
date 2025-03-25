@@ -33,7 +33,7 @@ public:
   void setInputAction(UserConfirmationAction action) { _action = action; }
 
 private:
-  UserConfirmationAction _action;
+  UserConfirmationAction _action = UserConfirmationAction::None;
 };
 
 #endif // MOCKBUTTON_H
