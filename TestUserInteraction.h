@@ -114,7 +114,7 @@ void promptButtonTest(const char *prompt, Button *button,
   } else {
     Serial.print("Test FAILED: ");
   }
-  Serial.print("expectedAction|event: ");
+  Serial.print("expectedAction|action: ");
   Serial.print(static_cast<int>(expectedAction));
   Serial.print("|");
   Serial.println(static_cast<int>(action));
@@ -132,49 +132,49 @@ void setup() {
   button3.begin();
 
   // Test 1 - Single press 1
-  promptKeypadTest("Press the number 1 briefly", '1', AdvancedKeypad::EventType::SinglePress, 3000);
+  promptKeypadTest("Press the number 1 briefly", '1', AdvancedKeypad::EventType::SinglePress, 5000);
 
   // Test 2 - Double press 2
-  promptKeypadTest("Double Press the number 2", '2', AdvancedKeypad::EventType::DoublePress, 3000);
+  promptKeypadTest("Double Press the number 2", '2', AdvancedKeypad::EventType::DoublePress, 5000);
 
   // Test 3 - Long press #
-  promptKeypadTest("Press and hold the # key", '#', AdvancedKeypad::EventType::LongPress, 3000);
+  promptKeypadTest("Press and hold the # key", '#', AdvancedKeypad::EventType::LongPress, 5000);
 
   // Test 4 and 5 - encoder1 2 steps CW, 5 steps CCW
-  promptEncoderTest("Rotate encoder 1 clockwise 2 steps", &encoder1, RotaryEncoder::Direction::CW, 2, 3000);
-  promptEncoderTest("Rotate encoder 1 counter clockwise 5 steps", &encoder1, RotaryEncoder::Direction::CCW, 5, 3000);
+  promptEncoderTest("Rotate encoder 1 clockwise 2 steps", &encoder1, RotaryEncoder::Direction::CW, 2, 5000);
+  promptEncoderTest("Rotate encoder 1 counter clockwise 5 steps", &encoder1, RotaryEncoder::Direction::CCW, 5, 5000);
 
   // Test 6 and 7 - encoder2 8 steps CW, 3 steps CCW
-  promptEncoderTest("Rotate encoder 2 clockwise 2 steps", &encoder2, RotaryEncoder::Direction::CW, 8, 3000);
-  promptEncoderTest("Rotate encoder 2 counter clockwise 5 steps", &encoder2, RotaryEncoder::Direction::CCW, 3, 3000);
+  promptEncoderTest("Rotate encoder 2 clockwise 8 steps", &encoder2, RotaryEncoder::Direction::CW, 8, 5000);
+  promptEncoderTest("Rotate encoder 2 counter clockwise 3 steps", &encoder2, RotaryEncoder::Direction::CCW, 3, 5000);
 
   // Test 8 and 9 - encoder3 2 steps CW, 5 steps CCW
-  promptEncoderTest("Rotate encoder 3 clockwise 2 steps", &encoder3, RotaryEncoder::Direction::CW, 2, 3000);
-  promptEncoderTest("Rotate encoder 3 counter clockwise 5 steps", &encoder3, RotaryEncoder::Direction::CCW, 5, 3000);
+  promptEncoderTest("Rotate encoder 3 clockwise 2 steps", &encoder3, RotaryEncoder::Direction::CW, 2, 5000);
+  promptEncoderTest("Rotate encoder 3 counter clockwise 5 steps", &encoder3, RotaryEncoder::Direction::CCW, 5, 5000);
 
   // Test 10, 11, 12, 13 - button1 single click, double click, long press, held
   promptButtonTest("Press button 1 once", &button1, UserConfirmationInterface::UserConfirmationAction::SingleClick,
-                   3000);
+                   5000);
   promptButtonTest("Double click button 1", &button1, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
-                   3000);
-  promptButtonTest("Long press button 1", &button1, UserConfirmationInterface::UserConfirmationAction::LongClick, 3000);
-  promptButtonTest("Press and hold button 1", &button1, UserConfirmationInterface::UserConfirmationAction::Held, 3000);
+                   5000);
+  promptButtonTest("Long press button 1", &button1, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
+  promptButtonTest("Press and hold button 1", &button1, UserConfirmationInterface::UserConfirmationAction::Held, 5000);
 
   // Test 14, 15, 16, 17 - button2 single click, double click, long press, held
   promptButtonTest("Press button 2 once", &button2, UserConfirmationInterface::UserConfirmationAction::SingleClick,
-                   3000);
+                   5000);
   promptButtonTest("Double click button 2", &button2, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
-                   3000);
-  promptButtonTest("Long press button 2", &button2, UserConfirmationInterface::UserConfirmationAction::LongClick, 3000);
-  promptButtonTest("Press and hold button 2", &button2, UserConfirmationInterface::UserConfirmationAction::Held, 3000);
+                   5000);
+  promptButtonTest("Long press button 2", &button2, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
+  promptButtonTest("Press and hold button 2", &button2, UserConfirmationInterface::UserConfirmationAction::Held, 5000);
 
   // Test 18, 19, 20, 21 - button3 single click, double click, long press, held
   promptButtonTest("Press button 3 once", &button3, UserConfirmationInterface::UserConfirmationAction::SingleClick,
-                   3000);
+                   5000);
   promptButtonTest("Double click button 3", &button3, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
-                   3000);
-  promptButtonTest("Long press button 3", &button3, UserConfirmationInterface::UserConfirmationAction::LongClick, 3000);
-  promptButtonTest("Press and hold button 3", &button3, UserConfirmationInterface::UserConfirmationAction::Held, 3000);
+                   5000);
+  promptButtonTest("Long press button 3", &button3, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
+  promptButtonTest("Press and hold button 3", &button3, UserConfirmationInterface::UserConfirmationAction::Held, 5000);
 }
 
 void loop() {}
