@@ -93,30 +93,31 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
 /// @brief Prompt the user to use the specified button to test the specified EventType
 /// @param prompt Message telling the user which button to press, and what type of press to perform
 /// @param button Pointer to the Button to test
-/// @param expectedType Expected EventType
+/// @param expectedAction Expected UserConfirmationAction
 /// @param timeout Milliseconds to wait before failing test
-void promptButtonTest(const char *prompt, Button *button, Button::EventType expectedType, unsigned long timeout) {
+void promptButtonTest(const char *prompt, Button *button,
+                      UserConfirmationInterface::UserConfirmationAction expectedAction, unsigned long timeout) {
   Serial.println(prompt);
   timeout = timeout + millis();
-  Button::EventType event;
+  UserConfirmationInterface::UserConfirmationAction action;
 
   // Poll and wait for the correct event type
   do {
-    event = button->checkButton();
-  } while (event == Button::EventType::None && millis() < timeout);
+    action = button->check();
+  } while (action == UserConfirmationInterface::UserConfirmationAction::None && millis() < timeout);
 
   // Display test output in the console
-  bool testPassed = (event == expectedType);
+  bool testPassed = (action == expectedAction);
 
   if (testPassed) {
     Serial.print("Test passed: ");
   } else {
     Serial.print("Test FAILED: ");
   }
-  Serial.print("expectedType|event: ");
-  Serial.print(static_cast<int>(expectedType));
+  Serial.print("expectedAction|event: ");
+  Serial.print(static_cast<int>(expectedAction));
   Serial.print("|");
-  Serial.println(static_cast<int>(event));
+  Serial.println(static_cast<int>(action));
 }
 
 void setup() {
@@ -152,22 +153,28 @@ void setup() {
   promptEncoderTest("Rotate encoder 3 counter clockwise 5 steps", &encoder3, RotaryEncoder::Direction::CCW, 5, 3000);
 
   // Test 10, 11, 12, 13 - button1 single click, double click, long press, held
-  promptButtonTest("Press button 1 once", &button1, Button::EventType::SingleClick, 3000);
-  promptButtonTest("Double click button 1", &button1, Button::EventType::DoubleClick, 3000);
-  promptButtonTest("Long press button 1", &button1, Button::EventType::LongClick, 3000);
-  promptButtonTest("Press and hold button 1", &button1, Button::EventType::Held, 3000);
+  promptButtonTest("Press button 1 once", &button1, UserConfirmationInterface::UserConfirmationAction::SingleClick,
+                   3000);
+  promptButtonTest("Double click button 1", &button1, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
+                   3000);
+  promptButtonTest("Long press button 1", &button1, UserConfirmationInterface::UserConfirmationAction::LongClick, 3000);
+  promptButtonTest("Press and hold button 1", &button1, UserConfirmationInterface::UserConfirmationAction::Held, 3000);
 
   // Test 14, 15, 16, 17 - button2 single click, double click, long press, held
-  promptButtonTest("Press button 2 once", &button2, Button::EventType::SingleClick, 3000);
-  promptButtonTest("Double click button 2", &button2, Button::EventType::DoubleClick, 3000);
-  promptButtonTest("Long press button 2", &button2, Button::EventType::LongClick, 3000);
-  promptButtonTest("Press and hold button 2", &button2, Button::EventType::Held, 3000);
+  promptButtonTest("Press button 2 once", &button2, UserConfirmationInterface::UserConfirmationAction::SingleClick,
+                   3000);
+  promptButtonTest("Double click button 2", &button2, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
+                   3000);
+  promptButtonTest("Long press button 2", &button2, UserConfirmationInterface::UserConfirmationAction::LongClick, 3000);
+  promptButtonTest("Press and hold button 2", &button2, UserConfirmationInterface::UserConfirmationAction::Held, 3000);
 
   // Test 18, 19, 20, 21 - button3 single click, double click, long press, held
-  promptButtonTest("Press button 3 once", &button3, Button::EventType::SingleClick, 3000);
-  promptButtonTest("Double click button 3", &button3, Button::EventType::DoubleClick, 3000);
-  promptButtonTest("Long press button 3", &button3, Button::EventType::LongClick, 3000);
-  promptButtonTest("Press and hold button 3", &button3, Button::EventType::Held, 3000);
+  promptButtonTest("Press button 3 once", &button3, UserConfirmationInterface::UserConfirmationAction::SingleClick,
+                   3000);
+  promptButtonTest("Double click button 3", &button3, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
+                   3000);
+  promptButtonTest("Long press button 3", &button3, UserConfirmationInterface::UserConfirmationAction::LongClick, 3000);
+  promptButtonTest("Press and hold button 3", &button3, UserConfirmationInterface::UserConfirmationAction::Held, 3000);
 }
 
 void loop() {}

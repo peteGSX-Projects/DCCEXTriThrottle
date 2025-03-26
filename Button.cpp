@@ -31,41 +31,41 @@ Button::Button(byte pin, unsigned long debounceTime, unsigned long doubleClickTi
 
 void Button::begin() { pinMode(_pin, INPUT_PULLUP); }
 
-Button::EventType Button::checkButton() {
+UserConfirmationInterface::UserConfirmationAction Button::check() {
   _updateButtonState();
   unsigned long currentTime = millis();
 
   if (_isClicked && (currentTime - _clickStartTime) > _longClickTime) {
     if (!_longClickActivated) {
       _longClickActivated = true;
-      return {EventType::LongClick};
+      return {UserConfirmationAction::LongClick};
     }
     // Long click already reported, report held state
-    return {EventType::Held};
+    return {UserConfirmationAction::Held};
   }
 
   if (!_isClicked) {
-    EventType eventType;
+    UserConfirmationAction action;
 
     if (_longClickActivated) {
       // Key released after long click, don't report as single click
       _longClickActivated = false;
       _clickCount = 0;
-      return {EventType::None};
+      return {UserConfirmationAction::None};
     }
 
     if (_clickCount == 1 && (currentTime - _lastClickTime) > _doubleClickTime) {
-      eventType = EventType::SingleClick;
+      action = UserConfirmationAction::SingleClick;
     } else if (_clickCount == 2) {
-      eventType = EventType::DoubleClick;
+      action = UserConfirmationAction::DoubleClick;
     } else {
-      return {EventType::None};
+      return {UserConfirmationAction::None};
     }
     _clickCount = 0;
-    return {eventType};
+    return {action};
   }
 
-  return {EventType::None};
+  return {UserConfirmationAction::None};
 }
 
 void Button::_updateButtonState() {

@@ -29,7 +29,7 @@ public:
   /**
    * @brief User confirmation action data types available
    */
-  enum class UserConfirmationAction { None, SingleClick, DoubleClick, LongClick };
+  enum class UserConfirmationAction { None, SingleClick, DoubleClick, LongClick, Held };
 
   /**
    * @brief Implement this to perform any initial startup methods or activities

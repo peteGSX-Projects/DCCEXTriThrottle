@@ -21,6 +21,7 @@
 // Do not use this for testing
 #ifndef NATIVE_TESTING
 
+#include "UserConfirmationInterface.h"
 #include <Arduino.h>
 
 /**
@@ -36,13 +37,8 @@
 #define BUTTON_LONG_CLICK_TIME 500
 #endif // BUTTON_LONG_CLICK_TIME
 
-class Button {
+class Button : public UserConfirmationInterface {
 public:
-  /**
-   * @brief Event types for button clicks
-   */
-  enum class EventType { None, SingleClick, DoubleClick, LongClick, Held };
-
   /**
    * @brief Construct a new Button object
    * @param pin Pin the button is connected to
@@ -57,20 +53,20 @@ public:
   /**
    * @brief Initialise the button pin
    */
-  void begin();
+  void begin() override;
 
   /**
-   * @brief Call checkButton() frequently to check for button events
-   * @return EventType Returns the EventType
+   * @brief Call check() frequently to check for button events
+   * @return UserConfirmationAction 
    */
-  EventType checkButton();
+   UserConfirmationAction check() override;
 
 private:
   // Const private attributes
-  const byte _pin;                     /** Pin the button is connected to */
-  const unsigned long _debounceTime;   /** Debounce delay in ms */
+  const byte _pin;                      /** Pin the button is connected to */
+  const unsigned long _debounceTime;    /** Debounce delay in ms */
   const unsigned long _doubleClickTime; /** Time in ms in which a double click must occur */
-  const unsigned long _longClickTime;  /** Time in ms to hold to record a long click */
+  const unsigned long _longClickTime;   /** Time in ms to hold to record a long click */
 
   // Variable private attributes
   unsigned long _lastClickTime;  /** Time of last click for calculations */
