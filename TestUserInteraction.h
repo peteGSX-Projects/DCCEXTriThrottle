@@ -15,12 +15,13 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "Defines.h"
+
 // Don't include this if doing native testing
 #if !defined(NATIVE_TESTING) && defined(DEVICE_TESTING)
 
 #include "AdvancedKeypad.h"
 #include "Button.h"
-#include "Defines.h"
 #include "RotaryEncoder.h"
 #include <Arduino.h>
 
@@ -131,6 +132,12 @@ void setup() {
   button2.begin();
   button3.begin();
 
+#ifdef TEST_DISPLAY
+  Serial.println("Display testing starts now");
+  Serial.println("Display testing ended");
+#endif // TEST_DISPLAY
+
+#ifdef TEST_KEYPAD
   // Test 1 - Single press 1
   promptKeypadTest("Press the number 1 briefly", '1', AdvancedKeypad::EventType::SinglePress, 5000);
 
@@ -139,7 +146,9 @@ void setup() {
 
   // Test 3 - Long press #
   promptKeypadTest("Press and hold the # key", '#', AdvancedKeypad::EventType::LongPress, 5000);
+#endif // TEST_KEYPAD
 
+#ifdef TEST_ENCODERS
   // Test 4 and 5 - encoder1 2 steps CW, 5 steps CCW
   promptEncoderTest("Rotate encoder 1 clockwise 2 steps", &encoder1, RotaryEncoder::Direction::CW, 2, 5000);
   promptEncoderTest("Rotate encoder 1 counter clockwise 5 steps", &encoder1, RotaryEncoder::Direction::CCW, 5, 5000);
@@ -151,7 +160,9 @@ void setup() {
   // Test 8 and 9 - encoder3 2 steps CW, 5 steps CCW
   promptEncoderTest("Rotate encoder 3 clockwise 2 steps", &encoder3, RotaryEncoder::Direction::CW, 2, 5000);
   promptEncoderTest("Rotate encoder 3 counter clockwise 5 steps", &encoder3, RotaryEncoder::Direction::CCW, 5, 5000);
+#endif // TEST_ENCODERS
 
+#ifdef TEST_BUTTONS
   // Test 10, 11, 12, 13 - button1 single click, double click, long press, held
   promptButtonTest("Press button 1 once", &button1, UserConfirmationInterface::UserConfirmationAction::SingleClick,
                    5000);
@@ -175,6 +186,7 @@ void setup() {
                    5000);
   promptButtonTest("Long press button 3", &button3, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
   promptButtonTest("Press and hold button 3", &button3, UserConfirmationInterface::UserConfirmationAction::Held, 5000);
+#endif // TEST_BUTTONS
 }
 
 void loop() {}

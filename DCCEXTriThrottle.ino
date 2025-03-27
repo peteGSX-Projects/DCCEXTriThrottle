@@ -24,6 +24,8 @@
  *
  */
 
+#include "Defines.h"
+
 // Don't do standard Arduino stuff if testing
 #if !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
 
