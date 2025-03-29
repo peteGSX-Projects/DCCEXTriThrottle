@@ -20,73 +20,24 @@
 // Do not use this for testing
 #ifndef NATIVE_TESTING
 
-Button::Button(byte pin, unsigned long debounceTime, unsigned long doubleClickTime, unsigned long longClickTime)
-    : _pin(pin), _debounceTime(debounceTime), _doubleClickTime(doubleClickTime), _longClickTime(longClickTime) {
-  _lastClickTime = 0;
-  _clickStartTime = 0;
-  _clickCount = 0;
-  _isClicked = false;
-  _longClickActivated = false;
+Button::Button(byte pin) {
+  _button = new Switch(pin, BUTTON_PIN_MODE, BUTTON_PIN_POLARITY, BUTTON_DEBOUNCE_PERIOD, BUTTON_LONG_PRESS_PERIOD,
+                       BUTTON_DOUBLE_CLICK_PERIOD, BUTTON_DEGLITCH_PERIOD);
 }
-
-void Button::begin() { pinMode(_pin, INPUT_PULLUP); }
 
 UserConfirmationInterface::UserConfirmationAction Button::check() {
-  _updateButtonState();
-  unsigned long currentTime = millis();
-
-  if (_isClicked && (currentTime - _clickStartTime) > _longClickTime) {
-    if (!_longClickActivated) {
-      _longClickActivated = true;
-      return {UserConfirmationAction::LongClick};
-    }
-    // Long click already reported, report held state
-    return {UserConfirmationAction::Held};
+  UserConfirmationAction action = UserConfirmationAction::None;
+  if (!_button)
+    return action;
+  _button->poll();
+  if (_button->singleClick()) {
+    action = UserConfirmationAction::SingleClick;
+  } else if (_button->doubleClick()) {
+    action = UserConfirmationAction::DoubleClick;
+  } else if (_button->longPress()) {
+    action = UserConfirmationAction::LongClick;
   }
-
-  if (!_isClicked) {
-    UserConfirmationAction action;
-
-    if (_longClickActivated) {
-      // Key released after long click, don't report as single click
-      _longClickActivated = false;
-      _clickCount = 0;
-      return {UserConfirmationAction::None};
-    }
-
-    if (_clickCount == 1 && (currentTime - _lastClickTime) > _doubleClickTime) {
-      action = UserConfirmationAction::SingleClick;
-    } else if (_clickCount == 2) {
-      action = UserConfirmationAction::DoubleClick;
-    } else {
-      return {UserConfirmationAction::None};
-    }
-    _clickCount = 0;
-    return {action};
-  }
-
-  return {UserConfirmationAction::None};
-}
-
-void Button::_updateButtonState() {
-  bool currentState = digitalRead(_pin) == LOW;
-  unsigned long currentTime = millis();
-  if (currentState) {
-    if (!_isClicked && (currentTime - _lastClickTime) > _debounceTime) {
-      _isClicked = true;
-      _clickStartTime = currentTime;
-      if ((currentTime - _lastClickTime) < _doubleClickTime) {
-        _clickCount++;
-      } else {
-        _clickCount = 1;
-      }
-      _lastClickTime = currentTime;
-    }
-  } else {
-    if (_isClicked && (currentTime - _lastClickTime) > _debounceTime) {
-      _isClicked = false;
-    }
-  }
+  return action;
 }
 
 #endif // NATIVE_TESTING

@@ -43,6 +43,7 @@ RotaryEncoder encoder3(ENCODER3_DT, ENCODER3_CLK, RotaryEncoder::Mode::FullStep)
 /// @param timeout Milliseconds to wait before failing test
 void promptKeypadTest(const char *prompt, char expectedKey, AdvancedKeypad::EventType expectedType,
                       unsigned long timeout) {
+  Serial.println("--- TEST START ---");
   Serial.println(prompt);
   timeout = timeout + millis();
 
@@ -56,18 +57,24 @@ void promptKeypadTest(const char *prompt, char expectedKey, AdvancedKeypad::Even
   bool testPassed = (event.key == expectedKey && event.type == expectedType);
 
   if (testPassed) {
-    Serial.print("Test passed: ");
+    Serial.print("PASS: ");
   } else {
-    Serial.print("Test FAILED: ");
+    Serial.print("FAIL: ");
   }
-  Serial.print("expectedKey|event.key|expectedType|event.type: ");
-  Serial.print(expectedKey);
-  Serial.print("|");
-  Serial.print(event.key);
-  Serial.print("|");
-  Serial.print(static_cast<int>(expectedType));
-  Serial.print("|");
-  Serial.println(static_cast<int>(event.type));
+  if (millis() >= timeout) {
+    Serial.println("Test timed out");
+  } else {
+    Serial.print("expectedKey|event.key|expectedType|event.type: ");
+    Serial.print(expectedKey);
+    Serial.print("|");
+    Serial.print(event.key);
+    Serial.print("|");
+    Serial.print(static_cast<int>(expectedType));
+    Serial.print("|");
+    Serial.println(static_cast<int>(event.type));
+  }
+  Serial.println("--- TEST END ---");
+  Serial.println("");
 }
 
 /// @brief Prompt the user to rotate the specified encoder in the provided direction for the number of steps
@@ -78,6 +85,7 @@ void promptKeypadTest(const char *prompt, char expectedKey, AdvancedKeypad::Even
 /// @param timeout Milliseconds to wait before failing test
 void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder::Direction expectedDirection,
                        int expectedSteps, unsigned long timeout) {
+  Serial.println("--- TEST START ---");
   Serial.println(prompt);
   timeout = timeout + millis();
   int counter = 0;
@@ -92,6 +100,25 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
       counter--;
     }
   } while (counter < expectedSteps && millis() < timeout);
+
+  // Display test output in the console
+  bool testPassed = (counter == expectedSteps);
+
+  if (testPassed) {
+    Serial.print("PASS: ");
+  } else {
+    Serial.print("FAIL: ");
+  }
+  if (millis() >= timeout) {
+    Serial.println("Test timed out");
+  } else {
+    Serial.print("expectedSteps|counter: ");
+    Serial.print(expectedSteps);
+    Serial.print("|");
+    Serial.println(counter);
+  }
+  Serial.println("--- TEST END ---");
+  Serial.println("");
 }
 
 /// @brief Prompt the user to use the specified button to test the specified EventType
@@ -101,6 +128,7 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
 /// @param timeout Milliseconds to wait before failing test
 void promptButtonTest(const char *prompt, Button *button,
                       UserConfirmationInterface::UserConfirmationAction expectedAction, unsigned long timeout) {
+  Serial.println("--- TEST START ---");
   Serial.println(prompt);
   timeout = timeout + millis();
   UserConfirmationInterface::UserConfirmationAction action;
@@ -114,14 +142,20 @@ void promptButtonTest(const char *prompt, Button *button,
   bool testPassed = (action == expectedAction);
 
   if (testPassed) {
-    Serial.print("Test passed: ");
+    Serial.print("PASS: ");
   } else {
-    Serial.print("Test FAILED: ");
+    Serial.print("FAIL: ");
   }
-  Serial.print("expectedAction|action: ");
-  Serial.print(static_cast<int>(expectedAction));
-  Serial.print("|");
-  Serial.println(static_cast<int>(action));
+  if (millis() >= timeout) {
+    Serial.println("Test timed out");
+  } else {
+    Serial.print("expectedAction|action: ");
+    Serial.print(static_cast<int>(expectedAction));
+    Serial.print("|");
+    Serial.println(static_cast<int>(action));
+  }
+  Serial.println("--- TEST END ---");
+  Serial.println("");
 }
 
 void setup() {
@@ -141,54 +175,51 @@ void setup() {
 #endif // TEST_DISPLAY
 
 #ifdef TEST_KEYPAD
-  // Test 1 - Single press 1
+  // Test Single press 1
   promptKeypadTest("Press the number 1 briefly", '1', AdvancedKeypad::EventType::SinglePress, 5000);
 
-  // Test 2 - Double press 2
+  // Test Double press 2
   promptKeypadTest("Double Press the number 2", '2', AdvancedKeypad::EventType::DoublePress, 5000);
 
-  // Test 3 - Long press #
+  // Test Long press #
   promptKeypadTest("Press and hold the # key", '#', AdvancedKeypad::EventType::LongPress, 5000);
 #endif // TEST_KEYPAD
 
 #ifdef TEST_ENCODERS
-  // Test 4 and 5 - encoder1 2 steps CW, 5 steps CCW
+  // Test encoder1 2 steps CW, 5 steps CCW
   promptEncoderTest("Rotate encoder 1 clockwise 2 steps", &encoder1, RotaryEncoder::Direction::CW, 2, 5000);
   promptEncoderTest("Rotate encoder 1 counter clockwise 5 steps", &encoder1, RotaryEncoder::Direction::CCW, 5, 5000);
 
-  // Test 6 and 7 - encoder2 8 steps CW, 3 steps CCW
+  // Test encoder2 8 steps CW, 3 steps CCW
   promptEncoderTest("Rotate encoder 2 clockwise 8 steps", &encoder2, RotaryEncoder::Direction::CW, 8, 5000);
   promptEncoderTest("Rotate encoder 2 counter clockwise 3 steps", &encoder2, RotaryEncoder::Direction::CCW, 3, 5000);
 
-  // Test 8 and 9 - encoder3 2 steps CW, 5 steps CCW
+  // Test encoder3 2 steps CW, 5 steps CCW
   promptEncoderTest("Rotate encoder 3 clockwise 2 steps", &encoder3, RotaryEncoder::Direction::CW, 2, 5000);
   promptEncoderTest("Rotate encoder 3 counter clockwise 5 steps", &encoder3, RotaryEncoder::Direction::CCW, 5, 5000);
 #endif // TEST_ENCODERS
 
 #ifdef TEST_BUTTONS
-  // Test 10, 11, 12, 13 - button1 single click, double click, long press, held
+  // Test button1 single click, double click, long press
   promptButtonTest("Press button 1 once", &button1, UserConfirmationInterface::UserConfirmationAction::SingleClick,
                    5000);
   promptButtonTest("Double click button 1", &button1, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
                    5000);
   promptButtonTest("Long press button 1", &button1, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
-  promptButtonTest("Press and hold button 1", &button1, UserConfirmationInterface::UserConfirmationAction::Held, 5000);
 
-  // Test 14, 15, 16, 17 - button2 single click, double click, long press, held
+  // Test button2 single click, double click, long press
   promptButtonTest("Press button 2 once", &button2, UserConfirmationInterface::UserConfirmationAction::SingleClick,
                    5000);
   promptButtonTest("Double click button 2", &button2, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
                    5000);
   promptButtonTest("Long press button 2", &button2, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
-  promptButtonTest("Press and hold button 2", &button2, UserConfirmationInterface::UserConfirmationAction::Held, 5000);
 
-  // Test 18, 19, 20, 21 - button3 single click, double click, long press, held
+  // Test button3 single click, double click, long press
   promptButtonTest("Press button 3 once", &button3, UserConfirmationInterface::UserConfirmationAction::SingleClick,
                    5000);
   promptButtonTest("Double click button 3", &button3, UserConfirmationInterface::UserConfirmationAction::DoubleClick,
                    5000);
   promptButtonTest("Long press button 3", &button3, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
-  promptButtonTest("Press and hold button 3", &button3, UserConfirmationInterface::UserConfirmationAction::Held, 5000);
 #endif // TEST_BUTTONS
 }
 

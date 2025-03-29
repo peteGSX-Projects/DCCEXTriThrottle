@@ -22,63 +22,56 @@
 #ifndef NATIVE_TESTING
 
 #include "UserConfirmationInterface.h"
+#include "avdweb_Switch.h"
 #include <Arduino.h>
 
 /**
- * @brief Define default debounce, double press, and hold times
+ * @brief Define defaults for Switch objects
  */
-#ifndef BUTTON_DEBOUNCE_TIME
-#define BUTTON_DEBOUNCE_TIME 30
-#endif // BUTTON_DEBOUNCE_TIME
-#ifndef BUTTON_DOUBLE_CLICK_TIME
-#define BUTTON_DOUBLE_CLICK_TIME 200
-#endif // BUTTON_DOUBLE_CLICK_TIME
-#ifndef BUTTON_LONG_CLICK_TIME
-#define BUTTON_LONG_CLICK_TIME 500
-#endif // BUTTON_LONG_CLICK_TIME
+#ifndef BUTTON_PIN_MODE
+#define BUTTON_PIN_MODE INPUT_PULLUP
+#endif // BUTTON_PIN_MODE
+#ifndef BUTTON_PIN_POLARITY
+#define BUTTON_PIN_POLARITY LOW
+#endif // BUTTON_PIN_POLARITY
+#ifndef BUTTON_DEBOUNCE_PERIOD
+#define BUTTON_DEBOUNCE_PERIOD 50
+#endif // BUTTON_DEBOUNCE_PERIOD
+#ifndef BUTTON_LONG_PRESS_PERIOD
+#define BUTTON_LONG_PRESS_PERIOD 500
+#endif // BUTTON_LONG_PRESS_PERIOD
+#ifndef BUTTON_DOUBLE_CLICK_PERIOD
+#define BUTTON_DOUBLE_CLICK_PERIOD 250
+#endif // BUTTON_DOUBLE_CLICK_PERIOD
+#ifndef BUTTON_DEGLITCH_PERIOD
+#define BUTTON_DEGLITCH_PERIOD 10
+#endif // BUTTON_DEGLITCH_PERIOD
 
+/**
+ * @brief This Button class implements the UserConfirmationInterface using an avdweb_Switch Switch object for user
+ * interaction.
+ */
 class Button : public UserConfirmationInterface {
 public:
   /**
    * @brief Construct a new Button object
    * @param pin Pin the button is connected to
-   * @param debounceTime Debounce time in milliseconds, adjust to suit the physical button (default 20ms)
-   * @param doubleClickTime Time in ms in which a double click must occur (default 200ms)
-   * @param longClickTime Time in ms the button must be held to flag a long click (default 500ms)
    */
-  Button(byte pin, unsigned long debounceTime = BUTTON_DEBOUNCE_TIME,
-         unsigned long doubleClickTime = BUTTON_DOUBLE_CLICK_TIME,
-         unsigned long longClickTime = BUTTON_LONG_CLICK_TIME);
+  Button(byte pin);
 
   /**
-   * @brief Initialise the button pin
+   * @brief Initialise the button pin - doesn't do anything for Switch objects
    */
-  void begin() override;
+  void begin() override {}
 
   /**
    * @brief Call check() frequently to check for button events
-   * @return UserConfirmationAction 
+   * @return UserConfirmationAction
    */
-   UserConfirmationAction check() override;
+  UserConfirmationAction check() override;
 
 private:
-  // Const private attributes
-  const byte _pin;                      /** Pin the button is connected to */
-  const unsigned long _debounceTime;    /** Debounce delay in ms */
-  const unsigned long _doubleClickTime; /** Time in ms in which a double click must occur */
-  const unsigned long _longClickTime;   /** Time in ms to hold to record a long click */
-
-  // Variable private attributes
-  unsigned long _lastClickTime;  /** Time of last click for calculations */
-  unsigned long _clickStartTime; /** Time click started for calculations */
-  uint8_t _clickCount;           /** Number of times clicked for calculations */
-  bool _isClicked;               /** Track if clicked for calculations */
-  bool _longClickActivated;      /** Track to prevent repetitive click events */
-
-  /**
-   * @brief Update the current button state including debouncing and click count
-   */
-  void _updateButtonState();
+  Switch *_button;
 };
 
 #endif // NATIVE_TESTING
