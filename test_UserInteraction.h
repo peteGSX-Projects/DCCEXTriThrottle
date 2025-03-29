@@ -15,6 +15,9 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef TEST_USERINTERACTION_H
+#define TEST_USERINTERACTION_H
+
 #include "Defines.h"
 
 // Don't include this if doing native testing
@@ -192,3 +195,5 @@ void setup() {
 void loop() {}
 
 #endif // !defined(NATIVE_TESTING) && defined(DEVICE_TESTING)
+
+#endif // TEST_USERINTERACTION_H
