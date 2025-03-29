@@ -43,22 +43,19 @@ protected:
 TEST_F(EventManagerTests, TestSubscribeUnsubscribe) {
   // To start with, our listener should not be subscribed to
   // ReceivedLocoBroadcast events
-  EXPECT_FALSE(
-      eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+  EXPECT_FALSE(eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
 
   // Subscribe and validate
   eventManager->subscribe(listener, EventType::ReceivedLocoBroadcast);
 
   // Now, our listener should be subscribed to ReceivedLocoBroadcast events
-  EXPECT_TRUE(
-      eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+  EXPECT_TRUE(eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
 
   // Then, unsubscribe and validate
   eventManager->unsubscribe(listener, EventType::ReceivedLocoBroadcast);
 
   // Now, our listener should be subscribed to ReceivedLocoBroadcast events
-  EXPECT_FALSE(
-      eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+  EXPECT_FALSE(eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
 }
 
 /// @brief Test an event with ByteData can be published and received by a
@@ -69,22 +66,20 @@ TEST_F(EventManagerTests, TestByteData) {
 
   // Expect a uint8_t value of 1 with CommandStationSelected
   Event expectedEvent(EventType::CommandStationSelected, EventData((uint8_t)1));
-  EXPECT_CALL(
-      *listener,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType,
-                           EventType::CommandStationSelected),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::dataType,
-                                            EventData::DataType::ByteData)),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::byteValue, 1)))))
+  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
+                             ::testing::Field(&Event::eventType, EventType::CommandStationSelected),
+                             ::testing::Field(&Event::eventData,
+                                              ::testing::Field(&EventData::dataType, EventData::DataType::ByteData)),
+                             ::testing::Field(&Event::eventData, ::testing::Field(&EventData::byteValue, 1)))))
       .Times(1);
 
   // Publish a CommandStationSelected event
   uint8_t csSelected = 1;
   EventData data(csSelected);
   eventManager->publish(EventType::CommandStationSelected, data);
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
 }
 
 /// @brief Test an event with IntegerData can be published and received by a
@@ -95,21 +90,20 @@ TEST_F(EventManagerTests, TestIntegerData) {
 
   // Expect int value of -1 with ReceivedReadLoco
   Event expectedEvent(EventType::ReceivedReadLoco, EventData((int)-1));
-  EXPECT_CALL(
-      *listener,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::ReceivedReadLoco),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::dataType,
-                                            EventData::DataType::IntegerData)),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::intValue, -1)))))
+  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
+                             ::testing::Field(&Event::eventType, EventType::ReceivedReadLoco),
+                             ::testing::Field(&Event::eventData,
+                                              ::testing::Field(&EventData::dataType, EventData::DataType::IntegerData)),
+                             ::testing::Field(&Event::eventData, ::testing::Field(&EventData::intValue, -1)))))
       .Times(1);
 
   // Publish a ReceivedReadLoco event
   int readLoco = -1;
   EventData data(readLoco);
   eventManager->publish(EventType::ReceivedReadLoco, data);
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
 }
 
 /// @brief Test an event with LocoData can be published and received by a
@@ -123,15 +117,11 @@ TEST_F(EventManagerTests, TestLocoData) {
 
   // Expect our dummy Loco instance with ReceivedLocoUpdate
   Event expectedEvent(EventType::ReceivedLocoUpdate, EventData(loco));
-  EXPECT_CALL(
-      *listener,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::ReceivedLocoUpdate),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::dataType,
-                                            EventData::DataType::LocoData)),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::locoValue, loco)))))
+  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
+                             ::testing::Field(&Event::eventType, EventType::ReceivedLocoUpdate),
+                             ::testing::Field(&Event::eventData,
+                                              ::testing::Field(&EventData::dataType, EventData::DataType::LocoData)),
+                             ::testing::Field(&Event::eventData, ::testing::Field(&EventData::locoValue, loco)))))
       .Times(1);
 
   // Publish a ReceivedLocoUpdate event
@@ -140,6 +130,9 @@ TEST_F(EventManagerTests, TestLocoData) {
 
   // Clean up
   delete loco;
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
 }
 
 /// @brief Test an event with NoneData can be published and received by a
@@ -150,18 +143,18 @@ TEST_F(EventManagerTests, TestNoneData) {
 
   // Expect empty data
   Event expectedEvent(EventType::ReceivedRosterList, EventData());
-  EXPECT_CALL(
-      *listener,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::ReceivedRosterList),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::dataType,
-                                            EventData::DataType::NoneData)))))
+  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
+                             ::testing::Field(&Event::eventType, EventType::ReceivedRosterList),
+                             ::testing::Field(&Event::eventData,
+                                              ::testing::Field(&EventData::dataType, EventData::DataType::NoneData)))))
       .Times(1);
 
   // Publish a ReceivedRosterList event with empty data
   EventData data;
   eventManager->publish(EventType::ReceivedRosterList, data);
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
 }
 
 /// @brief Test an event with TrackPowerData can be published and received by a
@@ -171,24 +164,22 @@ TEST_F(EventManagerTests, TestTrackPowerData) {
   eventManager->subscribe(listener, EventType::ReceivedTrackPower);
 
   // Expect TrackPower value of TrackPower::PowerOn with ReceivedTrackPower
-  Event expectedEvent(EventType::ReceivedTrackPower,
-                      EventData(TrackPower::PowerOn));
+  Event expectedEvent(EventType::ReceivedTrackPower, EventData(TrackPower::PowerOn));
   EXPECT_CALL(
       *listener,
       onEvent(::testing::AllOf(
           ::testing::Field(&Event::eventType, EventType::ReceivedTrackPower),
-          ::testing::Field(
-              &Event::eventData,
-              ::testing::Field(&EventData::dataType,
-                               EventData::DataType::TrackPowerData)),
           ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::trackPowerValue,
-                                            TrackPower::PowerOn)))))
+                           ::testing::Field(&EventData::dataType, EventData::DataType::TrackPowerData)),
+          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::trackPowerValue, TrackPower::PowerOn)))))
       .Times(1);
 
   // Publish a ReceivedTrackPower event
   EventData data(TrackPower::PowerOn);
   eventManager->publish(EventType::ReceivedTrackPower, data);
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
 }
 
 /// @brief Test an event with LocoBroadcastData can be published and received by
@@ -198,24 +189,18 @@ TEST_F(EventManagerTests, TestLocoBroadcastData) {
   eventManager->subscribe(listener, EventType::ReceivedLocoBroadcast);
 
   // Expect a LocoBroadcast event type with LocoBroadcastData
-  EXPECT_CALL(
-      *listener,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::ReceivedLocoBroadcast),
-          ::testing::Field(
-              &Event::eventData,
-              ::testing::Field(&EventData::dataType,
-                               EventData::DataType::LocoBroadcastData)),
-          ::testing::Field(
-              &Event::eventData,
-              ::testing::Field(
-                  &EventData::locoBroadcastValue,
-                  ::testing::AllOf(
-                      ::testing::Field(&LocoBroadcast::address, 3),
-                      ::testing::Field(&LocoBroadcast::speed, 50),
-                      ::testing::Field(&LocoBroadcast::direction,
-                                       Direction::Forward),
-                      ::testing::Field(&LocoBroadcast::functionMap, 2)))))))
+  EXPECT_CALL(*listener,
+              onEvent(::testing::AllOf(
+                  ::testing::Field(&Event::eventType, EventType::ReceivedLocoBroadcast),
+                  ::testing::Field(&Event::eventData,
+                                   ::testing::Field(&EventData::dataType, EventData::DataType::LocoBroadcastData)),
+                  ::testing::Field(
+                      &Event::eventData,
+                      ::testing::Field(&EventData::locoBroadcastValue,
+                                       ::testing::AllOf(::testing::Field(&LocoBroadcast::address, 3),
+                                                        ::testing::Field(&LocoBroadcast::speed, 50),
+                                                        ::testing::Field(&LocoBroadcast::direction, Direction::Forward),
+                                                        ::testing::Field(&LocoBroadcast::functionMap, 2)))))))
       .Times(1);
 
   // Publish a ReceivedLocoBroadcast event for loco 3 moving forward at speed
@@ -223,4 +208,7 @@ TEST_F(EventManagerTests, TestLocoBroadcastData) {
   LocoBroadcast broadcast = {3, 50, Direction::Forward, 2};
   EventData broadcastData(broadcast);
   eventManager->publish(EventType::ReceivedLocoBroadcast, broadcastData);
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
 }
