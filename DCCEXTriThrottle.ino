@@ -41,6 +41,6 @@ void loop() {}
 
 // Include if doing device testing
 #elif defined(DEVICE_TESTING)
-#include "TestUserInteraction.h"
+#include "test_UserInteraction.h"
 
 #endif // !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
