@@ -40,6 +40,9 @@ public:
    * @param version Version of the software to be displayed
    */
   virtual void displayStartupScreen(const char *headerText, const char *version) = 0;
+
+protected:
+  bool _needsRedraw = true;
 };
 
 #endif // DISPLAYINTERFACE_H

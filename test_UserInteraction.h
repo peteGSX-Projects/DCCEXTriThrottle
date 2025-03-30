@@ -19,6 +19,7 @@
 #define TEST_USERINTERACTION_H
 
 #include "Defines.h"
+#include "Version.h"
 
 // Don't include this if doing native testing
 #if !defined(NATIVE_TESTING) && defined(DEVICE_TESTING)
@@ -26,6 +27,7 @@
 #include "AdvancedKeypad.h"
 #include "Button.h"
 #include "RotaryEncoder.h"
+#include "U8G2SH1106Display.h"
 #include <Arduino.h>
 
 AdvancedKeypad keypad;
@@ -35,6 +37,7 @@ Button button3(ENCODER3_BUTTON);
 RotaryEncoder encoder1(ENCODER1_DT, ENCODER1_CLK, RotaryEncoder::Mode::FullStep);
 RotaryEncoder encoder2(ENCODER2_DT, ENCODER2_CLK, RotaryEncoder::Mode::FullStep);
 RotaryEncoder encoder3(ENCODER3_DT, ENCODER3_CLK, RotaryEncoder::Mode::FullStep);
+U8G2SH1106Display display;
 
 /// @brief Prompt the user to interact in the specified way and validate the correct KeyEvent is returned
 /// @param prompt Message telling the user which key to use, and whether to press, double press, or hold
@@ -171,6 +174,9 @@ void setup() {
 
 #ifdef TEST_DISPLAY
   Serial.println("Display testing starts now");
+  display.begin();
+  display.clear();
+  display.displayStartupScreen("Display testing", VERSION);
   Serial.println("Display testing ended");
 #endif // TEST_DISPLAY
 
