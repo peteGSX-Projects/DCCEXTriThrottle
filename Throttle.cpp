@@ -16,3 +16,6 @@
  */
 
 #include "Throttle.h"
+
+Throttle::Throttle(UserConfirmationInterface *confirmer, UserSelectionInterface *selector)
+    : _confirmer(confirmer), _selector(selector), _loco(nullptr) {}

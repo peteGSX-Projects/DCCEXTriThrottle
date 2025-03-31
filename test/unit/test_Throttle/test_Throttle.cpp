@@ -16,13 +16,17 @@
  */
 
 #include "Throttle.h"
+#include "test/mocks/MockButton.h"
+#include "test/mocks/MockRotaryEncoder.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
 
 class ThrottleTests : public Test {
 protected:
-  Throttle throttle;
+  MockButton button;
+  MockRotaryEncoder encoder;
+  Throttle throttle = Throttle(&button, &encoder);
 
   // Optional setup method
   void SetUp() override {}

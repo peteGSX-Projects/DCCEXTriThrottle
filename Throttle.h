@@ -31,14 +31,14 @@ class Throttle {
 public:
   /**
    * @brief Construct a new Throttle object
-   * @param button Pointer to a Button instance extending the UserConfirmationInterface class
-   * @param encoder Pointer to a RotaryEncoder instance extending the UserSelectionInterface class
+   * @param confirmer Pointer to a class instance extending the UserConfirmationInterface class
+   * @param selector Pointer to a class instance extending the UserSelectionInterface class
    */
-  Throttle(UserConfirmationInterface *button, UserSelectionInterface *encoder);
+  Throttle(UserConfirmationInterface *confirmer, UserSelectionInterface *selector);
 
 private:
-  UserConfirmationInterface *_button;
-  UserSelectionInterface *_encoder;
+  UserConfirmationInterface *_confirmer;
+  UserSelectionInterface *_selector;
   Loco *_loco;
 };
 
