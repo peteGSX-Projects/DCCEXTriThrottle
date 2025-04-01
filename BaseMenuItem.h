@@ -55,10 +55,6 @@ public:
   /// @return Pointer to the next item
   BaseMenuItem *getNext();
 
-  /// @brief Set the Logger instance to use
-  /// @param logger Pointer to the Logger instance
-  void setLogger(Logger *logger);
-
   /// @brief Get the type of this menu item
   /// @return MenuItemType
   MenuItemType getItemType();
@@ -74,7 +70,6 @@ protected:
   char *_name;            /** The name or label of this menu item */
   int _index;             /** The index of this item */
   BaseMenuItem *_next;    /** The next item in the linked list */
-  Logger *_logger;        /** Logger instance to use */
   MenuItemType _itemType; /** The MenuItemType for this item */
 };
 

@@ -22,9 +22,7 @@
 
 /// @brief Macro for shorter logging calls, assumes a pointer to a Logger instance called _logger
 /// LOG(LogLevel, "Message");
-#define LOG(level, ...)                                                                                                \
-  if (_logger)                                                                                                         \
-  _logger->log(level, __VA_ARGS__)
+#define LOG(level, ...) Logger::log(level, __VA_ARGS__)
 
 /// @brief Define valid log levels in ascending order
 enum LogLevel { LOG_MESSAGE, LOG_NONE, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG };
@@ -34,26 +32,33 @@ enum LogLevel { LOG_MESSAGE, LOG_NONE, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG 
 /// log level at compile time if more diagnostics are required
 class Logger {
 public:
-  /// @brief Constructor for the logger
-  /// @param outputStream Pointer to a Stream instance to output log messages to (eg. Logger(&Serial);)
-  Logger(Stream *outputStream);
+  /**
+   * @brief Set the Output object
+   * @param stream Pointer to a Stream object to output to
+   */
+  static void setOutput(Stream *stream);
 
   /// @brief Set the log level
   /// @param logLevel Valid LogLevel
-  void setLogLevel(LogLevel logLevel);
+  static void setLogLevel(LogLevel logLevel);
 
   /// @brief Get the current log level
   /// @return LogLevel
-  LogLevel getLogLevel();
+  static LogLevel getLogLevel();
 
   /// @brief Log a message for the specified log level
   /// @param logLevel Valid LogLevel
   /// @param format Format to apply to the message
-  void log(LogLevel logLevel, const char *format, ...);
+  static void log(LogLevel logLevel, const char *format, ...);
+
+  /**
+   * @brief Reset Logger to default attributes - no output, and LogLevel::LOG_WARN
+   */
+  static void reset();
 
 private:
-  Stream *_outputStream;
-  LogLevel _currentLevel;
+  static Stream *_outputStream;
+  static LogLevel _currentLevel;
 };
 
 #endif // LOGGER_H

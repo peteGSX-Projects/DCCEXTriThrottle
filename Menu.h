@@ -51,10 +51,6 @@ public:
   /// @return Pointer to the parent Menu
   Menu *getParent();
 
-  /// @brief Set the Logger instance to use
-  /// @param logger Pointer to the Logger instance
-  void setLogger(Logger *logger);
-
   /// @brief Destructor for this Menu
   ~Menu();
 
@@ -63,7 +59,6 @@ private:
   BaseMenuItem *_firstItem; /** Pointer to the first menu item in the list */
   Menu *_parent;            /** Pointer to a parent menu if this is nested */
   int _nextItemIndex;       /** Auto increment index of next item added */
-  Logger *_logger;          /** Logger instance to use */
 };
 
 #endif // MENU_H

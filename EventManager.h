@@ -57,10 +57,6 @@ public:
   /// @param eventData Valid EventData
   void publish(EventType eventType, EventData eventData);
 
-  /// @brief Set the Logger instance to use
-  /// @param logger Pointer to the Logger instance
-  void setLogger(Logger *logger);
-
   /// @brief Destructor for the EventManager
   ~EventManager();
 
@@ -68,10 +64,9 @@ private:
   /// @brief EventSubscriber structure to maintain the linked list of
   /// subscribers
   struct EventSubscriber {
-    EventListener
-        *eventListener; // Pointer to the class instance extending EventListener
-    EventType eventType;   // EventType to listen for
-    EventSubscriber *next; // Pointer to the next subscriber in the list
+    EventListener *eventListener; // Pointer to the class instance extending EventListener
+    EventType eventType;          // EventType to listen for
+    EventSubscriber *next;        // Pointer to the next subscriber in the list
 
     /// @brief Constructor for each event listener
     /// @param eventListener Pointer to the class instance extending
@@ -81,9 +76,7 @@ private:
         : eventListener(eventListener), eventType(eventType), next(nullptr) {}
   };
 
-  EventSubscriber
-      *_firstEventSubscriber; // Pointer to the first subscriber in the list
-  Logger *_logger;            // Pointer to the Logger instance to use
+  EventSubscriber *_firstEventSubscriber; // Pointer to the first subscriber in the list
 };
 
 #endif // EVENTMANAGER_H

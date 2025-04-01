@@ -17,8 +17,7 @@
 
 #include "Menu.h"
 
-Menu::Menu(const char *name)
-    : _firstItem(nullptr), _parent(nullptr), _nextItemIndex(0) {
+Menu::Menu(const char *name) : _firstItem(nullptr), _parent(nullptr), _nextItemIndex(0) {
   if (name != nullptr) {
     int nameLength = strlen(name);
     _name = new char[nameLength + 1];
@@ -35,9 +34,7 @@ void Menu::addItem(BaseMenuItem *item) {
     return;
   }
   item->setIndex(_nextItemIndex++);
-  if (_logger != nullptr) {
-    item->setLogger(_logger);
-  }
+
   if (_firstItem == nullptr) {
     _firstItem = item;
     return;
@@ -54,8 +51,6 @@ BaseMenuItem *Menu::getFirstItem() { return _firstItem; }
 void Menu::setParent(Menu *parent) { _parent = parent; }
 
 Menu *Menu::getParent() { return _parent; }
-
-void Menu::setLogger(Logger *logger) { _logger = logger; }
 
 Menu::~Menu() {
   if (_name != nullptr) {

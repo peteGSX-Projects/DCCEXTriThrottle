@@ -17,8 +17,7 @@
 
 #include "BaseMenuItem.h"
 
-BaseMenuItem::BaseMenuItem(const char *name, MenuItemType itemType)
-    : _index(-1), _next(nullptr), _logger(nullptr), _itemType(itemType) {
+BaseMenuItem::BaseMenuItem(const char *name, MenuItemType itemType) : _index(-1), _next(nullptr), _itemType(itemType) {
   // Ensure memory safety and copy name
   if (name != nullptr) {
     int nameLength = strlen(name);
@@ -38,8 +37,6 @@ const char *BaseMenuItem::getName() { return _name; }
 void BaseMenuItem::setNext(BaseMenuItem *next) { _next = next; }
 
 BaseMenuItem *BaseMenuItem::getNext() { return _next; }
-
-void BaseMenuItem::setLogger(Logger *logger) { _logger = logger; }
 
 MenuItemType BaseMenuItem::getItemType() { return _itemType; }
 

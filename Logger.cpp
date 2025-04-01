@@ -17,13 +17,18 @@
 
 #include "Logger.h"
 
-Logger::Logger(Stream *outputStream) : _outputStream(outputStream), _currentLevel(LogLevel::LOG_WARN) {}
+Stream *Logger::_outputStream = nullptr;
+LogLevel Logger::_currentLevel = LogLevel::LOG_WARN;
+
+void Logger::setOutput(Stream *stream) { _outputStream = stream; }
 
 void Logger::setLogLevel(LogLevel logLevel) { _currentLevel = logLevel; }
 
 LogLevel Logger::getLogLevel() { return _currentLevel; }
 
 void Logger::log(LogLevel logLevel, const char *format, ...) {
+  if (_outputStream == nullptr)
+    return;
   if (logLevel <= _currentLevel) {
     // Setup the prefix
     const char *prefix;
@@ -81,4 +86,9 @@ void Logger::log(LogLevel logLevel, const char *format, ...) {
     // Clean up
     delete[] buffer;
   }
+}
+
+void Logger::reset() {
+  _outputStream = nullptr;
+  _currentLevel = LogLevel::LOG_WARN;
 }
