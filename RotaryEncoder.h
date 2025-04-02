@@ -21,7 +21,6 @@
 #ifndef NATIVE_TESTING
 
 #include "Defines.h"
-#include "Logger.h"
 #include "UserSelectionInterface.h"
 #include <Arduino.h>
 

@@ -40,6 +40,7 @@ void AdvancedKeypad::begin() {
   for (int i = 0; i < 3; i++) {
     pinMode(_columnPins[i], INPUT_PULLUP);
   }
+  LOG(LogLevel::LOG_DEBUG, "AdvancedKeypad::begin()");
 }
 
 UserInputInterface::UserInputEvent AdvancedKeypad::check() {
@@ -49,6 +50,8 @@ UserInputInterface::UserInputEvent AdvancedKeypad::check() {
   if (_isPressed && (currentTime - _pressStartTime) > _longPressTime) {
     if (!_longPressActivated) {
       _longPressActivated = true;
+      LOG(LogLevel::LOG_DEBUG, "AdvancedKeypad::check() returning key|action: %s|%d", _lastKey,
+          static_cast<int>(UserInputAction::LongPress));
       return {_lastKey, UserInputAction::LongPress};
     }
     // Long press already reported, don't report again
@@ -76,6 +79,8 @@ UserInputInterface::UserInputEvent AdvancedKeypad::check() {
     }
     _lastKey = '\0';
     _pressCount = 0;
+
+    LOG(LogLevel::LOG_DEBUG, "AdvancedKeypad::check() returning key|action: %s|%d", key, static_cast<int>(eventType));
     return {key, eventType};
   }
 

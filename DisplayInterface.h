@@ -18,6 +18,8 @@
 #ifndef DISPLAYINTERFACE_H
 #define DISPLAYINTERFACE_H
 
+#include "Logger.h"
+
 /**
  * @brief DisplayInterface to abstract physical display objects from display interactions, extend this class when adding
  * implementing physical display objects

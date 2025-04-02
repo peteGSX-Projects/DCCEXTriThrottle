@@ -18,6 +18,8 @@
 #ifndef USERINPUTINTERFACE_H
 #define USERINPUTINTERFACE_H
 
+#include "Logger.h"
+
 /**
  * @brief Interface class to abstract key input actions from physical implementations
  * All physical user input classes must extend this

@@ -18,6 +18,8 @@
 #ifndef USERSELECTIONINTERFACE_H
 #define USERSELECTIONINTERFACE_H
 
+#include "Logger.h"
+
 /**
  * @brief Interface class to abstract user selection actions from physical implementations
  * All physical user selection classes must extend this

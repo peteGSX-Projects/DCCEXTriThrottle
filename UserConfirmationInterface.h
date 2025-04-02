@@ -18,6 +18,8 @@
 #ifndef USERCONFIRMATIONINTERFACE_H
 #define USERCONFIRMATIONINTERFACE_H
 
+#include "Logger.h"
+
 /**
  * @brief Interface class to abstract user confirmation actions from physical implementations
  * All physical user confirmation classes must extend this

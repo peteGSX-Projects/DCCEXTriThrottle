@@ -16,12 +16,13 @@
  */
 
 /**
- * @brief Define the log level
+ * @brief If necessary, define the log level which outputs to the serial console
  */
-// #define LOG_LEVEL LogLevel::LOG_DEBUG
-// #define LOG_LEVEL LogLevel::LOG_INFO
-// #define LOG_LEVEL LogLevel::LOG_WARN // This is the default
-// #define LOG_LEVEL LogLevel::LOG_ERROR
+// #define LOG_LEVEL LogLevel::LOG_NONE // Log nothing but mandatory messages
+// #define LOG_LEVEL LogLevel::LOG_DEBUG // Log every debug, info, warn, and error message (very noisy)
+// #define LOG_LEVEL LogLevel::LOG_INFO // Log every info, warn, and error message
+// #define LOG_LEVEL LogLevel::LOG_WARN // DEFAULT - Log every warn and error message
+// #define LOG_LEVEL LogLevel::LOG_ERROR // Log only error messages
 
 /**
  * @brief Enable testing of the physical input and display devices

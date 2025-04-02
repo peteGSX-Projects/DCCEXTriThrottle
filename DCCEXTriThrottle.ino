@@ -25,6 +25,7 @@
  */
 
 #include "Defines.h"
+#include "Logger.h"
 
 // Don't do standard Arduino stuff if testing
 #if !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
@@ -34,7 +35,7 @@
 void setup() {
   Serial.begin(115200);
   delay(3000);
-  Serial.println("DCC-EX Tri Throttle");
+  LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri Throttle");
 }
 
 void loop() {}

@@ -40,6 +40,21 @@ RotaryEncoder encoder2(ENCODER2_DT, ENCODER2_CLK, RotaryEncoder::Mode::FullStep)
 RotaryEncoder encoder3(ENCODER3_DT, ENCODER3_CLK, RotaryEncoder::Mode::FullStep);
 U8G2SH1106Display display;
 
+#define TEST_START Logger::log(LogLevel::LOG_MESSAGE, "--- TEST START ---");
+#define TEST_END Logger::log(LogLevel::LOG_MESSAGE, "--- TEST END ---\n");
+
+/**
+ * @brief Perform basic display testing showing test message and software version
+ */
+void displayTest() {
+  TEST_START
+  LOG(LogLevel::LOG_MESSAGE, "Display testing");
+  display.begin();
+  display.clear();
+  display.displayStartupScreen("Display testing", VERSION);
+  TEST_END
+}
+
 /// @brief Prompt the user to interact in the specified way and validate the correct KeyEvent is returned
 /// @param prompt Message telling the user which key to use, and whether to press, double press, or hold
 /// @param expectedKey Key to use
@@ -47,8 +62,8 @@ U8G2SH1106Display display;
 /// @param timeout Milliseconds to wait before failing test
 void promptKeypadTest(const char *prompt, char expectedKey, UserInputInterface::UserInputAction expectedType,
                       unsigned long timeout) {
-  Serial.println("--- TEST START ---");
-  Serial.println(prompt);
+  TEST_START
+  LOG(LogLevel::LOG_MESSAGE, prompt);
   timeout = timeout + millis();
 
   // Poll and wait for a valid event type
@@ -60,25 +75,20 @@ void promptKeypadTest(const char *prompt, char expectedKey, UserInputInterface::
   // Display test output in the console
   bool testPassed = (event.key == expectedKey && event.action == expectedType);
 
+  LogLevel level;
+
   if (testPassed) {
-    Serial.print("PASS: ");
+    level = LogLevel::LOG_MESSAGE;
   } else {
-    Serial.print("FAIL: ");
+    level = LogLevel::LOG_ERROR;
   }
   if (millis() >= timeout) {
-    Serial.println("Test timed out");
+    LOG(level, "Test timed out");
   } else {
-    Serial.print("expectedKey|event.key|expectedType|event.type: ");
-    Serial.print(expectedKey);
-    Serial.print("|");
-    Serial.print(event.key);
-    Serial.print("|");
-    Serial.print(static_cast<int>(expectedType));
-    Serial.print("|");
-    Serial.println(static_cast<int>(event.action));
+    LOG(level, "expectedKey|event.key|expectedType|event.type: %s|%s|%d|%d", expectedKey, event.key,
+        static_cast<int>(expectedType), static_cast<int>(event.action));
   }
-  Serial.println("--- TEST END ---");
-  Serial.println("");
+  TEST_END
 }
 
 /// @brief Prompt the user to rotate the specified encoder in the provided direction for the number of steps
@@ -89,8 +99,8 @@ void promptKeypadTest(const char *prompt, char expectedKey, UserInputInterface::
 /// @param timeout Milliseconds to wait before failing test
 void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder::Direction expectedDirection,
                        int expectedSteps, unsigned long timeout) {
-  Serial.println("--- TEST START ---");
-  Serial.println(prompt);
+  TEST_START
+  LOG(LogLevel::LOG_MESSAGE, prompt);
   timeout = timeout + millis();
   int counter = 0;
   RotaryEncoder::Direction direction;
@@ -108,21 +118,19 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
   // Display test output in the console
   bool testPassed = (counter == expectedSteps);
 
+  LogLevel level;
+
   if (testPassed) {
-    Serial.print("PASS: ");
+    level = LogLevel::LOG_MESSAGE;
   } else {
-    Serial.print("FAIL: ");
+    level = LogLevel::LOG_ERROR;
   }
   if (millis() >= timeout) {
-    Serial.println("Test timed out");
+    LOG(level, "Test timed out");
   } else {
-    Serial.print("expectedSteps|counter: ");
-    Serial.print(expectedSteps);
-    Serial.print("|");
-    Serial.println(counter);
+    LOG(level, "expectedSteps|counter: %d|%d", expectedSteps, counter);
   }
-  Serial.println("--- TEST END ---");
-  Serial.println("");
+  TEST_END
 }
 
 /// @brief Prompt the user to use the specified button to test the specified EventType
@@ -132,8 +140,8 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
 /// @param timeout Milliseconds to wait before failing test
 void promptButtonTest(const char *prompt, Button *button,
                       UserConfirmationInterface::UserConfirmationAction expectedAction, unsigned long timeout) {
-  Serial.println("--- TEST START ---");
-  Serial.println(prompt);
+  TEST_START
+  LOG(LogLevel::LOG_MESSAGE, prompt);
   timeout = timeout + millis();
   UserConfirmationInterface::UserConfirmationAction action;
 
@@ -145,21 +153,19 @@ void promptButtonTest(const char *prompt, Button *button,
   // Display test output in the console
   bool testPassed = (action == expectedAction);
 
+  LogLevel level;
+
   if (testPassed) {
-    Serial.print("PASS: ");
+    level = LogLevel::LOG_MESSAGE;
   } else {
-    Serial.print("FAIL: ");
+    level = LogLevel::LOG_ERROR;
   }
   if (millis() >= timeout) {
-    Serial.println("Test timed out");
+    LOG(level, "Test timed out");
   } else {
-    Serial.print("expectedAction|action: ");
-    Serial.print(static_cast<int>(expectedAction));
-    Serial.print("|");
-    Serial.println(static_cast<int>(action));
+    LOG(level, "expectedAction|action: %d|%d", static_cast<int>(expectedAction), static_cast<int>(action));
   }
-  Serial.println("--- TEST END ---");
-  Serial.println("");
+  TEST_END
 }
 
 void setup() {
@@ -170,6 +176,7 @@ void setup() {
 #ifdef LOG_LEVEL
   Logger::setLogLevel(LOG_LEVEL);
 #endif // ENABLE_DEBUG
+  display.begin();
   keypad.begin();
   encoder1.begin();
   encoder2.begin();
@@ -179,11 +186,7 @@ void setup() {
   button3.begin();
 
 #ifdef TEST_DISPLAY
-  Serial.println("Display testing starts now");
-  display.begin();
-  display.clear();
-  display.displayStartupScreen("Display testing", VERSION);
-  Serial.println("Display testing ended");
+  displayTest();
 #endif // TEST_DISPLAY
 
 #ifdef TEST_KEYPAD
