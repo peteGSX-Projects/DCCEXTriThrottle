@@ -42,44 +42,44 @@ void AdvancedKeypad::begin() {
   }
 }
 
-AdvancedKeypad::KeyEvent AdvancedKeypad::checkKeypad() {
+UserInputInterface::UserInputEvent AdvancedKeypad::check() {
   _updateKeypadState();
   unsigned long currentTime = millis();
 
   if (_isPressed && (currentTime - _pressStartTime) > _longPressTime) {
     if (!_longPressActivated) {
       _longPressActivated = true;
-      return {_lastKey, EventType::LongPress};
+      return {_lastKey, UserInputAction::LongPress};
     }
     // Long press already reported, don't report again
-    return {'\0', EventType::None};
+    return {'\0', UserInputAction::None};
   }
 
   if (!_isPressed && _lastKey != '\0') {
     char key = _lastKey;
-    EventType eventType;
+    UserInputAction eventType;
 
     if (_longPressActivated) {
       // Key released after long press, don't report as single press
       _longPressActivated = false;
       _lastKey = '\0';
       _pressCount = 0;
-      return {'\0', EventType::None};
+      return {'\0', UserInputAction::None};
     }
 
     if (_pressCount == 1 && (currentTime - _lastPressTime) > _doublePressTime) {
-      eventType = EventType::SinglePress;
+      eventType = UserInputAction::SinglePress;
     } else if (_pressCount == 2) {
-      eventType = EventType::DoublePress;
+      eventType = UserInputAction::DoublePress;
     } else {
-      return {'\0', EventType::None};
+      return {'\0', UserInputAction::None};
     }
     _lastKey = '\0';
     _pressCount = 0;
     return {key, eventType};
   }
 
-  return {'\0', EventType::None};
+  return {'\0', UserInputAction::None};
 }
 
 char AdvancedKeypad::_scanKeypad() {

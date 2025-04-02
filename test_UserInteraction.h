@@ -45,20 +45,20 @@ U8G2SH1106Display display;
 /// @param expectedKey Key to use
 /// @param expectedType EventType
 /// @param timeout Milliseconds to wait before failing test
-void promptKeypadTest(const char *prompt, char expectedKey, AdvancedKeypad::EventType expectedType,
+void promptKeypadTest(const char *prompt, char expectedKey, UserInputInterface::UserInputAction expectedType,
                       unsigned long timeout) {
   Serial.println("--- TEST START ---");
   Serial.println(prompt);
   timeout = timeout + millis();
 
   // Poll and wait for a valid event type
-  AdvancedKeypad::KeyEvent event;
+  UserInputInterface::UserInputEvent event;
   do {
-    event = keypad.checkKeypad();
-  } while (event.type == AdvancedKeypad::EventType::None && millis() < timeout);
+    event = keypad.check();
+  } while (event.action == UserInputInterface::UserInputAction::None && millis() < timeout);
 
   // Display test output in the console
-  bool testPassed = (event.key == expectedKey && event.type == expectedType);
+  bool testPassed = (event.key == expectedKey && event.action == expectedType);
 
   if (testPassed) {
     Serial.print("PASS: ");
@@ -75,7 +75,7 @@ void promptKeypadTest(const char *prompt, char expectedKey, AdvancedKeypad::Even
     Serial.print("|");
     Serial.print(static_cast<int>(expectedType));
     Serial.print("|");
-    Serial.println(static_cast<int>(event.type));
+    Serial.println(static_cast<int>(event.action));
   }
   Serial.println("--- TEST END ---");
   Serial.println("");
@@ -188,13 +188,13 @@ void setup() {
 
 #ifdef TEST_KEYPAD
   // Test Single press 1
-  promptKeypadTest("Press the number 1 briefly", '1', AdvancedKeypad::EventType::SinglePress, 5000);
+  promptKeypadTest("Press the number 1 briefly", '1', UserInputInterface::UserInputAction::SinglePress, 5000);
 
   // Test Double press 2
-  promptKeypadTest("Double Press the number 2", '2', AdvancedKeypad::EventType::DoublePress, 5000);
+  promptKeypadTest("Double Press the number 2", '2', UserInputInterface::UserInputAction::DoublePress, 5000);
 
   // Test Long press #
-  promptKeypadTest("Press and hold the # key", '#', AdvancedKeypad::EventType::LongPress, 5000);
+  promptKeypadTest("Press and hold the # key", '#', UserInputInterface::UserInputAction::LongPress, 5000);
 #endif // TEST_KEYPAD
 
 #ifdef TEST_ENCODERS

@@ -21,6 +21,7 @@
 // Do not use this for testing
 #ifndef NATIVE_TESTING
 
+#include "UserInputInterface.h"
 #include <Arduino.h>
 
 /**
@@ -61,21 +62,11 @@
 #define KEYPAD_LONG_PRESS_TIME 500
 #endif // KEYPAD_LONG_PRESS_TIME
 
-class AdvancedKeypad {
+/**
+ * @brief Implementation of the UserInputInterface using a 3 x 4 keypad
+ */
+class AdvancedKeypad : public UserInputInterface {
 public:
-  /**
-   * @brief Event types available for key presses
-   */
-  enum class EventType { None, SinglePress, DoublePress, LongPress };
-
-  /**
-   * @brief Structure for a key press event to get both the key pressed and the event type
-   */
-  struct KeyEvent {
-    char key;
-    EventType type;
-  };
-
   /**
    * @brief Construct a new Advanced Keypad object
    * @param keypadPin1 Pin the first keypad row pin is connected to
@@ -98,13 +89,14 @@ public:
   /**
    * @brief Initialise all keypad pins
    */
-  void begin();
+  void begin() override;
 
   /**
    * @brief Call checkKeypad() frequently to check for key press events
    * @return KeyEvent Key that is pressed, and the event type of the press
    */
-  KeyEvent checkKeypad();
+  // KeyEvent checkKeypad();
+  UserInputInterface::UserInputEvent check() override;
 
 private:
   // Const attributes
