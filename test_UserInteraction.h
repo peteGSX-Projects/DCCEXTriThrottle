@@ -163,11 +163,13 @@ void promptButtonTest(const char *prompt, Button *button,
 }
 
 void setup() {
-  Serial.begin(115200);
+  CONSOLE_STREAM.begin(115200);
+  Logger::setOutput(&CONSOLE_STREAM);
+  delay(5000);
+  LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri Throttle Testing");
 #ifdef LOG_LEVEL
   Logger::setLogLevel(LOG_LEVEL);
 #endif // ENABLE_DEBUG
-  delay(3000);
   keypad.begin();
   encoder1.begin();
   encoder2.begin();
