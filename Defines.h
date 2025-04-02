@@ -73,4 +73,28 @@
 #define COMMANDSTATION_STREAM Serial1
 #endif // COMMANDSTATION_STREAM
 
+// Set invert throttle true as default is a rotary encoder
+#ifndef INVERT_THROTTLE
+#define INVERT_THROTTLE true
+#endif // INVERT_THROTTLE
+
+// Set default throttle speed change steps (used to increment/decrement speed)
+#ifndef THROTTLE_STEP
+#define THROTTLE_STEP 1
+#endif // THROTTLE_STEP
+#ifndef THROTTLE_STEP_FASTER
+#define THROTTLE_STEP_FASTER 2
+#endif // THROTTLE_STEP_FASTER
+#ifndef THROTTLE_STEP_FASTEST
+#define THROTTLE_STEP_FASTEST 5
+#endif // THROTTLE_STEP_FASTEST
+
+// Set default thresholds to determine speed steps
+#ifndef THROTTLE_STEP_FASTER_THRESHOLD
+#define THROTTLE_STEP_FASTER_THRESHOLD 200
+#endif // THROTTLE_STEP_FASTER_THRESHOLD
+#ifndef THROTTLE_STEP_FASTEST_THRESHOLD
+#define THROTTLE_STEP_FASTEST_THRESHOLD 125
+#endif // THROTTLE_STEP_FASTEST_THRESHOLD
+
 #endif // DEFINES_H

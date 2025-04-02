@@ -20,7 +20,10 @@
 #include "RotaryEncoder.h"
 
 RotaryEncoder::RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode mode, byte inputMode)
-    : _dtPin(dtPin), _clkPin(clkPin), _mode(mode), _inputMode(inputMode), _state(R_START) {}
+    : _dtPin(dtPin), _clkPin(clkPin), _mode(mode), _inputMode(inputMode), _state(R_START),
+      _throttleStepFasterThreshold(THROTTLE_STEP_FASTER_THRESHOLD),
+      _throttleStepFastestThreshold(THROTTLE_STEP_FASTEST_THRESHOLD), _lastUpThrottleStep(0), _lastDownThrottleStep(0) {
+}
 
 void RotaryEncoder::begin() {
   pinMode(_clkPin, _inputMode);
@@ -28,7 +31,7 @@ void RotaryEncoder::begin() {
   _state = R_START;
 }
 
-RotaryEncoder::Direction RotaryEncoder::check() {
+RotaryEncoder::Direction RotaryEncoder::checkDirection() {
   uint8_t pinState = (digitalRead(_clkPin) << 1) | digitalRead(_dtPin); // Read the current pin states
 
   // Update state and get direction in one operation
@@ -42,12 +45,44 @@ RotaryEncoder::Direction RotaryEncoder::check() {
   // Return direction based on the state bits
   switch (direction) {
   case DIR_CW:
+    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returns CW");
     return RotaryEncoder::Direction::CW;
   case DIR_CCW:
+    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returns CCW");
     return RotaryEncoder::Direction::CCW;
   default:
     return RotaryEncoder::Direction::None;
   }
+}
+
+UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {
+  UserSelectionAction action = UserSelectionAction::None;
+  unsigned long currentMillis = millis();
+  Direction result = checkDirection();
+  if (result == Direction::CW) {
+    unsigned long timeDifference = currentMillis - _lastDownThrottleStep;
+    if (timeDifference < _throttleStepFastestThreshold) {
+      action = UserSelectionAction::DownFastest;
+    } else if (timeDifference < _throttleStepFasterThreshold) {
+      action = UserSelectionAction::DownFaster;
+    } else {
+      action = UserSelectionAction::Down;
+    }
+    _lastDownThrottleStep = currentMillis;
+  } else if (result == Direction::CCW) {
+    unsigned long timeDifference = currentMillis - _lastUpThrottleStep;
+    if (timeDifference < _throttleStepFastestThreshold) {
+      action = UserSelectionAction::UpFastest;
+    } else if (timeDifference < _throttleStepFasterThreshold) {
+      action = UserSelectionAction::UpFaster;
+    } else {
+      action = UserSelectionAction::Up;
+    }
+    _lastUpThrottleStep = currentMillis;
+  }
+  if (action != UserSelectionAction::None)
+    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::check() returns %d", static_cast<int>(action));
+  return action;
 }
 
 void RotaryEncoder::setMode(RotaryEncoder::Mode mode) {

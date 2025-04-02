@@ -20,6 +20,9 @@
 
 #ifndef NATIVE_TESTING
 
+#include "Defines.h"
+#include "Logger.h"
+#include "UserSelectionInterface.h"
 #include <Arduino.h>
 
 /**
@@ -29,23 +32,24 @@
  * operation of these.
  *
  * This supports both half step and full step operation for both clockwise and counter-clockwise operation.
- * 
- * @note Ensure you call the begin() method to initialise each instance correctly, and then call the check() method frequently in your main loop for accurate detection of rotary encoder movements.
- * 
+ *
+ * @note Ensure you call the begin() method to initialise each instance correctly, and then call the check() method
+ * frequently in your main loop for accurate detection of rotary encoder movements.
+ *
  * Usage example:
- * 
+ *
  * @code {.cpp}
  * #include "RotaryEncoder.h"
- * 
+ *
  * RotaryEncoder *encoder = new RotaryEncoder(2, 3, RotaryEncoder::Mode::HalfStep);
- * 
+ *
  * void setup() {
  *   encoder->begin();
  * }
- * 
+ *
  * void loop() {
- *   RotaryEncoder::Direction direction = encoder->check();
- * 
+ *   RotaryEncoder::Direction direction = encoder->checkDirection();
+ *
  *   if (direction == RotaryEncoder::Direction::CW) {
  *     // Handle clockwise rotation
  *   } else if (direction == RotaryEncoder::Direction::CCW) {
@@ -53,11 +57,11 @@
  *   }
  * }
  * @endcode
- * 
+ *
  * @section credit Credit to Ben Buxton
- * 
+ *
  * These are Ben's original comments from the Rotary library.
- * 
+ *
  * Rotary encoder handler for arduino. v1.1
  *
  * Copyright 2011 Ben Buxton. Licenced under the GNU GPL Version 3.
@@ -119,7 +123,7 @@
  * It is also a lot simpler than others - a static state table and less
  * than 10 lines of logic.
  */
-class RotaryEncoder {
+class RotaryEncoder : public UserSelectionInterface {
 public:
   /**
    * @brief Mode for the RotaryEncoder input
@@ -143,13 +147,19 @@ public:
   /**
    * @brief Initialise input pins and set initial state
    */
-  void begin();
+  void begin() override;
 
   /**
    * @brief Check if the rotary encoder has been rotated, call as often as possible
    * @return RotaryEncoderDirection Direction of the move, or None if not changed
    */
-  RotaryEncoder::Direction check();
+  RotaryEncoder::Direction checkDirection();
+
+  /**
+   * @brief Check for the current UserSelectionAction
+   * @return UserSelectionAction
+   */
+  UserSelectionInterface::UserSelectionAction check() override;
 
   /**
    * @brief Set the rotary encoder mode
@@ -163,6 +173,10 @@ private:
   RotaryEncoder::Mode _mode;
   const byte _inputMode;
   uint8_t _state;
+  unsigned long _throttleStepFasterThreshold;
+  unsigned long _throttleStepFastestThreshold;
+  unsigned long _lastUpThrottleStep;
+  unsigned long _lastDownThrottleStep;
 
   // State machine constants
   static constexpr uint8_t DIR_NONE = 0x00;

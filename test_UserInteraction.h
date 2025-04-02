@@ -19,6 +19,7 @@
 #define TEST_USERINTERACTION_H
 
 #include "Defines.h"
+#include "Logger.h"
 #include "Version.h"
 
 // Don't include this if doing native testing
@@ -96,7 +97,7 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
 
   // Poll and wait for the correct number of steps
   do {
-    direction = encoder->check();
+    direction = encoder->checkDirection();
     if (direction == expectedDirection) {
       counter++;
     } else if (direction != RotaryEncoder::Direction::None) {
@@ -163,6 +164,9 @@ void promptButtonTest(const char *prompt, Button *button,
 
 void setup() {
   Serial.begin(115200);
+#ifdef LOG_LEVEL
+  Logger::setLogLevel(LOG_LEVEL);
+#endif // ENABLE_DEBUG
   delay(3000);
   keypad.begin();
   encoder1.begin();

@@ -16,6 +16,14 @@
  */
 
 /**
+ * @brief Define the log level
+ */
+// #define LOG_LEVEL LogLevel::LOG_DEBUG
+// #define LOG_LEVEL LogLevel::LOG_INFO
+// #define LOG_LEVEL LogLevel::LOG_WARN // This is the default
+// #define LOG_LEVEL LogLevel::LOG_ERROR
+
+/**
  * @brief Enable testing of the physical input and display devices
  * @details To test that the various hardware devices are connected and functioning correctly, uncomment the
  * DEVICE_TESTING line below, along with one or more of the devices to be tested.
