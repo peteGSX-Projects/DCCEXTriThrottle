@@ -18,6 +18,7 @@
 #include "Throttle.h"
 #include "test/mocks/MockButton.h"
 #include "test/mocks/MockRotaryEncoder.h"
+#include <DCCEXProtocol.h>
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -26,7 +27,7 @@ class ThrottleTests : public Test {
 protected:
   MockButton button;
   MockRotaryEncoder encoder;
-  Throttle throttle = Throttle(&button, &encoder);
+  Throttle throttle = Throttle(&button, &encoder, 1, 2, 5);
 
   // Optional setup method
   void SetUp() override {}
@@ -35,4 +36,14 @@ protected:
   void TearDown() override {}
 };
 
-TEST_F(ThrottleTests, BasicTest) {}
+/**
+ * @brief Test the initial state of a Throttle instance is as expected
+ */
+TEST_F(ThrottleTests, TestInitialState) {
+  EXPECT_EQ(throttle.getConsist(), nullptr);
+  EXPECT_EQ(throttle.getLoco(), nullptr);
+  EXPECT_EQ(throttle.getSpeed(), 0);
+  EXPECT_EQ(throttle.speedChanged(), false);
+  EXPECT_EQ(throttle.getDirection(), Direction::Forward);
+  EXPECT_EQ(throttle.directionChanged(), false);
+}
