@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -42,6 +43,7 @@ void loop() {}
 
 // Include if doing device testing
 #elif defined(DEVICE_TESTING)
-#include "test_UserInteraction.h"
+#warning "Device testing mode is enabled"
+#include "TestUserInteraction.h"
 
 #endif // !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)

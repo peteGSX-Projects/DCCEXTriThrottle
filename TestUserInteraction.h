@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -15,8 +16,8 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TEST_USERINTERACTION_H
-#define TEST_USERINTERACTION_H
+#ifndef TESTUSERINTERACTION_H
+#define TESTUSERINTERACTION_H
 
 #include "Defines.h"
 #include "Logger.h"
@@ -242,4 +243,4 @@ void loop() {}
 
 #endif // !defined(NATIVE_TESTING) && defined(DEVICE_TESTING)
 
-#endif // TEST_USERINTERACTION_H
+#endif // TESTUSERINTERACTION_H

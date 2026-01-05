@@ -1,5 +1,6 @@
 /*
- *  © 2025 Peter Cole
+*  © 2026 Peter Cole
+*  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@
 /**
  * @brief Enable testing of the physical input and display devices
  * @details To test that the various hardware devices are connected and functioning correctly, uncomment the
- * DEVICE_TESTING line below, along with one or more of the devices to be tested.
+ * appropriate line(s) below to test one or more devices.
  *
  * TEST_DISPLAY will simply display some text on screen using all defined fonts, and if you see them the test is
  * successful.
@@ -44,7 +45,6 @@
  * report success or failure in the serial console.
  */
 
-// #define DEVICE_TESTING
 // #define TEST_DISPLAY
 // #define TEST_KEYPAD
 // #define TEST_ENCODERS

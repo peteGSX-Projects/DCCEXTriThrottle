@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole 
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -29,6 +30,7 @@
 #endif
 
 // Define the default rotary encoder pins
+// ENCODER1
 #ifndef ENCODER1_DT
 #define ENCODER1_DT PC14
 #endif // ENCODER1_DT
@@ -38,6 +40,8 @@
 #ifndef ENCODER1_BUTTON
 #define ENCODER1_BUTTON PA0
 #endif // ENCODER1_BUTTON
+
+// ENCODER2
 #ifndef ENCODER2_DT
 #define ENCODER2_DT PB0
 #endif // ENCODER2_DT
@@ -47,20 +51,25 @@
 #ifndef ENCODER2_BUTTON
 #define ENCODER2_BUTTON PA1
 #endif // ENCODER2_BUTTON
-#ifndef ENCODER3_DT
+
+// ENCODER3
+// DT/CLK different on Bluepill/Blackpill
 #if defined(ARDUINO_BLUEPILL_F103C8)
+#ifndef ENCODER3_DT
 #define ENCODER3_DT PB10
-#elif defined(ARDUINO_BLACKPILL_F411CE)
-#define ENCODER3_DT PB12
-#endif // PLATFORM
 #endif // ENCODER3_DT
 #ifndef ENCODER3_CLK
-#if defined(ARDUINO_BLUEPILL_F103C8)
 #define ENCODER3_CLK PB11
-#elif defined(ARDUINO_BLACKPILL_F411CE)
-#define ENCODER3_DT PB13
-#endif // PLATFORM
 #endif // ENCODER3_CLK
+#elif defined(ARDUINO_BLACKPILL_F411CE)
+#ifndef ENCODER3_DT
+#define ENCODER3_DT PB12
+#endif // ENCODER3_DT
+#ifndef ENCODER3_CLK
+#define ENCODER3_CLK PB13
+#endif // ENCODER3_CLK
+#endif // PLATFORM
+// Button same on both
 #ifndef ENCODER3_BUTTON
 #define ENCODER3_BUTTON PA2
 #endif // ENCODER3_BUTTON
@@ -96,5 +105,11 @@
 #ifndef THROTTLE_STEP_FASTEST_THRESHOLD
 #define THROTTLE_STEP_FASTEST_THRESHOLD 125
 #endif // THROTTLE_STEP_FASTEST_THRESHOLD
+
+// Set device testing if user has configured any device tests
+#undef DEVICE_TESTING
+#if defined(TEST_DISPLAY) || defined(TEST_KEYPAD) || defined(TEST_ENCODERS) || defined(TEST_BUTTONS)
+#define DEVICE_TESTING
+#endif
 
 #endif // DEFINES_H
