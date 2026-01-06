@@ -1,6 +1,5 @@
 /*
  *  © 2026 Peter Cole
- *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,34 +15,22 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * @file DCCEXTriThrottle.ino
- * @mainpage DCC-EX Tri-Throttle
- * @brief A throttle for DCC-EX to simultaneously control three locos via the DCC-EX Protocol
- *
- * @details
- *
- */
+#ifndef APPCONFIGURATION_H
+#define APPCONFIGURATION_H
 
-#include "Defines.h"
+#include "Button.h"
+#include "CustomisableKeypad.h"
+#include "EventManager.h"
 #include "Logger.h"
+#include "RotaryEncoder.h"
 
-// Don't do standard Arduino stuff if testing
-#if !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
+/**
+ * @brief AppConfiguration performs all application configuration on startup.
+ * All interfaces, menus, DCCEXProtocol related objects, and other application objects are created within this class.
+ */
+class AppConfiguration {
+public:
+  AppConfiguration();
+};
 
-#include <Arduino.h>
-
-void setup() {
-  Serial.begin(115200);
-  delay(3000);
-  LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle");
-}
-
-void loop() {}
-
-// Include if doing device testing
-#elif defined(DEVICE_TESTING)
-#warning "Device testing mode is enabled"
-#include "TestUserInteraction.h"
-
-#endif // !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
+#endif // APPCONFIGURATION_H
