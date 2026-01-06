@@ -37,6 +37,22 @@ static const byte testRowPins[] = {KEYPAD_ROW_PINS};
 static const byte testColumnPins[] = {KEYPAD_COLUMN_PINS};
 static const char testKeyMap[] = {KEYPAD_MAP};
 
+// Setup test results
+static const int MAX_TESTS = 30;
+static const int DETAIL_BUFFER_SIZE = 100;
+
+struct TestResult {
+  const char *prompt;
+  bool passed;
+  int detailIndex;
+};
+
+TestResult testResults[MAX_TESTS];
+char errorDetails[MAX_TESTS][DETAIL_BUFFER_SIZE];
+int testCount = 0;
+int errorCount = 0;
+
+// Instantiate physical devices
 CustomisableKeypad keypad(KEYPAD_ROWS, KEYPAD_COLUMNS, testRowPins, testColumnPins, testKeyMap, KEYPAD_DEBOUNCE_TIME,
                           KEYPAD_HELD_THRESHOLD);
 Button button1(ENCODER1_BUTTON);
@@ -49,6 +65,42 @@ U8G2SH1106Display display;
 
 #define TEST_START Logger::log(LogLevel::LOG_MESSAGE, "--- TEST START ---");
 #define TEST_END Logger::log(LogLevel::LOG_MESSAGE, "--- TEST END ---\n");
+
+/// @brief Record the result of each test, including details if it failed
+/// @param prompt The prompt used for the test
+/// @param passed True if passed, false if failed
+/// @param detail If test failed, error details
+void recordTestResult(const char *prompt, bool passed, const char *detail = nullptr) {
+  if (testCount >= MAX_TESTS)
+    return;
+  testResults[testCount].prompt = prompt;
+  testResults[testCount].passed = passed;
+
+  if (!passed && detail != nullptr) {
+    testResults[testCount].detailIndex = errorCount;
+    strncpy(errorDetails[errorCount], detail, DETAIL_BUFFER_SIZE - 1);
+    errorCount++;
+  } else {
+    testResults[testCount].detailIndex = -1;
+  }
+  testCount++;
+}
+
+
+void printTestSummary() {
+  LOG(LogLevel::LOG_MESSAGE, "\n--- TEST SUMMARY ---");
+
+  for (int i = 0; i < testCount; i++) {
+    if (testResults[i].passed) {
+      LOG(LogLevel::LOG_MESSAGE, "%s: SUCCESS", testResults[i].prompt);
+    } else {
+      const char *detail = (testResults[i].detailIndex >= 0) ? errorDetails[testResults[i].detailIndex] : "FAIL";
+      LOG(LogLevel::LOG_ERROR, "%s: %s", testResults[i].prompt, detail);
+    }
+  }
+
+  LOG(LogLevel::LOG_MESSAGE, "-------------------\n");
+}
 
 /**
  * @brief Perform basic display testing showing test message and software version
@@ -82,18 +134,23 @@ void promptKeypadTest(const char *prompt, char expectedKey, UserInputInterface::
   // Display test output in the console
   bool testPassed = (event.key == expectedKey && event.action == expectedType);
 
-  LogLevel level;
+  const char *resultMessage;
 
   if (testPassed) {
-    level = LogLevel::LOG_MESSAGE;
+    LOG(LogLevel::LOG_MESSAGE, "Test passed");
+    recordTestResult(prompt, true);
   } else {
-    level = LogLevel::LOG_ERROR;
-  }
-  if (millis() >= timeout) {
-    LOG(level, "Test timed out");
-  } else {
-    LOG(level, "expectedKey|event.key|expectedType|event.type: %c|%c|%d|%d", expectedKey, event.key,
-        static_cast<int>(expectedType), static_cast<int>(event.action));
+    char buffer[DETAIL_BUFFER_SIZE];
+    if (millis() >= timeout) {
+      LOG(LogLevel::LOG_ERROR, "Test timed out");
+      snprintf(buffer, DETAIL_BUFFER_SIZE, "FAIL (Timed out)");
+    } else {
+      LOG(LogLevel::LOG_ERROR, "expectedKey|event.key|expectedType|event.type: %c|%c|%d|%d", expectedKey, event.key,
+          static_cast<int>(expectedType), static_cast<int>(event.action));
+      snprintf(buffer, DETAIL_BUFFER_SIZE, "FAIL (expectedKey|event.key|expectedType|event.type: %c|%c|%d|%d)",
+               expectedKey, event.key, static_cast<int>(expectedType), static_cast<int>(event.action));
+    }
+    recordTestResult(prompt, false, buffer);
   }
   TEST_END
 }
@@ -247,6 +304,8 @@ void setup() {
                    5000);
   promptButtonTest("Long press button 3", &button3, UserConfirmationInterface::UserConfirmationAction::LongClick, 5000);
 #endif // TEST_BUTTONS
+
+  printTestSummary();
 }
 
 void loop() {}
