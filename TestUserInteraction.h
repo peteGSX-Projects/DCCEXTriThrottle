@@ -26,13 +26,19 @@
 // Don't include this if doing native testing
 #if !defined(NATIVE_TESTING) && defined(DEVICE_TESTING)
 
-#include "AdvancedKeypad.h"
 #include "Button.h"
+#include "CustomisableKeypad.h"
 #include "RotaryEncoder.h"
 #include "U8G2SH1106Display.h"
 #include <Arduino.h>
 
-AdvancedKeypad keypad;
+// Define the required keypad arrays using user defines
+static const byte testRowPins[] = {KEYPAD_ROW_PINS};
+static const byte testColumnPins[] = {KEYPAD_COLUMN_PINS};
+static const char testKeyMap[] = {KEYPAD_MAP};
+
+CustomisableKeypad keypad(KEYPAD_ROWS, KEYPAD_COLUMNS, testRowPins, testColumnPins, testKeyMap, KEYPAD_DEBOUNCE_TIME,
+                          KEYPAD_HELD_THRESHOLD);
 Button button1(ENCODER1_BUTTON);
 Button button2(ENCODER2_BUTTON);
 Button button3(ENCODER3_BUTTON);
@@ -86,7 +92,7 @@ void promptKeypadTest(const char *prompt, char expectedKey, UserInputInterface::
   if (millis() >= timeout) {
     LOG(level, "Test timed out");
   } else {
-    LOG(level, "expectedKey|event.key|expectedType|event.type: %s|%s|%d|%d", expectedKey, event.key,
+    LOG(level, "expectedKey|event.key|expectedType|event.type: %c|%c|%d|%d", expectedKey, event.key,
         static_cast<int>(expectedType), static_cast<int>(event.action));
   }
   TEST_END
@@ -173,7 +179,7 @@ void setup() {
   CONSOLE_STREAM.begin(115200);
   Logger::setOutput(&CONSOLE_STREAM);
   delay(5000);
-  LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri Throttle Testing");
+  LOG(LogLevel::LOG_MESSAGE, "DCC-EX TriThrottle Testing");
 #ifdef LOG_LEVEL
   Logger::setLogLevel(LOG_LEVEL);
 #endif // ENABLE_DEBUG
@@ -192,13 +198,17 @@ void setup() {
 
 #ifdef TEST_KEYPAD
   // Test Single press 1
-  promptKeypadTest("Press the number 1 briefly", '1', UserInputInterface::UserInputAction::SinglePress, 5000);
+  promptKeypadTest("Press the '1' key briefly", '1', UserInputInterface::UserInputAction::Pressed, 5000);
 
-  // Test Double press 2
-  promptKeypadTest("Double Press the number 2", '2', UserInputInterface::UserInputAction::DoublePress, 5000);
+  // Test Held *
+  promptKeypadTest("Press and hold the '*' key", '*', UserInputInterface::UserInputAction::Held, 5000);
 
-  // Test Long press #
-  promptKeypadTest("Press and hold the # key", '#', UserInputInterface::UserInputAction::LongPress, 5000);
+  // Test Released *
+  promptKeypadTest("Now release the '*' key", '*', UserInputInterface::UserInputAction::Released, 5000);
+
+  // Test different key for Held/Released - 7
+  promptKeypadTest("Press and hold the '7' key", '7', UserInputInterface::UserInputAction::Held, 5000);
+  promptKeypadTest("Now release the '7' key", '7', UserInputInterface::UserInputAction::Released, 5000);
 #endif // TEST_KEYPAD
 
 #ifdef TEST_ENCODERS

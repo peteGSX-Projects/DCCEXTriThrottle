@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -30,12 +31,37 @@ protected:
 };
 
 /**
- * @brief Ensure the mock works to set and retrieve a proper keypad event
+ * @brief Test a single key press event
  */
-TEST_F(UserInputInterfaceTests, CheckEventRetrieval) {
-  UserInputInterface::UserInputEvent setEvent = {'1', UserInputInterface::UserInputAction::SinglePress};
+TEST_F(UserInputInterfaceTests, ReturnsPressedEvent) {
+  UserInputInterface::UserInputEvent setEvent = {'1', UserInputInterface::UserInputAction::Pressed};
   keypad.setInputEvent(setEvent);
+
   UserInputInterface::UserInputEvent event = keypad.check();
-  EXPECT_EQ(setEvent.key, event.key);
-  EXPECT_EQ(setEvent.action, setEvent.action);
+  EXPECT_EQ(event.key, '1');
+  EXPECT_EQ(event.action, UserInputInterface::UserInputAction::Pressed);
+}
+
+/**
+ * @brief Test a key held event
+ */
+TEST_F(UserInputInterfaceTests, ReturnsHeldEvent) {
+  UserInputInterface::UserInputEvent setEvent = {'5', UserInputInterface::UserInputAction::Held};
+  keypad.setInputEvent(setEvent);
+
+  UserInputInterface::UserInputEvent event = keypad.check();
+  EXPECT_EQ(event.key, '5');
+  EXPECT_EQ(event.action, UserInputInterface::UserInputAction::Held);
+}
+
+/**
+ * @brief Test a key released event
+ */
+TEST_F(UserInputInterfaceTests, ReturnsReleasedEvent) {
+  UserInputInterface::UserInputEvent setEvent = {'*', UserInputInterface::UserInputAction::Released};
+  keypad.setInputEvent(setEvent);
+
+  UserInputInterface::UserInputEvent event = keypad.check();
+  EXPECT_EQ(event.key, '*');
+  EXPECT_EQ(event.action, UserInputInterface::UserInputAction::Released);
 }

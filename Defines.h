@@ -112,4 +112,36 @@
 #define DEVICE_TESTING
 #endif
 
+// Set default keypad dimensions
+#ifndef KEYPAD_ROWS
+#define KEYPAD_ROWS 4
+#endif // KEYPAD_ROWS
+
+#ifndef KEYPAD_COLUMNS
+#define KEYPAD_COLUMNS 3
+#endif // KEYPAD_COLUMNS
+
+// Set default keypad pins (same for Bluepill/Blackpill)
+#ifndef KEYPAD_ROW_PINS
+#define KEYPAD_ROW_PINS PB4,PB9,PB8,PB6
+#endif // KEYPAD_ROW_PINS
+
+#ifndef KEYPAD_COLUMN_PINS
+#define KEYPAD_COLUMN_PINS PB5,PB3,PB7
+#endif // KEYPAD_COLUMN_PINS
+
+// Set default key map
+#ifndef KEYPAD_MAP
+#define KEYPAD_MAP '1','2','3','4','5','6','7','8','9','*','0','#'
+#endif // KEYPAD_MAP
+
+// Set default keypad timings
+#ifndef KEYPAD_DEBOUNCE_TIME
+#define KEYPAD_DEBOUNCE_TIME 20
+#endif // KEYPAD_DEBOUNCE_TIME
+
+#ifndef KEYPAD_HELD_THRESHOLD
+#define KEYPAD_HELD_THRESHOLD 500
+#endif // KEYPAD_HELD_THRESHOLD
+
 #endif // DEFINES_H

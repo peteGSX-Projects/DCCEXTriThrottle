@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -30,7 +31,7 @@ public:
   /**
    * @brief User confirmation action data types available
    */
-  enum class UserInputAction { None, SinglePress, DoublePress, LongPress };
+  enum class UserInputAction { None, Pressed, Held, Released };
 
   /**
    * @brief Structure for a UserInputEvent containing the key pressed and type of press
