@@ -70,15 +70,16 @@ U8G2SH1106Display display;
 /// @param prompt The prompt used for the test
 /// @param passed True if passed, false if failed
 /// @param detail If test failed, error details
-void recordTestResult(const char *prompt, bool passed, const char *detail = nullptr) {
+void recordTestResult(const char *prompt, bool passed, const char *detail) {
   if (testCount >= MAX_TESTS)
     return;
   testResults[testCount].prompt = prompt;
   testResults[testCount].passed = passed;
 
-  if (!passed && detail != nullptr) {
+  if (!passed) {
     testResults[testCount].detailIndex = errorCount;
     strncpy(errorDetails[errorCount], detail, DETAIL_BUFFER_SIZE - 1);
+    errorDetails[errorCount][DETAIL_BUFFER_SIZE - 1] = '\0';
     errorCount++;
   } else {
     testResults[testCount].detailIndex = -1;
@@ -86,7 +87,7 @@ void recordTestResult(const char *prompt, bool passed, const char *detail = null
   testCount++;
 }
 
-
+/// @brief Print the full test summary for all tests
 void printTestSummary() {
   LOG(LogLevel::LOG_MESSAGE, "\n--- TEST SUMMARY ---");
 
@@ -102,9 +103,7 @@ void printTestSummary() {
   LOG(LogLevel::LOG_MESSAGE, "-------------------\n");
 }
 
-/**
- * @brief Perform basic display testing showing test message and software version
- */
+/// @brief Perform basic display testing showing test message and software version
 void displayTest() {
   TEST_START
   LOG(LogLevel::LOG_MESSAGE, "Display testing");
@@ -131,27 +130,24 @@ void promptKeypadTest(const char *prompt, char expectedKey, UserInputInterface::
     event = keypad.check();
   } while (event.action == UserInputInterface::UserInputAction::None && millis() < timeout);
 
-  // Display test output in the console
+  // Set up test results
   bool testPassed = (event.key == expectedKey && event.action == expectedType);
+  LogLevel logLevel = testPassed ? LogLevel::LOG_MESSAGE : LogLevel::LOG_ERROR;
+  char resultMessage[DETAIL_BUFFER_SIZE];
 
-  const char *resultMessage;
-
+  // Format output
   if (testPassed) {
-    LOG(LogLevel::LOG_MESSAGE, "Test passed");
-    recordTestResult(prompt, true);
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "SUCCESS");
+  } else if ((millis() >= timeout)) {
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "FAIL (Timed out)");
   } else {
-    char buffer[DETAIL_BUFFER_SIZE];
-    if (millis() >= timeout) {
-      LOG(LogLevel::LOG_ERROR, "Test timed out");
-      snprintf(buffer, DETAIL_BUFFER_SIZE, "FAIL (Timed out)");
-    } else {
-      LOG(LogLevel::LOG_ERROR, "expectedKey|event.key|expectedType|event.type: %c|%c|%d|%d", expectedKey, event.key,
-          static_cast<int>(expectedType), static_cast<int>(event.action));
-      snprintf(buffer, DETAIL_BUFFER_SIZE, "FAIL (expectedKey|event.key|expectedType|event.type: %c|%c|%d|%d)",
-               expectedKey, event.key, static_cast<int>(expectedType), static_cast<int>(event.action));
-    }
-    recordTestResult(prompt, false, buffer);
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "FAIL (expectedKey|event.key|expectedType|event.type: %c|%c|%d|%d)",
+             expectedKey, event.key, static_cast<int>(expectedType), static_cast<int>(event.action));
   }
+
+  // Display and record result for the summary
+  LOG(logLevel, resultMessage);
+  recordTestResult(prompt, testPassed, resultMessage);
   TEST_END
 }
 
@@ -179,21 +175,23 @@ void promptEncoderTest(const char *prompt, RotaryEncoder *encoder, RotaryEncoder
     }
   } while (counter < expectedSteps && millis() < timeout);
 
-  // Display test output in the console
+  // Set up test results
   bool testPassed = (counter == expectedSteps);
+  LogLevel logLevel = testPassed ? LogLevel::LOG_MESSAGE : LogLevel::LOG_ERROR;
+  char resultMessage[DETAIL_BUFFER_SIZE];
 
-  LogLevel level;
-
+  // Format output
   if (testPassed) {
-    level = LogLevel::LOG_MESSAGE;
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "SUCCESS");
+  } else if ((millis() >= timeout)) {
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "FAIL (Timed out)");
   } else {
-    level = LogLevel::LOG_ERROR;
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "FAIL (expectedSteps|counter: %d|%d)", expectedSteps, counter);
   }
-  if (millis() >= timeout) {
-    LOG(level, "Test timed out");
-  } else {
-    LOG(level, "expectedSteps|counter: %d|%d", expectedSteps, counter);
-  }
+
+  // Display and record result for the summary
+  LOG(logLevel, resultMessage);
+  recordTestResult(prompt, testPassed, resultMessage);
   TEST_END
 }
 
@@ -214,21 +212,24 @@ void promptButtonTest(const char *prompt, Button *button,
     action = button->check();
   } while (action == UserConfirmationInterface::UserConfirmationAction::None && millis() < timeout);
 
-  // Display test output in the console
+  // Set up test results
   bool testPassed = (action == expectedAction);
+  LogLevel logLevel = testPassed ? LogLevel::LOG_MESSAGE : LogLevel::LOG_ERROR;
+  char resultMessage[DETAIL_BUFFER_SIZE];
 
-  LogLevel level;
-
+  // Format output
   if (testPassed) {
-    level = LogLevel::LOG_MESSAGE;
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "SUCCESS");
+  } else if ((millis() >= timeout)) {
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "FAIL (Timed out)");
   } else {
-    level = LogLevel::LOG_ERROR;
+    snprintf(resultMessage, DETAIL_BUFFER_SIZE, "FAIL (expectedAction|action: %d|%d)", static_cast<int>(expectedAction),
+             static_cast<int>(action));
   }
-  if (millis() >= timeout) {
-    LOG(level, "Test timed out");
-  } else {
-    LOG(level, "expectedAction|action: %d|%d", static_cast<int>(expectedAction), static_cast<int>(action));
-  }
+
+  // Display and record result for the summary
+  LOG(logLevel, resultMessage);
+  recordTestResult(prompt, testPassed, resultMessage);
   TEST_END
 }
 
