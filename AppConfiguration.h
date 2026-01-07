@@ -39,7 +39,7 @@ static const int NUM_THROTTLES = 3;
 class AppConfiguration {
 public:
   /**
-   * @brief Construct a new App Configuration object
+   * @brief Construct a new App Configuration object - ensure Stream objects are started before instantiating!
    * @param consoleStream Pointer to the stream for console interaction
    * @param commandStationStream Pointer to the stream for the CommandStation connection
    * @param logLevel Log level to set (default is WARN if not specified)
