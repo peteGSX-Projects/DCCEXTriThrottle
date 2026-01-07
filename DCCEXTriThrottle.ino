@@ -36,21 +36,22 @@
 #include <Arduino.h>
 
 AppConfiguration *appConfiguration = nullptr;
+AppOrchestrator *appOrchestrator = nullptr;
 
 void setup() {
   CONSOLE_STREAM.begin(115200);
   COMMANDSTATION_STREAM.begin(115200);
-  delay(3000);
-  // Instantiate config only after stream begin() is called
+#ifdef STARTUP_DELAY
+  delay(STARTUP_DELAY);
+#endif // STARTUP_DELAY
   appConfiguration = new AppConfiguration(&CONSOLE_STREAM, &COMMANDSTATION_STREAM, LOG_LEVEL);
   appConfiguration->initialise();
   LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle");
-  AppOrchestrator *appOrchestrator = appConfiguration->getAppOrchestrator();
+  appOrchestrator = appConfiguration->getAppOrchestrator();
   appOrchestrator->begin();
 }
 
 void loop() {
-  AppOrchestrator *appOrchestrator = appConfiguration->getAppOrchestrator();
   appOrchestrator->update();
 }
 

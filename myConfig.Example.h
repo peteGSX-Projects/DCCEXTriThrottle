@@ -1,6 +1,6 @@
 /*
-*  © 2026 Peter Cole
-*  © 2025 Peter Cole
+ *  © 2026 Peter Cole
+ *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,3 +49,13 @@
 // #define TEST_KEYPAD
 // #define TEST_ENCODERS
 // #define TEST_BUTTONS
+
+/**
+ * @brief If desired, set a startup delay
+ * @details If your Command Station has a startup delay enabled to allow accessories to start before the
+ * EX-CommandStation software, it may be necessary to delay the start of the throttle software as well to prevent a
+ * timeout retrieving the various lists.
+ * 
+ * The delay is in milliseconds, so the default 3000 is 3 seconds (this should match EX-CommandStation's default).
+ */
+// #define STARTUP_DELAY 3000

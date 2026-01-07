@@ -26,6 +26,7 @@
 /// when creating or listening for a valid Event
 enum EventType {
   CommandStationSelected,
+  CommandStationConnected,
   ReceivedRosterList,
   LocoSelected,
   ReceivedLocoUpdate,
