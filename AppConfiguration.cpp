@@ -25,6 +25,7 @@ AppConfiguration::AppConfiguration(Stream *consoleStream, Stream *commandStation
   _eventManager = new EventManager;
   _logger = new Logger;
   _logger->setLogLevel(logLevel);
+  _logger->setOutput(_consoleStream);
   for (int i = 0; i < NUM_THROTTLES; i++) {
     _throttles[i] = nullptr;
   }
