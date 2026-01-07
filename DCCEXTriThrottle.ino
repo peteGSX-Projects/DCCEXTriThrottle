@@ -25,17 +25,19 @@
  *
  */
 
-#include "Defines.h"
-#include "Logger.h"
-
 // Don't do standard Arduino stuff if testing
 #if !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
 
+#include "AppConfiguration.h"
 #include <Arduino.h>
 
+AppConfiguration *appConfiguration = new AppConfiguration(&CONSOLE_STREAM, &COMMANDSTATION_STREAM, LOG_LEVEL);
+
 void setup() {
-  Serial.begin(115200);
+  CONSOLE_STREAM.begin(115200);
+  COMMANDSTATION_STREAM.begin(115200);
   delay(3000);
+  appConfiguration->initialise();
   LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle");
 }
 

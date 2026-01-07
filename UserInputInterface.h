@@ -51,6 +51,11 @@ public:
    * @return UserInputEvent
    */
   virtual UserInputEvent check() = 0;
+
+  /**
+   * @brief Destroy the User Input Interface object
+   */
+  virtual ~UserInputInterface() = default;
 };
 
 #endif // USERINPUTINTERFACE_H

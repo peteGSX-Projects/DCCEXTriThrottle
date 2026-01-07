@@ -43,6 +43,11 @@ public:
    */
   virtual void displayStartupScreen(const char *headerText, const char *version) = 0;
 
+  /**
+   * @brief Destroy the Display Interface object
+   */
+  virtual ~DisplayInterface() = default;
+
 protected:
   bool _needsRedraw = true;
 };

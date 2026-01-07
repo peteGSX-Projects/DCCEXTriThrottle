@@ -44,3 +44,5 @@ bool Throttle::directionChanged() { return _directionChanged; }
 void Throttle::handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action) {}
 
 void Throttle::handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action) {}
+
+void Throttle::setLogger(Logger *logger) { _logger = logger; }

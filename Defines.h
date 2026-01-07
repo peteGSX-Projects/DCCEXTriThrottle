@@ -23,11 +23,29 @@
  * @brief Default options for the various configuration parameters that can be overridden in myConfig.h.
  */
 
+// Ensure rotary encoder modes have a defined value
+#define FULL_STEP 0
+#define HALF_STEP 1
+
+// Give log defines their values before user config
+#include "Logger.h"
+#define LOG_NONE LOG_NONE
+#define LOG_ERROR LOG_ERROR
+#define LOG_WARN LOG_WARN
+#define LOG_INFO LOG_INFO
+#define LOG_DEBUG LOG_DEBUG
+
 #if __has_include("myConfig.h")
 #include "myConfig.h"
 #else
 #warning myConfig.h not found, using defaults.
 #endif
+
+// Define the default rotary encoder mode
+#ifndef ENCODER_MODE
+#define ENCODER_MODE FULL_STEP
+// #define ENCODER_MODE HALF_STEP // alternative option
+#endif // ENCODER_MODE
 
 // Define the default rotary encoder pins
 // ENCODER1
@@ -143,5 +161,10 @@
 #ifndef KEYPAD_HELD_THRESHOLD
 #define KEYPAD_HELD_THRESHOLD 200
 #endif // KEYPAD_HELD_THRESHOLD
+
+// Set default log level if user has not
+#ifndef LOG_LEVEL
+#define LOG_LEVEL LOG_WARN
+#endif // LOG_LEVEL
 
 #endif // DEFINES_H

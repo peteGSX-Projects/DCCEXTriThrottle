@@ -58,9 +58,11 @@ CustomisableKeypad keypad(KEYPAD_ROWS, KEYPAD_COLUMNS, testRowPins, testColumnPi
 Button button1(ENCODER1_BUTTON);
 Button button2(ENCODER2_BUTTON);
 Button button3(ENCODER3_BUTTON);
-RotaryEncoder encoder1(ENCODER1_DT, ENCODER1_CLK, RotaryEncoder::Mode::FullStep);
-RotaryEncoder encoder2(ENCODER2_DT, ENCODER2_CLK, RotaryEncoder::Mode::FullStep);
-RotaryEncoder encoder3(ENCODER3_DT, ENCODER3_CLK, RotaryEncoder::Mode::FullStep);
+RotaryEncoder::Mode encoderMode =
+    (ENCODER_MODE == HALF_STEP) ? RotaryEncoder::Mode::HalfStep : RotaryEncoder::Mode::FullStep;
+RotaryEncoder encoder1(ENCODER1_DT, ENCODER1_CLK, encoderMode);
+RotaryEncoder encoder2(ENCODER2_DT, ENCODER2_CLK, encoderMode);
+RotaryEncoder encoder3(ENCODER3_DT, ENCODER3_CLK, encoderMode);
 U8G2SH1106Display display;
 
 #define TEST_START Logger::log(LogLevel::LOG_MESSAGE, "--- TEST START ---");

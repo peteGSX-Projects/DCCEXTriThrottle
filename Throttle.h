@@ -20,7 +20,6 @@
 
 #include "Logger.h"
 #include "UserConfirmationInterface.h"
-#include "UserInputInterface.h"
 #include "UserSelectionInterface.h"
 #include <DCCEXProtocol.h>
 
@@ -91,6 +90,12 @@ public:
    */
   void handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action);
 
+  /**
+   * @brief Set the Logger object
+   * @param logger Pointer to the logger instance
+   */
+  void setLogger(Logger *logger);
+
 private:
   UserConfirmationInterface *_confirmer;
   UserSelectionInterface *_selector;
@@ -103,6 +108,7 @@ private:
   bool _speedChanged;
   Direction _direction;
   bool _directionChanged;
+  Logger *_logger;
 };
 
 #endif // THROTTLE_H
