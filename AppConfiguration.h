@@ -19,6 +19,7 @@
 #define APPCONFIGURATION_H
 
 /** Includes here */
+#include "AppOrchestrator.h"
 #include "Button.h"
 #include "CustomisableKeypad.h"
 #include "DisplayInterface.h"
@@ -50,6 +51,12 @@ public:
    * @brief Initialise all associated interfaces/objects and register events
    */
   void initialise();
+
+  /**
+   * @brief Get the App Orchestrator object
+   * @return AppOrchestrator* 
+   */
+  AppOrchestrator *getAppOrchestrator();
 
   /**
    * @brief Get the Console Stream object
@@ -99,6 +106,7 @@ public:
   ~AppConfiguration();
 
 private:
+  AppOrchestrator *_appOrchestrator;
   Stream *_consoleStream;
   Stream *_commandStationStream;
   UserInputInterface *_userInputInterface;

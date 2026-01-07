@@ -41,12 +41,18 @@ void setup() {
   CONSOLE_STREAM.begin(115200);
   COMMANDSTATION_STREAM.begin(115200);
   delay(3000);
+  // Instantiate config only after stream begin() is called
   appConfiguration = new AppConfiguration(&CONSOLE_STREAM, &COMMANDSTATION_STREAM, LOG_LEVEL);
   appConfiguration->initialise();
   LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle");
+  AppOrchestrator *appOrchestrator = appConfiguration->getAppOrchestrator();
+  appOrchestrator->begin();
 }
 
-void loop() {}
+void loop() {
+  AppOrchestrator *appOrchestrator = appConfiguration->getAppOrchestrator();
+  appOrchestrator->update();
+}
 
 // Include if doing device testing
 #elif defined(DEVICE_TESTING)

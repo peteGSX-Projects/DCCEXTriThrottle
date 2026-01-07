@@ -20,6 +20,7 @@
 
 AppConfiguration::AppConfiguration(Stream *consoleStream, Stream *commandStationStream, LogLevel logLevel)
     : _consoleStream(consoleStream), _commandStationStream(commandStationStream) {
+  _appOrchestrator = nullptr;
   _userInputInterface = nullptr;
   _displayInterface = nullptr;
   _eventManager = new EventManager;
@@ -62,7 +63,12 @@ void AppConfiguration::initialise() {
   _throttles[1] = new Throttle(button2, encoder2, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
   _throttles[2] = new Throttle(button3, encoder3, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
 #endif // NATIVE_TESTING
+
+  // Lastly, create orchestrator instance
+  _appOrchestrator = new AppOrchestrator(_displayInterface, _userInputInterface, _logger);
 }
+
+AppOrchestrator *AppConfiguration::getAppOrchestrator() { return _appOrchestrator; }
 
 Stream *AppConfiguration::getConsoleStream() { return _consoleStream; }
 
