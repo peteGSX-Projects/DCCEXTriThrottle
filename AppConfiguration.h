@@ -52,6 +52,18 @@ public:
   void initialise();
 
   /**
+   * @brief Get the Console Stream object
+   * @return Stream* 
+   */
+  Stream *getConsoleStream();
+
+  /**
+   * @brief Get the Command Station Stream object
+   * @return Stream* 
+   */
+  Stream *getCommandStationStream();
+
+  /**
    * @brief Get the User Input Interface object
    * @return UserInputInterface*
    */

@@ -16,6 +16,7 @@
  */
 
 #include "AppConfiguration.h"
+#include "Version.h"
 
 AppConfiguration::AppConfiguration(Stream *consoleStream, Stream *commandStationStream, LogLevel logLevel)
     : _consoleStream(consoleStream), _commandStationStream(commandStationStream) {
@@ -31,6 +32,7 @@ AppConfiguration::AppConfiguration(Stream *consoleStream, Stream *commandStation
 
 void AppConfiguration::initialise() {
 #ifndef NATIVE_TESTING
+  LOG(LogLevel::LOG_DEBUG, "AppConfiguration::initialise()");
   // Initialise the keypad first and define the required keypad arrays using user defines
   static const byte testRowPins[] = {KEYPAD_ROW_PINS};
   static const byte testColumnPins[] = {KEYPAD_COLUMN_PINS};
@@ -40,6 +42,7 @@ void AppConfiguration::initialise() {
 
   // Display is next
   _displayInterface = new U8G2SH1106Display();
+  _displayInterface->begin();
 
   // Now set up throttles, each with its own rotary encoder and button
   UserConfirmationInterface *button1 = new Button(ENCODER1_BUTTON);
@@ -59,6 +62,10 @@ void AppConfiguration::initialise() {
   _throttles[2] = new Throttle(button3, encoder3, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
 #endif // NATIVE_TESTING
 }
+
+Stream *AppConfiguration::getConsoleStream() { return _consoleStream; }
+
+Stream *AppConfiguration::getCommandStationStream() { return _commandStationStream; }
 
 UserInputInterface *AppConfiguration::getUserInputInterface() { return _userInputInterface; }
 
