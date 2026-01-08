@@ -43,11 +43,11 @@ void U8G2SH1106Display::clear() {
 }
 
 void U8G2SH1106Display::displayStartupScreen(const char *headerText, const char *version) {
-  if (_needsRedraw) {
-    _needsRedraw = false;
-    _displayHeader(headerText);
-    _displayStartupInfo(version);
-  }
+  if (!_needsRedraw)
+    return;
+  _needsRedraw = false;
+  _displayHeader(headerText);
+  _displayStartupInfo(version);
 }
 
 uint16_t U8G2SH1106Display::_calculateHeaderHeight() {
@@ -80,7 +80,7 @@ void U8G2SH1106Display::_displayStartupInfo(const char *version) {
   _oled->drawStr(x, y, version);
   y = _oled->getHeight() - 1;
   x = 0;
-  _oled->drawStr(x, y, "Press button to continue");
+  _oled->drawStr(x, y, "Press any key to continue");
   _oled->sendBuffer();
 }
 

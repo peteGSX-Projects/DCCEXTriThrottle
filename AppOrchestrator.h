@@ -25,7 +25,7 @@
 #include "UserInputInterface.h"
 
 // State machine states enum
-enum class AppState { Startup };
+enum class AppState { Startup, Throttle };
 
 /**
  * @brief The AppOrchestrator coordinates all application activity using a state machine and responding to
@@ -35,16 +35,41 @@ class AppOrchestrator : public EventListener {
 public:
   AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger);
 
-  void begin();
-
+  /**
+   * @brief Call the update() method at least once per main loop iteration
+   */
   void update();
 
   void onEvent(Event &event);
 
+  /**
+   * @brief Get the Current State object
+   * @return AppState
+   */
+  AppState getCurrentAppState();
+
+  /**
+   * @brief Destroy the App Orchestrator object
+   */
+  ~AppOrchestrator();
+
 private:
+  // Attributes
   DisplayInterface *_displayInterface;
   UserInputInterface *_userInputInterface;
   Logger *_logger;
+  AppState _currentAppState;
+
+  // Methods
+  /**
+   * @brief Display the startup screen while connecting to the CommandStation
+   */
+  void _handleStartupState(UserInputInterface::UserInputEvent event);
+
+  /**
+   * @brief Display the throttle screen and respond to user interactions
+   */
+  void _handleThrottleState(UserInputInterface::UserInputEvent event);
 };
 
 #endif // APPORCHESTRATOR_H

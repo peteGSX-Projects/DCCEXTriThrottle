@@ -44,6 +44,19 @@ public:
   virtual void displayStartupScreen(const char *headerText, const char *version) = 0;
 
   /**
+   * @brief Set the redraw flag for the display
+   * @param redraw True if redraw is needed, false if not
+   */
+  void setRedraw(bool redraw) { _needsRedraw = redraw; }
+
+  /**
+   * @brief Check if this display needs to be redrawn
+   * @return true If needed
+   * @return false If not
+   */
+  bool needsRedraw() { return _needsRedraw; }
+
+  /**
    * @brief Destroy the Display Interface object
    */
   virtual ~DisplayInterface() = default;

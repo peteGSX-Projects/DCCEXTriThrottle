@@ -16,6 +16,7 @@
  */
 
 #include "AppOrchestrator.h"
+#include "Version.h"
 #include "test/mocks/MockDisplay.h"
 #include "test/mocks/MockKeypad.h"
 #include <gtest/gtest.h>
@@ -33,6 +34,7 @@ protected:
   void SetUp() override {
     mockDisplay = new MockDisplay;
     mockKeypad = new MockKeypad;
+    logger = new Logger;
     appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger);
   }
 
@@ -43,3 +45,37 @@ protected:
     delete logger;
   }
 };
+
+/**
+ * @brief Ensure AppOrchestrator starts in Startup state
+ */
+TEST_F(AppOrchestratorTests, ValidateStartupState) {
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+}
+
+/**
+ * @brief Ensure AppOrchestrator goes from Startup to Throttle when any key event occurs
+ */
+TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
+  const char *expectedText = "DCC-EX Tri-Throttle";
+  const char *expectedVersion = VERSION;
+  
+  // Validate starts in Startup
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+
+  // Startup display should be called exactly twice
+  EXPECT_CALL(*mockDisplay, displayStartupScreen(StrEq(expectedText), StrEq(expectedVersion))).Times(2);
+  
+  // Single update with no key presses should remain in Startup, and display startup should be called
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+
+  // Key press should change to Throttle
+  mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Subsequent update with no user input should maintain state and not call startup display again
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}

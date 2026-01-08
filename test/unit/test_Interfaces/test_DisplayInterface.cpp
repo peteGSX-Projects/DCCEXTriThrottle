@@ -15,6 +15,7 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "Version.h"
 #include "test/mocks/MockDisplay.h"
 #include <gtest/gtest.h>
 
@@ -42,10 +43,10 @@ TEST_F(DisplayInterfaceTests, DisplayBasics) {
   display.clear();
 
   // displayStartupInfo called with the right parameters
-  const char *expectedHeader = "DCC-EX Tri Throttle";
-  const char *expectedVersion = "0.1.0";
+  const char *expectedHeader = "DCC-EX Tri-Throttle";
+  const char *expectedVersion = VERSION;
   EXPECT_CALL(display, displayStartupScreen(StrEq(expectedHeader), StrEq(expectedVersion))).Times(1);
-  display.displayStartupScreen("DCC-EX Tri Throttle", "0.1.0");
+  display.displayStartupScreen("DCC-EX Tri-Throttle", VERSION);
 
   // Verify all calls happened as expected
   Mock::VerifyAndClearExpectations(&display);

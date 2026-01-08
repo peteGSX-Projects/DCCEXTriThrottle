@@ -36,7 +36,6 @@
 #include <Arduino.h>
 
 AppConfiguration *appConfiguration = nullptr;
-AppOrchestrator *appOrchestrator = nullptr;
 
 void setup() {
   CONSOLE_STREAM.begin(115200);
@@ -46,13 +45,10 @@ void setup() {
 #endif // STARTUP_DELAY
   appConfiguration = new AppConfiguration(&CONSOLE_STREAM, &COMMANDSTATION_STREAM, LOG_LEVEL);
   appConfiguration->initialise();
-  LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle");
-  appOrchestrator = appConfiguration->getAppOrchestrator();
-  appOrchestrator->begin();
 }
 
 void loop() {
-  appOrchestrator->update();
+  appConfiguration->getAppOrchestrator()->update();
 }
 
 // Include if doing device testing

@@ -16,13 +16,44 @@
  */
 
 #include "AppOrchestrator.h"
+#include "Version.h"
 
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
                                  Logger *logger)
-    : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger) {}
+    : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger) {
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
+  _currentAppState = AppState::Startup;
+}
 
-void AppOrchestrator::begin() { LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::begin()"); }
-
-void AppOrchestrator::update() {}
+void AppOrchestrator::update() {
+  UserInputInterface::UserInputEvent inputEvent = _userInputInterface->check();
+  switch (_currentAppState) {
+  case AppState::Startup: {
+    _handleStartupState(inputEvent);
+    break;
+  }
+  case AppState::Throttle: {
+    _handleThrottleState(inputEvent);
+    break;
+  }
+  default: {
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator unknown AppState");
+    break;
+  }
+  }
+}
 
 void AppOrchestrator::onEvent(Event &event) {}
+
+AppState AppOrchestrator::getCurrentAppState() { return _currentAppState; }
+
+AppOrchestrator::~AppOrchestrator() {}
+
+void AppOrchestrator::_handleStartupState(UserInputInterface::UserInputEvent inputEvent) {
+  _displayInterface->displayStartupScreen("DCC-EX Tri-Throttle", VERSION);
+  if (inputEvent.action != UserInputInterface::UserInputAction::None) {
+    _currentAppState = AppState::Throttle;
+  }
+}
+
+void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent inputEvent) {}
