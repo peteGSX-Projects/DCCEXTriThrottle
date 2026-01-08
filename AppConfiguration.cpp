@@ -41,6 +41,7 @@ void AppConfiguration::initialise() {
   static const char testKeyMap[] = {KEYPAD_MAP};
   _userInputInterface = new CustomisableKeypad(KEYPAD_ROWS, KEYPAD_COLUMNS, testRowPins, testColumnPins, testKeyMap,
                                                KEYPAD_DEBOUNCE_TIME, KEYPAD_HELD_THRESHOLD);
+  _userInputInterface->begin();
 
   // Display is next
   _displayInterface = new U8G2SH1106Display();

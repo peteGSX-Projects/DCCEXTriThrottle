@@ -62,12 +62,14 @@ AppOrchestrator::~AppOrchestrator() {}
 
 void AppOrchestrator::_handleStartupState(UserInputInterface::UserInputEvent inputEvent) {
   _displayInterface->displayStartupScreen("DCC-EX Tri-Throttle", VERSION);
-  if (inputEvent.action != UserInputInterface::UserInputAction::None) {
+  if (inputEvent.key != '\0') {
     _currentAppState = AppState::Throttle;
   }
 }
 
-void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent inputEvent) {}
+void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent inputEvent) {
+  _displayInterface->clear();
+}
 
 const char *AppOrchestrator::_eventToString(EventType eventType) {
   switch (eventType) {

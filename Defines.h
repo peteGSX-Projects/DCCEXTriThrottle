@@ -159,7 +159,7 @@
 #endif // KEYPAD_DEBOUNCE_TIME
 
 #ifndef KEYPAD_HELD_THRESHOLD
-#define KEYPAD_HELD_THRESHOLD 200
+#define KEYPAD_HELD_THRESHOLD 300
 #endif // KEYPAD_HELD_THRESHOLD
 
 // Set default log level if user has not
