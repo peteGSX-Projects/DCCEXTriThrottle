@@ -40,6 +40,10 @@ public:
    */
   void update();
 
+  /**
+   * @brief Respond to EventListener events this instance is subscribed to
+   * @param event A valid Event object
+   */
   void onEvent(Event &event);
 
   /**
@@ -70,6 +74,12 @@ private:
    * @brief Display the throttle screen and respond to user interactions
    */
   void _handleThrottleState(UserInputInterface::UserInputEvent event);
+
+  /**
+   * @brief Helper method to return the event type name rather than int value
+   * @param eventType EventType
+   */
+  const char *_eventToString(EventType eventType);
 };
 
 #endif // APPORCHESTRATOR_H

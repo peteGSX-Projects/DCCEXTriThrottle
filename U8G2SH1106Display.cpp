@@ -50,6 +50,8 @@ void U8G2SH1106Display::displayStartupScreen(const char *headerText, const char 
   _displayStartupInfo(version);
 }
 
+void U8G2SH1106Display::displayMenu(Menu *menu) {}
+
 uint16_t U8G2SH1106Display::_calculateHeaderHeight() {
   _oled->setFont(_menuFont);
   uint16_t fontHeight = _oled->getMaxCharHeight();

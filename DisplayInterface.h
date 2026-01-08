@@ -19,6 +19,7 @@
 #define DISPLAYINTERFACE_H
 
 #include "Logger.h"
+#include "Menu.h"
 
 /**
  * @brief DisplayInterface to abstract physical display objects from display interactions, extend this class when adding
@@ -42,6 +43,12 @@ public:
    * @param version Version of the software to be displayed
    */
   virtual void displayStartupScreen(const char *headerText, const char *version) = 0;
+
+  /**
+   * @brief Display a menu
+   * @param menu Pointer to the menu to display
+   */
+  virtual void displayMenu(Menu *menu) = 0;
 
   /**
    * @brief Set the redraw flag for the display

@@ -37,13 +37,24 @@ void AppOrchestrator::update() {
     break;
   }
   default: {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator unknown AppState");
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::update(): Unknown AppState");
     break;
   }
   }
 }
 
-void AppOrchestrator::onEvent(Event &event) {}
+void AppOrchestrator::onEvent(Event &event) {
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", _eventToString(event.eventType));
+  EventType eventType = event.eventType;
+  switch (eventType) {
+  case EventType::CommandStationConnected: {
+    break;
+  }
+  default: {
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received");
+  }
+  }
+}
 
 AppState AppOrchestrator::getCurrentAppState() { return _currentAppState; }
 
@@ -57,3 +68,28 @@ void AppOrchestrator::_handleStartupState(UserInputInterface::UserInputEvent inp
 }
 
 void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent inputEvent) {}
+
+const char *AppOrchestrator::_eventToString(EventType eventType) {
+  switch (eventType) {
+  case CommandStationSelected:
+    return "CommandStationSelected";
+  case CommandStationConnected:
+    return "CommandStationConnected";
+  case ReceivedRosterList:
+    return "ReceivedRosterList";
+  case LocoSelected:
+    return "LocoSelected";
+  case ReceivedLocoUpdate:
+    return "ReceivedLocoUpdate";
+  case ReceivedTrackPower:
+    return "ReceivedTrackPower";
+  case ReceivedReadLoco:
+    return "ReceivedReadLoco";
+  case ToggleTrackPower:
+    return "ToggleTrackPower";
+  case ReceivedLocoBroadcast:
+    return "ReceivedLocoBroadcast";
+  default:
+    return "UNKNOW_EVENT";
+  }
+}

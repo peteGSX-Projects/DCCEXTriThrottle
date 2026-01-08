@@ -59,13 +59,13 @@ TEST_F(AppOrchestratorTests, ValidateStartupState) {
 TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
   const char *expectedText = "DCC-EX Tri-Throttle";
   const char *expectedVersion = VERSION;
-  
+
   // Validate starts in Startup
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
 
   // Startup display should be called exactly twice
   EXPECT_CALL(*mockDisplay, displayStartupScreen(StrEq(expectedText), StrEq(expectedVersion))).Times(2);
-  
+
   // Single update with no key presses should remain in Startup, and display startup should be called
   appOrchestrator->update();
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
@@ -78,4 +78,24 @@ TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
   // Subsequent update with no user input should maintain state and not call startup display again
   appOrchestrator->update();
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}
+
+/**
+ * @brief Test event type name is logged
+ */
+TEST_F(AppOrchestratorTests, TestOnEventTypeName) {
+  // Set up the logger with an output stream to monitor
+  Stream logStream;
+  logger->setLogLevel(LogLevel::LOG_DEBUG);
+  logger->setOutput(&logStream);
+
+  // Create a dummy event
+  EventData eventData;
+  Event event = {EventType::CommandStationConnected, eventData};
+
+  // Call onEvent which should trigger the debug message
+  appOrchestrator->onEvent(event);
+
+  // Check the output stream for the event type
+  EXPECT_THAT(logStream.buffer, HasSubstr("CommandStationConnected"));
 }

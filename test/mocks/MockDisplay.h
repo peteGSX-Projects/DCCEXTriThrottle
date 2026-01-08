@@ -32,6 +32,8 @@ public:
 
   MOCK_METHOD(void, displayStartupScreen, (const char *headerText, const char *version), (override));
 
+  MOCK_METHOD(void, displayMenu, (Menu *menu), (override));
+
 private:
 };
 
