@@ -32,7 +32,9 @@ public:
 
   MOCK_METHOD(void, displayStartupScreen, (const char *headerText, const char *version), (override));
 
-  MOCK_METHOD(void, displayMenu, (Menu *menu), (override));
+  MOCK_METHOD(void, displayThrottleScreen, (), (override));
+
+  MOCK_METHOD(void, displayMenuScreen, (Menu *menu), (override));
 
 private:
 };

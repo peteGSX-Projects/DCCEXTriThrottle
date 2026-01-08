@@ -41,6 +41,11 @@ void AppOrchestrator::update() {
     break;
   }
   }
+
+  if (_displayInterface->needsRedraw()) {
+    _displayCurrentState();
+    _displayInterface->setRedraw(false);
+  }
 }
 
 void AppOrchestrator::onEvent(Event &event) {
@@ -61,14 +66,33 @@ AppState AppOrchestrator::getCurrentAppState() { return _currentAppState; }
 AppOrchestrator::~AppOrchestrator() {}
 
 void AppOrchestrator::_handleStartupState(UserInputInterface::UserInputEvent inputEvent) {
-  _displayInterface->displayStartupScreen("DCC-EX Tri-Throttle", VERSION);
   if (inputEvent.key != '\0') {
-    _currentAppState = AppState::Throttle;
+    _switchState(AppState::Throttle);
   }
 }
 
-void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent inputEvent) {
-  _displayInterface->clear();
+void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent inputEvent) {}
+
+void AppOrchestrator::_switchState(AppState newState) {
+  if (_currentAppState == newState)
+    return;
+  _displayInterface->setRedraw(true);
+  _currentAppState = newState;
+}
+
+void AppOrchestrator::_displayCurrentState() {
+  switch (_currentAppState) {
+  case AppState::Startup: {
+    _displayInterface->displayStartupScreen("DCC-EX Tri-Throttle", VERSION);
+    break;
+  }
+  case AppState::Throttle: {
+    _displayInterface->displayThrottleScreen();
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 const char *AppOrchestrator::_eventToString(EventType eventType) {

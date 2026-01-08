@@ -76,6 +76,17 @@ private:
   void _handleThrottleState(UserInputInterface::UserInputEvent event);
 
   /**
+   * @brief Switch AppState to the new state and flag a display redraw
+   * @param newState New AppState to switch to
+   */
+  void _switchState(AppState newState);
+
+  /**
+   * @brief Display the current application state on screen
+   */
+  void _displayCurrentState();
+
+  /**
    * @brief Helper method to return the event type name rather than int value
    * @param eventType EventType
    */

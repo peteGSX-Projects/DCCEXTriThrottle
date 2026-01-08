@@ -107,10 +107,15 @@ public:
   void displayStartupScreen(const char *headerText, const char *version) override;
 
   /**
+   * @brief Display the throttle screen
+   */
+  void displayThrottleScreen() override;
+
+  /**
    * @brief Display a menu
    * @param menu Menu object
    */
-  void displayMenu(Menu *menu) override;
+  void displayMenuScreen(Menu *menu) override;
 
 private:
   U8G2 *_oled;

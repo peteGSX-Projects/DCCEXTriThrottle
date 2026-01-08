@@ -54,7 +54,8 @@ TEST_F(AppOrchestratorTests, ValidateStartupState) {
 }
 
 /**
- * @brief Ensure AppOrchestrator goes from Startup to Throttle when any key event occurs
+ * @brief Ensure AppOrchestrator goes from Startup to Throttle when any key event occurs, should also cause display
+ * redraw
  */
 TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
   const char *expectedText = "DCC-EX Tri-Throttle";
@@ -63,12 +64,19 @@ TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
   // Validate starts in Startup
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
 
-  // Startup display should be called exactly twice
-  EXPECT_CALL(*mockDisplay, displayStartupScreen(StrEq(expectedText), StrEq(expectedVersion))).Times(2);
+  // Startup and throttle display should be called once and once only
+  EXPECT_CALL(*mockDisplay, displayStartupScreen(StrEq(expectedText), StrEq(expectedVersion))).Times(1);
+  EXPECT_CALL(*mockDisplay, displayThrottleScreen()).Times(1);
+
+  // Needs redraw should start true
+  EXPECT_TRUE(mockDisplay->needsRedraw());
 
   // Single update with no key presses should remain in Startup, and display startup should be called
   appOrchestrator->update();
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+
+  // Display should not need redraw after initial update
+  EXPECT_FALSE(mockDisplay->needsRedraw());
 
   // Key press should change to Throttle
   mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
@@ -78,6 +86,9 @@ TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
   // Subsequent update with no user input should maintain state and not call startup display again
   appOrchestrator->update();
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Display should no longer need a redraw
+  EXPECT_FALSE(mockDisplay->needsRedraw());
 }
 
 /**

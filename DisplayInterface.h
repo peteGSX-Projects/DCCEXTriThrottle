@@ -45,10 +45,15 @@ public:
   virtual void displayStartupScreen(const char *headerText, const char *version) = 0;
 
   /**
+   * @brief Display the throttle screen
+   */
+  virtual void displayThrottleScreen() = 0;
+
+  /**
    * @brief Display a menu
    * @param menu Pointer to the menu to display
    */
-  virtual void displayMenu(Menu *menu) = 0;
+  virtual void displayMenuScreen(Menu *menu) = 0;
 
   /**
    * @brief Set the redraw flag for the display

@@ -43,14 +43,19 @@ void U8G2SH1106Display::clear() {
 }
 
 void U8G2SH1106Display::displayStartupScreen(const char *headerText, const char *version) {
-  if (!_needsRedraw)
-    return;
-  _needsRedraw = false;
   _displayHeader(headerText);
   _displayStartupInfo(version);
 }
 
-void U8G2SH1106Display::displayMenu(Menu *menu) {}
+void U8G2SH1106Display::displayThrottleScreen() {
+  _oled->clear();
+  _displayHeader("Throttle screen");
+}
+
+void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
+  _oled->clear();
+  _displayHeader("This is a menu");
+}
 
 uint16_t U8G2SH1106Display::_calculateHeaderHeight() {
   _oled->setFont(_menuFont);
