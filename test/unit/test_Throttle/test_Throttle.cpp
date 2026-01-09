@@ -25,26 +25,34 @@ using namespace testing;
 
 class ThrottleTests : public Test {
 protected:
-  MockButton button;
-  MockRotaryEncoder encoder;
-  Throttle throttle = Throttle(&button, &encoder, 1, 2, 5);
+  MockButton *button;
+  MockRotaryEncoder *encoder;
+  Throttle *throttle;
 
   // Optional setup method
-  void SetUp() override {}
+  void SetUp() override {
+    button = new MockButton;
+    encoder = new MockRotaryEncoder;
+    throttle = new Throttle(button, encoder, 1, 2, 5);
+  }
 
   // Optional teardown method
-  void TearDown() override {}
+  void TearDown() override {
+    delete throttle;
+    delete button;
+    delete encoder;
+  }
 };
 
 /**
  * @brief Test the initial state of a Throttle instance is as expected
  */
 TEST_F(ThrottleTests, TestInitialState) {
-  EXPECT_EQ(throttle.getConsist(), nullptr);
-  EXPECT_EQ(throttle.getLoco(), nullptr);
-  EXPECT_EQ(throttle.getSpeed(), 0);
-  EXPECT_EQ(throttle.speedChanged(), false);
-  EXPECT_EQ(throttle.getDirection(), Direction::Forward);
-  EXPECT_EQ(throttle.directionChanged(), false);
-  EXPECT_EQ(throttle.locoChanged(), false);
+  EXPECT_EQ(throttle->getConsist(), nullptr);
+  EXPECT_EQ(throttle->getLoco(), nullptr);
+  EXPECT_EQ(throttle->getSpeed(), 0);
+  EXPECT_EQ(throttle->speedChanged(), false);
+  EXPECT_EQ(throttle->getDirection(), Direction::Forward);
+  EXPECT_EQ(throttle->directionChanged(), false);
+  EXPECT_EQ(throttle->locoChanged(), false);
 }

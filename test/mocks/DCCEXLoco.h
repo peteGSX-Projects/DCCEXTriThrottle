@@ -329,7 +329,7 @@ public:
 
   /// @brief Get the associated Loco object for this consist entry
   /// @return Pointer to the Loco object
-  Loco *getLoco();
+  Loco *getLoco() { return nullptr; }
 
   /// @brief Set which way the loco is facing in the consist (FacingForward,
   /// FacingReversed)
@@ -413,7 +413,12 @@ public:
 
   /// @brief Get consist speed - obtained from first linked loco
   /// @return Current speed (0 - 126)
-  int getSpeed();
+  int getSpeed() {
+    ConsistLoco *cl = _first;
+    if (!cl)
+      return 0;
+    return cl->getLoco()->getSpeed();
+  }
 
   /// @brief Get consist direction - obtained from first linked loco
   /// @return Current direction (Forward|Reverse)

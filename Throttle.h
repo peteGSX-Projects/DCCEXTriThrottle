@@ -43,10 +43,22 @@ public:
            uint8_t throttleStepFaster, uint8_t throttleStepFastest);
 
   /**
+   * @brief Set the Consist object
+   * @param consist Pointer to the Consist object
+   */
+  void setConsist(Consist *consist);
+
+  /**
    * @brief Get the Consist object
    * @return Consist* Get the current Consist operated by this throttle, should be nullptr if a Loco is set
    */
   Consist *getConsist();
+
+  /**
+   * @brief Set the Loco object
+   * @param loco Pointer to the Loco object
+   */
+  void setLoco(Loco *loco);
 
   /**
    * @brief Get the Loco object
@@ -59,6 +71,13 @@ public:
    * @return uint8_t Get the current speed of this throttle
    */
   uint8_t getSpeed();
+
+  /**
+   * @brief Check if the current user selected speed is different to the Loco object's speed
+   * @return true If user selected speed does not match Loco object
+   * @return false If both speeds match
+   */
+  bool isSpeedPending();
 
   /**
    * @brief Check if the speed has changed
@@ -80,8 +99,8 @@ public:
 
   /**
    * @brief Check if the associated loco has changed
-   * @return true 
-   * @return false 
+   * @return true
+   * @return false
    */
   bool locoChanged();
 
@@ -102,6 +121,11 @@ public:
    * @param logger Pointer to the logger instance
    */
   void setLogger(Logger *logger);
+
+  /**
+   * @brief Destroy the Throttle object
+   */
+  ~Throttle();
 
 private:
   UserConfirmationInterface *_confirmer;

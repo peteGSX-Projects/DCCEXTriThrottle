@@ -30,11 +30,31 @@ Throttle::Throttle(UserConfirmationInterface *confirmer, UserSelectionInterface 
   _locoChanged = false;
 }
 
+void Throttle::setConsist(Consist *consist) {
+  _loco = nullptr;
+  _consist = consist;
+  _locoChanged = true;
+}
+
 Consist *Throttle::getConsist() { return _consist; }
+
+void Throttle::setLoco(Loco *loco) {
+  _consist = nullptr;
+  _loco = loco;
+  _locoChanged = true;
+}
 
 Loco *Throttle::getLoco() { return _loco; }
 
 uint8_t Throttle::getSpeed() { return _speed; }
+
+bool Throttle::isSpeedPending() {
+  if (!_loco && !_consist)
+    return false;
+
+  uint8_t realSpeed = (_loco != nullptr) ? _loco->getSpeed() : _consist->getSpeed();
+  return _speed != realSpeed;
+}
 
 bool Throttle::speedChanged() { return _speedChanged; }
 
@@ -49,3 +69,5 @@ void Throttle::handleUserConfirmationAction(UserConfirmationInterface::UserConfi
 void Throttle::handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action) {}
 
 void Throttle::setLogger(Logger *logger) { _logger = logger; }
+
+Throttle::~Throttle() {}
