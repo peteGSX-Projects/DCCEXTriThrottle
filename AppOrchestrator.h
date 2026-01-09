@@ -35,7 +35,7 @@ enum class AppState { Startup, Throttle };
 class AppOrchestrator : public EventListener {
 public:
   AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger,
-                  Throttle **throttles);
+                  int numThrottles, Throttle **throttles);
 
   /**
    * @brief Call the update() method at least once per main loop iteration
@@ -65,6 +65,7 @@ private:
   UserInputInterface *_userInputInterface;
   Logger *_logger;
   AppState _currentAppState;
+  int _numThrottles;
   Throttle **_throttles;
 
   // Methods

@@ -39,7 +39,8 @@ protected:
   MockRotaryEncoder *encoder1;
   MockRotaryEncoder *encoder2;
   MockRotaryEncoder *encoder3;
-  Throttle *throttles[3];
+  static const int NUM_THROTTLES = 3;
+  Throttle *throttles[NUM_THROTTLES];
 
   void SetUp() override {
     mockDisplay = new MockDisplay;
@@ -54,7 +55,7 @@ protected:
     throttles[0] = new Throttle(button1, encoder1, 1, 2, 5);
     throttles[1] = new Throttle(button2, encoder2, 1, 2, 5);
     throttles[2] = new Throttle(button3, encoder3, 1, 2, 5);
-    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, throttles);
+    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles);
   }
 
   void TearDown() override {

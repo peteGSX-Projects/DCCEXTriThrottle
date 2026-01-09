@@ -19,9 +19,9 @@
 #include "Version.h"
 
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
-                                 Logger *logger, Throttle **throttles)
+                                 Logger *logger, int numThrottles, Throttle **throttles)
     : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger),
-      _throttles(throttles) {
+      _numThrottles(numThrottles), _throttles(throttles) {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
 }
@@ -99,7 +99,7 @@ void AppOrchestrator::_displayCurrentState() {
 }
 
 void AppOrchestrator::_updateThrottleDisplay() {
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < _numThrottles; i++) {
     if (_throttles[i]->speedChanged()) {
       _displayInterface->updateThrottleScreen(i, _throttles[i]);
     }
