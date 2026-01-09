@@ -80,14 +80,32 @@
 #endif // THROTTLE_FONT
 
 /**
+ * @brief Structure for X/Y coordinates of individual throttle items
+ */
+struct ThrottleItemCoordinates {
+  int x;
+  int y;
+};
+
+/**
+ * @brief Structure for a throttle's screen coordinates to update
+ */
+struct ThrottleCoordinates {
+  ThrottleItemCoordinates speed;
+  ThrottleItemCoordinates direction;
+  ThrottleItemCoordinates address;
+};
+
+/**
  * @brief Display implementation for SH1106 based OLEDs using the U8g2 Arduino library
  */
 class U8G2SH1106Display : public DisplayInterface {
 public:
   /**
    * @brief Construct a new U8G2SH1106Display object
+   * @param numThrottles Number of throttles to display
    */
-  U8G2SH1106Display();
+  U8G2SH1106Display(int numThrottles);
 
   /**
    * @brief Call once to initialise the display instance
@@ -124,12 +142,19 @@ public:
    */
   void displayMenuScreen(Menu *menu) override;
 
+  /**
+   * @brief Destroy the U8G2SH1106Display object
+   */
+  ~U8G2SH1106Display();
+
 private:
   U8G2 *_oled;
   const uint8_t *_defaultFont = DEFAULT_FONT;
   const uint8_t *_menuFont = MENU_FONT;
   const uint8_t *_speedFont = SPEED_FONT;
   const uint8_t *_throttleFont = THROTTLE_FONT;
+  int _numThrottles;
+  ThrottleCoordinates *_throttleCoordinates;
 
   /**
    * @brief Calculate the height of the header text and line based on the menu font
@@ -147,6 +172,28 @@ private:
    * @param version Version to be displayed
    */
   void _displayStartupInfo(const char *version);
+
+  /**
+   * @brief Displays the current speed for the associated throttle
+   * @param throttle Number of the throttle to update
+   * @param speed Speed to display
+   */
+  void _displayThrottleSpeed(int throttle, int speed);
+
+  /**
+   * @brief Displays the current direction for the associated throttle
+   * @param throttle Number of the throttle to update
+   * @param direction Direction to display
+   */
+  void _displayThrottleDirection(int throttle, Direction direction);
+
+  /**
+   * @brief Displays the current address of the Loco associated with the throttle
+   * @param throttle Number of the throttle to update
+   * @param address Address to display
+   * @param isConsist True if a consist, false if it is a Loco
+   */
+  void _displayThrottleAddress(int throttle, int address, bool isConsist);
 };
 
 #endif // NATIVE_TESTING

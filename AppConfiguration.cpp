@@ -44,7 +44,7 @@ void AppConfiguration::initialise() {
   _userInputInterface->begin();
 
   // Display is next
-  _displayInterface = new U8G2SH1106Display();
+  _displayInterface = new U8G2SH1106Display(NUM_THROTTLES);
   _displayInterface->begin();
 
   // Now set up throttles, each with its own rotary encoder and button

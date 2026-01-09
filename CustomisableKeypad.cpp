@@ -84,8 +84,8 @@ UserInputInterface::UserInputEvent CustomisableKeypad::check() {
       LOG(LogLevel::LOG_DEBUG, "Key Released: %c", releasedKey);
       return {releasedKey, UserInputAction::Released};
     } else {
-      // Otherwise it is a SinglePress
-      LOG(LogLevel::LOG_DEBUG, "Key SinglePress: %c", releasedKey);
+      // Otherwise it is Pressed
+      LOG(LogLevel::LOG_DEBUG, "Key Pressed: %c", releasedKey);
       return {releasedKey, UserInputAction::Pressed};
     }
   }
