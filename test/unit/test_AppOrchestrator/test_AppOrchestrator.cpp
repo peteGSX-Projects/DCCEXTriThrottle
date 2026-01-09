@@ -16,9 +16,12 @@
  */
 
 #include "AppOrchestrator.h"
+#include "Throttle.h"
 #include "Version.h"
+#include "test/mocks/MockButton.h"
 #include "test/mocks/MockDisplay.h"
 #include "test/mocks/MockKeypad.h"
+#include "test/mocks/MockRotaryEncoder.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -30,19 +33,46 @@ protected:
   MockDisplay *mockDisplay;
   MockKeypad *mockKeypad;
   Logger *logger;
+  MockButton *button1;
+  MockButton *button2;
+  MockButton *button3;
+  MockRotaryEncoder *encoder1;
+  MockRotaryEncoder *encoder2;
+  MockRotaryEncoder *encoder3;
+  Throttle *throttles[3];
 
   void SetUp() override {
     mockDisplay = new MockDisplay;
     mockKeypad = new MockKeypad;
     logger = new Logger;
-    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger);
+    button1 = new MockButton;
+    button2 = new MockButton;
+    button3 = new MockButton;
+    encoder1 = new MockRotaryEncoder;
+    encoder2 = new MockRotaryEncoder;
+    encoder3 = new MockRotaryEncoder;
+    throttles[0] = new Throttle(button1, encoder1, 1, 2, 5);
+    throttles[1] = new Throttle(button2, encoder2, 1, 2, 5);
+    throttles[2] = new Throttle(button3, encoder3, 1, 2, 5);
+    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, throttles);
   }
 
   void TearDown() override {
-    delete appOrchestrator;
     delete mockDisplay;
     delete mockKeypad;
     delete logger;
+
+    for (int i = 0; i < 3; i++) {
+      delete throttles[i];
+    }
+
+    delete button1;
+    delete button2;
+    delete button3;
+    delete encoder1;
+    delete encoder2;
+    delete encoder3;
+    delete appOrchestrator;
   }
 };
 

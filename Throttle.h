@@ -79,6 +79,13 @@ public:
   bool directionChanged();
 
   /**
+   * @brief Check if the associated loco has changed
+   * @return true 
+   * @return false 
+   */
+  bool locoChanged();
+
+  /**
    * @brief Handle user confirmation interactions destined for this Throttle instance
    * @param action Valid UserConfirmationInterface::UserConfirmationAction
    */
@@ -109,6 +116,7 @@ private:
   Direction _direction;
   bool _directionChanged;
   Logger *_logger;
+  bool _locoChanged;
 };
 
 #endif // THROTTLE_H

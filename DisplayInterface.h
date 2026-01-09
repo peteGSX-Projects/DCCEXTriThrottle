@@ -20,6 +20,7 @@
 
 #include "Logger.h"
 #include "Menu.h"
+#include "Throttle.h"
 
 /**
  * @brief DisplayInterface to abstract physical display objects from display interactions, extend this class when adding
@@ -48,6 +49,13 @@ public:
    * @brief Display the throttle screen
    */
   virtual void displayThrottleScreen() = 0;
+
+  /**
+   * @brief Update the display for the specified throttle
+   * @param throttleIndex Index of the throttle being updated
+   * @param throttle Pointer to the Throttle instance
+   */
+  virtual void updateThrottleScreen(int throttleIndex, Throttle *throttle) = 0;
 
   /**
    * @brief Display a menu

@@ -22,6 +22,7 @@
 #include "DisplayInterface.h"
 #include "EventListener.h"
 #include "Logger.h"
+#include "Throttle.h"
 #include "UserInputInterface.h"
 
 // State machine states enum
@@ -33,7 +34,8 @@ enum class AppState { Startup, Throttle };
  */
 class AppOrchestrator : public EventListener {
 public:
-  AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger);
+  AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger,
+                  Throttle **throttles);
 
   /**
    * @brief Call the update() method at least once per main loop iteration
@@ -63,6 +65,7 @@ private:
   UserInputInterface *_userInputInterface;
   Logger *_logger;
   AppState _currentAppState;
+  Throttle **_throttles;
 
   // Methods
   /**
@@ -85,6 +88,11 @@ private:
    * @brief Display the current application state on screen
    */
   void _displayCurrentState();
+
+  /**
+   * @brief Helper method to update throttle elements only instead of full redraw
+   */
+  void _updateThrottleDisplay();
 
   /**
    * @brief Helper method to return the event type name rather than int value

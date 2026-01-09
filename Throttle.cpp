@@ -27,6 +27,7 @@ Throttle::Throttle(UserConfirmationInterface *confirmer, UserSelectionInterface 
   _speedChanged = false;
   _direction = Direction::Forward;
   _directionChanged = false;
+  _locoChanged = false;
 }
 
 Consist *Throttle::getConsist() { return _consist; }
@@ -40,6 +41,8 @@ bool Throttle::speedChanged() { return _speedChanged; }
 Direction Throttle::getDirection() { return _direction; }
 
 bool Throttle::directionChanged() { return _directionChanged; }
+
+bool Throttle::locoChanged() { return _locoChanged; }
 
 void Throttle::handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action) {}
 

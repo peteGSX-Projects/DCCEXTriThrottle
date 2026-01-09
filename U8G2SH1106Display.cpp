@@ -52,6 +52,8 @@ void U8G2SH1106Display::displayThrottleScreen() {
   _displayHeader("Throttle screen");
 }
 
+void U8G2SH1106Display::updateThrottleScreen(int throttleIndex, Throttle *throttle) {}
+
 void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
   _oled->clear();
   _displayHeader("This is a menu");

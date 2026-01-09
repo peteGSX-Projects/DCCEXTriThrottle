@@ -19,8 +19,9 @@
 #include "Version.h"
 
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
-                                 Logger *logger)
-    : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger) {
+                                 Logger *logger, Throttle **throttles)
+    : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger),
+      _throttles(throttles) {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
 }
@@ -45,6 +46,8 @@ void AppOrchestrator::update() {
   if (_displayInterface->needsRedraw()) {
     _displayCurrentState();
     _displayInterface->setRedraw(false);
+  } else if (_currentAppState == AppState::Throttle) {
+    _updateThrottleDisplay();
   }
 }
 
@@ -92,6 +95,20 @@ void AppOrchestrator::_displayCurrentState() {
   }
   default:
     break;
+  }
+}
+
+void AppOrchestrator::_updateThrottleDisplay() {
+  for (int i = 0; i < 3; i++) {
+    if (_throttles[i]->speedChanged()) {
+      _displayInterface->updateThrottleScreen(i, _throttles[i]);
+    }
+    if (_throttles[i]->directionChanged()) {
+      _displayInterface->updateThrottleScreen(i, _throttles[i]);
+    }
+    if (_throttles[i]->locoChanged()) {
+      _displayInterface->updateThrottleScreen(i, _throttles[i]);
+    }
   }
 }
 

@@ -112,6 +112,13 @@ public:
   void displayThrottleScreen() override;
 
   /**
+   * @brief Update the specified throttle's display
+   * @param throttleIndex Index of the throttle to update
+   * @param throttle Pointer to the Throttle instance
+   */
+  void updateThrottleScreen(int throttleIndex, Throttle *throttle) override;
+
+  /**
    * @brief Display a menu
    * @param menu Menu object
    */

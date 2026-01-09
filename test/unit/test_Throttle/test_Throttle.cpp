@@ -46,4 +46,5 @@ TEST_F(ThrottleTests, TestInitialState) {
   EXPECT_EQ(throttle.speedChanged(), false);
   EXPECT_EQ(throttle.getDirection(), Direction::Forward);
   EXPECT_EQ(throttle.directionChanged(), false);
+  EXPECT_EQ(throttle.locoChanged(), false);
 }
