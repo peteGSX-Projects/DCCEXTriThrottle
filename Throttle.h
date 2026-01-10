@@ -20,6 +20,7 @@
 
 #include "Logger.h"
 #include "UserConfirmationInterface.h"
+#include "UserInputInterface.h"
 #include "UserSelectionInterface.h"
 #include <DCCEXProtocol.h>
 
@@ -31,6 +32,7 @@ class Throttle {
 public:
   /**
    * @brief Construct a new Throttle object
+   * param index Index of this Throttle instance
    * @param confirmer Pointer to a class instance extending the UserConfirmationInterface class
    * @param selector Pointer to a class instance extending the UserSelectionInterface class
    * @param throttleStep Number to change the speed by for a normal speed change - UserSelectionAction::Up|Down
@@ -39,7 +41,7 @@ public:
    * @param throttleStepFastest Number to change the speed by for the fastest speed change -
    * UserSelectionAction::UpFastest|DownFastest
    */
-  Throttle(UserConfirmationInterface *confirmer, UserSelectionInterface *selector, uint8_t throttleStep,
+  Throttle(int index, UserConfirmationInterface *confirmer, UserSelectionInterface *selector, uint8_t throttleStep,
            uint8_t throttleStepFaster, uint8_t throttleStepFastest);
 
   /**
@@ -105,16 +107,15 @@ public:
   bool locoChanged();
 
   /**
-   * @brief Handle user confirmation interactions destined for this Throttle instance
-   * @param action Valid UserConfirmationInterface::UserConfirmationAction
+   * @brief Handle user input interactions for this Throttle instance
+   * @param action Valid UserInputInterface::UserInputAction
    */
-  void handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action);
+  void HandleUserInputAction(UserInputInterface::UserInputAction action);
 
   /**
-   * @brief Handle user selection interactions destined for this Throttle instance
-   * @param action Valid UserSelectionInterface::UserSelectionAction
+   * @brief Call this method at least once per main loop iteration to process user interaction
    */
-  void handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action);
+  void update();
 
   /**
    * @brief Set the Logger object
@@ -128,6 +129,7 @@ public:
   ~Throttle();
 
 private:
+  int _index;
   UserConfirmationInterface *_confirmer;
   UserSelectionInterface *_selector;
   uint8_t _throttleStep;
@@ -141,6 +143,18 @@ private:
   bool _directionChanged;
   Logger *_logger;
   bool _locoChanged;
+
+  /**
+   * @brief Handle user confirmation interactions destined for this Throttle instance
+   * @param action Valid UserConfirmationInterface::UserConfirmationAction
+   */
+  void _handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action);
+
+  /**
+   * @brief Handle user selection interactions destined for this Throttle instance
+   * @param action Valid UserSelectionInterface::UserSelectionAction
+   */
+  void _handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action);
 };
 
 #endif // THROTTLE_H

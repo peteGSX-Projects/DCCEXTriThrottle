@@ -52,9 +52,9 @@ protected:
     encoder1 = new MockRotaryEncoder;
     encoder2 = new MockRotaryEncoder;
     encoder3 = new MockRotaryEncoder;
-    throttles[0] = new Throttle(button1, encoder1, 1, 2, 5);
-    throttles[1] = new Throttle(button2, encoder2, 1, 2, 5);
-    throttles[2] = new Throttle(button3, encoder3, 1, 2, 5);
+    throttles[0] = new Throttle(0, button1, encoder1, 1, 2, 5);
+    throttles[1] = new Throttle(1, button2, encoder2, 1, 2, 5);
+    throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
     appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles);
   }
 

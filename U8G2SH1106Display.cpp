@@ -68,15 +68,30 @@ void U8G2SH1106Display::displayStartupScreen(const char *headerText, const char 
 
 void U8G2SH1106Display::displayThrottleScreen() {
   _oled->clear();
-  _displayHeader("Throttle screen");
   for (int i = 0; i < _numThrottles; i++) {
     _displayThrottleSpeed(i, 0);
     _displayThrottleDirection(i, Direction::Forward);
     _displayThrottleAddress(i, 0, false);
   }
+  updateThrottleTrackPower(TrackPower::PowerUnknown);
 }
 
 void U8G2SH1106Display::updateThrottleScreen(int throttleIndex, Throttle *throttle) {}
+
+void U8G2SH1106Display::updateThrottleTrackPower(TrackPower state) {
+  _oled->setFont(MENU_FONT);
+  _oled->setCursor(113, 63);
+  _oled->print("   ");
+  _oled->setCursor(113, 63);
+  if (state == PowerOn) {
+    _oled->print("On");
+  } else if (state == PowerOff) {
+    _oled->print("Off");
+  } else {
+    _oled->print("?");
+  }
+  _oled->sendBuffer();
+}
 
 void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
   _oled->clear();
@@ -155,6 +170,13 @@ void U8G2SH1106Display::_displayThrottleAddress(int throttle, int address, bool 
   if (isConsist) {
     _oled->print("c");
   }
+  _oled->sendBuffer();
+}
+
+void U8G2SH1106Display::_displayThrottleEStop(int throttle) {
+  _oled->setFont(ESTOP_FONT);
+  _oled->setCursor(_throttleCoordinates[throttle].speed.x, _throttleCoordinates[throttle].speed.y);
+  _oled->print("ESTOP");
   _oled->sendBuffer();
 }
 

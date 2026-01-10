@@ -58,6 +58,12 @@ public:
   virtual void updateThrottleScreen(int throttleIndex, Throttle *throttle) = 0;
 
   /**
+   * @brief Update the state of track power on the throttle screen
+   * @param state TrackPower
+   */
+  virtual void updateThrottleTrackPower(TrackPower state) = 0;
+
+  /**
    * @brief Display a menu
    * @param menu Pointer to the menu to display
    */

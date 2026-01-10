@@ -78,6 +78,12 @@
 #ifndef THROTTLE_FONT
 #define THROTTLE_FONT u8g2_font_6x10_mr
 #endif // THROTTLE_FONT
+#ifndef STATUS_FONT
+#define STATUS_FONT u8g2_font_micro_mr
+#endif // STATUS_FONT
+#ifndef ESTOP_FONT
+#define ESTOP_FONT u8g2_font_6x12_mr
+#endif // ESTOP_FONT
 
 /**
  * @brief Structure for X/Y coordinates of individual throttle items
@@ -137,6 +143,12 @@ public:
   void updateThrottleScreen(int throttleIndex, Throttle *throttle) override;
 
   /**
+   * @brief Update track power state on the throttle screen
+   * @param state TrackPower
+   */
+  void updateThrottleTrackPower(TrackPower state) override;
+
+  /**
    * @brief Display a menu
    * @param menu Menu object
    */
@@ -194,6 +206,12 @@ private:
    * @param isConsist True if a consist, false if it is a Loco
    */
   void _displayThrottleAddress(int throttle, int address, bool isConsist);
+
+  /**
+   * @brief Displays ESTOP for the specified throttle
+   * @param throttle Number of the throttle to update
+   */
+  void _displayThrottleEStop(int throttle);
 };
 
 #endif // NATIVE_TESTING

@@ -35,6 +35,9 @@ void AppOrchestrator::update() {
   }
   case AppState::Throttle: {
     _handleThrottleState(inputEvent);
+    for (int i = 0; i < _numThrottles; i++) {
+      _throttles[i]->update();
+    }
     break;
   }
   default: {

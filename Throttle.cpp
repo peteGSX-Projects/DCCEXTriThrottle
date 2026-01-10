@@ -17,10 +17,11 @@
 
 #include "Throttle.h"
 
-Throttle::Throttle(UserConfirmationInterface *confirmer, UserSelectionInterface *selector, uint8_t throttleStep,
-                   uint8_t throttleStepFaster, uint8_t throttleStepFastest)
-    : _confirmer(confirmer), _selector(selector), _throttleStep(throttleStep), _throttleStepFaster(throttleStepFaster),
-      _throttleStepFastest(throttleStepFastest) {
+Throttle::Throttle(int index, UserConfirmationInterface *confirmer, UserSelectionInterface *selector,
+                   uint8_t throttleStep, uint8_t throttleStepFaster, uint8_t throttleStepFastest)
+    : _index(index), _confirmer(confirmer), _selector(selector), _throttleStep(throttleStep),
+      _throttleStepFaster(throttleStepFaster), _throttleStepFastest(throttleStepFastest) {
+
   _consist = nullptr;
   _loco = nullptr;
   _speed = 0;
@@ -64,10 +65,27 @@ bool Throttle::directionChanged() { return _directionChanged; }
 
 bool Throttle::locoChanged() { return _locoChanged; }
 
-void Throttle::handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action) {}
+void Throttle::HandleUserInputAction(UserInputInterface::UserInputAction action) {}
 
-void Throttle::handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action) {}
+void Throttle::update() {
+  UserConfirmationInterface::UserConfirmationAction confirm = _confirmer->check();
+  _handleUserConfirmationAction(confirm);
+  UserSelectionInterface::UserSelectionAction select = _selector->check();
+  _handleUserSelectionAction(select);
+}
 
 void Throttle::setLogger(Logger *logger) { _logger = logger; }
 
 Throttle::~Throttle() {}
+
+void Throttle::_handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action) {
+  if (action != UserConfirmationInterface::UserConfirmationAction::None) {
+    LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserConfirmationAction(): %d", _index, action);
+  }
+}
+
+void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action) {
+  if (action != UserSelectionInterface::UserSelectionAction::None) {
+    LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserSelectionAction(): %d", _index, action);
+  }
+}

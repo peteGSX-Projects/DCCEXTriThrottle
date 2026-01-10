@@ -33,7 +33,7 @@ protected:
   void SetUp() override {
     button = new MockButton;
     encoder = new MockRotaryEncoder;
-    throttle = new Throttle(button, encoder, 1, 2, 5);
+    throttle = new Throttle(0, button, encoder, 1, 2, 5);
   }
 
   // Optional teardown method

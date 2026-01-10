@@ -60,9 +60,9 @@ void AppConfiguration::initialise() {
   UserSelectionInterface *encoder3 = new RotaryEncoder(ENCODER3_DT, ENCODER3_CLK, encoderMode);
 
   // Now create the throttle instances
-  _throttles[0] = new Throttle(button1, encoder1, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
-  _throttles[1] = new Throttle(button2, encoder2, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
-  _throttles[2] = new Throttle(button3, encoder3, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  _throttles[0] = new Throttle(0, button1, encoder1, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  _throttles[1] = new Throttle(1, button2, encoder2, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  _throttles[2] = new Throttle(2, button3, encoder3, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
 #endif // NATIVE_TESTING
 
   // Lastly, create orchestrator instance
