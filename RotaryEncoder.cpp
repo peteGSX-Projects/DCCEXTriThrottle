@@ -23,6 +23,7 @@ RotaryEncoder::RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode 
     : _dtPin(dtPin), _clkPin(clkPin), _mode(mode), _inputMode(inputMode), _state(R_START),
       _throttleStepFasterThreshold(THROTTLE_STEP_FASTER_THRESHOLD),
       _throttleStepFastestThreshold(THROTTLE_STEP_FASTEST_THRESHOLD), _lastUpThrottleStep(0), _lastDownThrottleStep(0) {
+  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::RotaryEncoder(%d, %d, %d, %d)", _dtPin, _clkPin, _mode, _inputMode);
 }
 
 void RotaryEncoder::begin() {
