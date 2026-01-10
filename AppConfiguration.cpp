@@ -59,6 +59,18 @@ void AppConfiguration::initialise() {
   UserSelectionInterface *encoder2 = new RotaryEncoder(ENCODER2_DT, ENCODER2_CLK, encoderMode);
   UserSelectionInterface *encoder3 = new RotaryEncoder(ENCODER3_DT, ENCODER3_CLK, encoderMode);
 
+  // Initialise encoders to set pin states etc.
+  encoder1->begin();
+  encoder2->begin();
+  encoder3->begin();
+
+  // Invert throttle direction if configured
+#if INVERT_THROTTLE
+  encoder1->setThrottleInverted();
+  encoder2->setThrottleInverted();
+  encoder3->setThrottleInverted();
+#endif
+
   // Now create the throttle instances
   _throttles[0] = new Throttle(0, button1, encoder1, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
   _throttles[1] = new Throttle(1, button2, encoder2, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);

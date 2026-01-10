@@ -26,6 +26,13 @@
 // #define LOG_LEVEL LOG_ERROR  // Log only error messages
 
 /**
+ * @brief If desired, invert the throttle direction
+ * @details If a rotary encoder is mounted and used in a way that moving clockwise should decrease speed, and counter
+ * clockwise should increase speed, enable this flag to invert the default behaviour.
+ */
+// #define THROTTLE_INVERTED
+
+/**
  * @brief Enable testing of the physical input and display devices
  * @details To test that the various hardware devices are connected and functioning correctly, uncomment the
  * appropriate line(s) below to test one or more devices.
@@ -55,7 +62,7 @@
  * @details If your Command Station has a startup delay enabled to allow accessories to start before the
  * EX-CommandStation software, it may be necessary to delay the start of the throttle software as well to prevent a
  * timeout retrieving the various lists.
- * 
+ *
  * The delay is in milliseconds, so the default 3000 is 3 seconds (this should match EX-CommandStation's default).
  */
 // #define STARTUP_DELAY 3000
