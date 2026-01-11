@@ -98,8 +98,16 @@ private:
   /**
    * @brief Helper method to return the event type name rather than int value
    * @param eventType EventType
+   * @return const char* Pointer to the char array string
    */
-  const char *_eventToString(EventType eventType);
+  const char *_eventTypeToString(EventType eventType);
+
+  /**
+   * @brief Helper method to return the AppState name rather than int value
+   * @param appState AppState
+   * @return const char* Pointer to the char array string
+   */
+  const char *_appStateToString(AppState appState);
 };
 
 #endif // APPORCHESTRATOR_H

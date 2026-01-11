@@ -125,7 +125,7 @@ TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
 /**
  * @brief Test event type name is logged
  */
-TEST_F(AppOrchestratorTests, TestOnEventTypeName) {
+TEST_F(AppOrchestratorTests, TestOnEventTypeNameLogged) {
   // Set up the logger with an output stream to monitor
   Stream logStream;
   logger->setLogLevel(LogLevel::LOG_DEBUG);
@@ -140,4 +140,27 @@ TEST_F(AppOrchestratorTests, TestOnEventTypeName) {
 
   // Check the output stream for the event type
   EXPECT_THAT(logStream.buffer, HasSubstr("CommandStationConnected"));
+
+  // Clear logger output
+  logger->setOutput(nullptr);
+}
+
+/**
+ * @brief Test AppState name is logged when switching states
+ */
+TEST_F(AppOrchestratorTests, TestAppStateNameLogged) {
+  // Set up the logger with an output stream
+  Stream logStream;
+  logger->setLogLevel(LogLevel::LOG_DEBUG);
+  logger->setOutput(&logStream);
+
+  // Initial key press should trigger change from Startup to Throttle
+  mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // AppState Throttle should now be in the log stream
+  EXPECT_THAT(logStream.buffer, HasSubstr("Throttle"));
+
+  // Clear logger output
+  logger->setOutput(nullptr);
 }

@@ -55,7 +55,7 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", _eventToString(event.eventType));
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", _eventTypeToString(event.eventType));
   EventType eventType = event.eventType;
   switch (eventType) {
   case EventType::CommandStationConnected: {
@@ -82,6 +82,7 @@ void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent in
 void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
     return;
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(%s)", _appStateToString(newState));
   _displayInterface->setRedraw(true);
   _currentAppState = newState;
 }
@@ -115,7 +116,7 @@ void AppOrchestrator::_updateThrottleDisplay() {
   }
 }
 
-const char *AppOrchestrator::_eventToString(EventType eventType) {
+const char *AppOrchestrator::_eventTypeToString(EventType eventType) {
   switch (eventType) {
   case CommandStationSelected:
     return "CommandStationSelected";
@@ -137,5 +138,16 @@ const char *AppOrchestrator::_eventToString(EventType eventType) {
     return "ReceivedLocoBroadcast";
   default:
     return "UNKNOW_EVENT";
+  }
+}
+
+const char *AppOrchestrator::_appStateToString(AppState appState) {
+  switch (appState) {
+  case AppState::Startup:
+    return "Startup";
+  case AppState::Throttle:
+    return "Throttle";
+  default:
+    return "UNKNOWN";
   }
 }
