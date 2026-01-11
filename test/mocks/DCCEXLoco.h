@@ -1,30 +1,19 @@
-/* -*- c++ -*-
+/*
+ *  © 2026 Peter Cole
+ *  © 2025 Peter Cole
  *
- * DCCEXProtocol
+ *  This is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * This package implements a DCCEX native protocol connection,
- * allow a device to communicate with a DCC-EX EX-CommandStation.
+ *  It is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * Copyright © 2024 Peter Cole
- * Copyright © 2023 Peter Akers
- * Copyright © 2023 Peter Cole
- *
- * This work is licensed under the Creative Commons Attribution-ShareAlike
- * 4.0 International License. To view a copy of this license, visit
- * http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to
- * Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
- *
- * Attribution — You must give appropriate credit, provide a link to the
- * license, and indicate if changes were made. You may do so in any
- * reasonable manner, but not in any way that suggests the licensor
- * endorses you or your use.
- *
- * ShareAlike — If you remix, transform, or build upon the material, you
- * must distribute your contributions under the same license as the
- * original.
- *
- * All other rights reserved.
- *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /**
@@ -87,11 +76,11 @@ public:
 
   /// @brief Get loco address
   /// @return DCC address of loco
-  int getAddress() { return _address; }
+  virtual int getAddress() { return _address; }
 
   /// @brief Set loco name
   /// @param name Name of the loco
-  void setName(const char *name) {
+  virtual void setName(const char *name) {
     if (_name) {
       delete[] _name;
       _name = nullptr;
@@ -103,31 +92,31 @@ public:
 
   /// @brief Get loco name
   /// @return Name of the loco
-  const char *getName() { return _name; }
+  virtual const char *getName() { return _name; }
 
   /// @brief Set loco speed
   /// @param speed Valid speed (0 - 126)
-  void setSpeed(int speed) { _speed = speed; }
+  virtual void setSpeed(int speed) { _speed = speed; }
 
   /// @brief Get loco speed
   /// @return Speed (0 - 126)
-  int getSpeed() { return _speed; }
+  virtual int getSpeed() { return _speed; }
 
   /// @brief Set loco direction (enums Forward, Reverse)
   /// @param direction Direction to set (Forward|Reverse)
-  void setDirection(Direction direction) { _direction = direction; }
+  virtual void setDirection(Direction direction) { _direction = direction; }
 
   /// @brief Get loco direction (enums Forward, Reverse)
   /// @return Current direction (Forward|Reverse)
-  Direction getDirection() { return (Direction)_direction; }
+  virtual Direction getDirection() { return (Direction)_direction; }
 
   /// @brief Get loco source (enums LocoSourceRoster, LocoSourceEntry)
   /// @return Source of loco (LocoSourceRoster|LocoSourceEntry)
-  LocoSource getSource() { return (LocoSource)_source; }
+  virtual LocoSource getSource() { return (LocoSource)_source; }
 
   /// @brief Setup functions for the loco
   /// @param functionNames Char array of function names
-  void setupFunctions(const char *functionNames) {
+  virtual void setupFunctions(const char *functionNames) {
     if (functionNames == nullptr) {
       return;
     }
@@ -190,25 +179,25 @@ public:
   /// @brief Test if function is on
   /// @param function Number of the function to test
   /// @return true|false
-  bool isFunctionOn(int function) { return _functionStates & 1 << function; }
+  virtual bool isFunctionOn(int function) { return _functionStates & 1 << function; }
 
   /// @brief Set function states
   /// @param functionStates Integer representing all function states
-  void setFunctionStates(int functionStates) { _functionStates = functionStates; }
+  virtual void setFunctionStates(int functionStates) { _functionStates = functionStates; }
 
   /// @brief Get function states
   /// @return Integer representing current function states
-  int getFunctionStates() { return _functionStates; }
+  virtual int getFunctionStates() { return _functionStates; }
 
   /// @brief Get the name/label for a function
   /// @param function Number of the function to return the name/label of
   /// @return char* representing the function name/label
-  const char *getFunctionName(int function) { return _functionNames[function]; }
+  virtual const char *getFunctionName(int function) { return _functionNames[function]; }
 
   /// @brief Get the name/label for a function
   /// @param function Number of the function to return the name/label of
   /// @return char* representing the function name/label
-  bool isFunctionMomentary(int function) { return _momentaryFlags & 1 << function; }
+  virtual bool isFunctionMomentary(int function) { return _momentaryFlags & 1 << function; }
 
   /// @brief Get first Loco object
   /// @return Pointer to the first Loco object
@@ -216,11 +205,11 @@ public:
 
   /// @brief Set the next loco in the roster list
   /// @param loco Pointer to the next Loco object
-  void setNext(Loco *loco) { _next = loco; }
+  virtual void setNext(Loco *loco) { _next = loco; }
 
   /// @brief Get next Loco object
   /// @return Pointer to the next Loco object
-  Loco *getNext() { return _next; }
+  virtual Loco *getNext() { return _next; }
 
   /// @brief Get Loco object by its DCC address
   /// @param address DCC address of the loco to get
@@ -265,7 +254,7 @@ public:
   }
 
   /// @brief Destructor for the Loco object
-  ~Loco() {
+  virtual ~Loco() {
     _removeFromList(this);
 
     if (_name) {
@@ -329,28 +318,28 @@ public:
 
   /// @brief Get the associated Loco object for this consist entry
   /// @return Pointer to the Loco object
-  Loco *getLoco() { return nullptr; }
+  virtual Loco *getLoco() { return _loco; }
 
   /// @brief Set which way the loco is facing in the consist (FacingForward,
   /// FacingReversed)
   /// @param facing FacingForward|FacingReversed
-  void setFacing(Facing facing);
+  virtual void setFacing(Facing facing) { _facing = facing; }
 
   /// @brief Get which way the loco is facing in the consist (FacingForward,
   /// FacingReversed)
   /// @return FacingForward|FacingReversed
-  Facing getFacing();
+  virtual Facing getFacing() { return _facing; }
 
   /// @brief Get the next consist loco object
   /// @return Pointer to the next ConsistLoco object
-  ConsistLoco *getNext();
+  virtual ConsistLoco *getNext() { return _next; }
 
   /// @brief Set the next consist loco object
   /// @param consistLoco Pointer to the ConsistLoco object
-  void setNext(ConsistLoco *consistLoco);
+  virtual void setNext(ConsistLoco *consistLoco) { _next = consistLoco; }
 
   /// @brief Destructor for a ConsistLoco
-  ~ConsistLoco();
+  virtual ~ConsistLoco() {}
 
 private:
   Loco *_loco;
@@ -368,11 +357,19 @@ public:
 
   /// @brief Set consist name
   /// @param name Name to set for the consist
-  void setName(const char *name);
+  virtual void setName(const char *name) {
+    if (_name) {
+      delete[] _name;
+      _name = nullptr;
+    }
+    int nameLength = strlen(name);
+    _name = new char[nameLength + 1];
+    strcpy(_name, name);
+  }
 
   /// @brief Get consist name
   /// @return Current name of the consist
-  const char *getName();
+  virtual const char *getName() { return _name; }
 
   /// @brief Add a loco to the consist using a Loco object
   /// @param loco Pointer to a loco object
@@ -413,7 +410,7 @@ public:
 
   /// @brief Get consist speed - obtained from first linked loco
   /// @return Current speed (0 - 126)
-  int getSpeed() {
+  virtual int getSpeed() {
     ConsistLoco *cl = _first;
     if (!cl)
       return 0;
@@ -422,11 +419,16 @@ public:
 
   /// @brief Get consist direction - obtained from first linked loco
   /// @return Current direction (Forward|Reverse)
-  Direction getDirection();
+  virtual Direction getDirection() {
+    ConsistLoco *cl = _first;
+    if (!cl)
+      return Forward;
+    return cl->getLoco()->getDirection();
+  }
 
   /// @brief Get the first loco in the consist
   /// @return Pointer to the first ConsistLoco object
-  ConsistLoco *getFirst();
+  virtual ConsistLoco *getFirst() { return _first; }
 
   /// @brief Get the loco in the consist with the specified address
   /// @param address DCC address of loco to retrieve
@@ -434,7 +436,7 @@ public:
   ConsistLoco *getByAddress(int address);
 
   /// @brief Destructor for a Consist
-  ~Consist();
+  virtual ~Consist() {}
 
 private:
   char *_name;
