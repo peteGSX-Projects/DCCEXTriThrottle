@@ -40,23 +40,23 @@ public:
   /**
    * @brief Initialise the client
    */
-  void begin();
+  virtual void begin();
 
   /**
    * @brief Call this method at least once per main loop iteration once connected
    */
-  void update();
+  virtual void update();
 
   /**
    * @brief Get the current ConnectionState
    * @return ConnectionState Current ConnectionState of the client
    */
-  ConnectionState getState();
+  virtual ConnectionState getState();
 
   /**
    * @brief Destroy the Connection Manager object
    */
-  ~ConnectionManager();
+  virtual ~ConnectionManager();
 
 private:
   DCCEXProtocol *_commandStationClient;

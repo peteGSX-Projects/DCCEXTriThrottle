@@ -19,9 +19,10 @@
 #include "Version.h"
 
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
-                                 Logger *logger, int numThrottles, Throttle **throttles)
+                                 Logger *logger, int numThrottles, Throttle **throttles,
+                                 ConnectionManager *connectionManager)
     : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger),
-      _numThrottles(numThrottles), _throttles(throttles) {
+      _numThrottles(numThrottles), _throttles(throttles), _connectionManager(connectionManager) {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
 }

@@ -19,6 +19,7 @@
 #define APPORCHESTRATOR_H
 
 // Includes required for the orchestrator
+#include "ConnectionManager.h"
 #include "DisplayInterface.h"
 #include "EventListener.h"
 #include "Logger.h"
@@ -37,7 +38,7 @@ enum class AppState { Startup, Throttle };
 class AppOrchestrator : public EventListener {
 public:
   AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger,
-                  int numThrottles, Throttle **throttles);
+                  int numThrottles, Throttle **throttles, ConnectionManager *connectionManager);
 
   /**
    * @brief Call the update() method at least once per main loop iteration
@@ -69,6 +70,7 @@ private:
   AppState _currentAppState;
   int _numThrottles;
   Throttle **_throttles;
+  ConnectionManager *_connectionManager;
 
   // Methods
   /**

@@ -19,6 +19,7 @@
 #include "Throttle.h"
 #include "Version.h"
 #include "test/mocks/MockButton.h"
+#include "test/mocks/MockConnectionManager.h"
 #include "test/mocks/MockDisplay.h"
 #include "test/mocks/MockKeypad.h"
 #include "test/mocks/MockRotaryEncoder.h"
@@ -39,6 +40,7 @@ protected:
   MockRotaryEncoder *encoder1;
   MockRotaryEncoder *encoder2;
   MockRotaryEncoder *encoder3;
+  MockConnectionManager *connectionManager;
   static const int NUM_THROTTLES = 3;
   Throttle *throttles[NUM_THROTTLES];
 
@@ -55,25 +57,27 @@ protected:
     throttles[0] = new Throttle(0, button1, encoder1, 1, 2, 5);
     throttles[1] = new Throttle(1, button2, encoder2, 1, 2, 5);
     throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
-    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles);
+    connectionManager = new MockConnectionManager;
+    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles, connectionManager);
   }
 
   void TearDown() override {
-    delete mockDisplay;
-    delete mockKeypad;
-    delete logger;
+    delete appOrchestrator;
+    delete connectionManager;
 
     for (int i = 0; i < 3; i++) {
       delete throttles[i];
     }
 
-    delete button1;
-    delete button2;
-    delete button3;
-    delete encoder1;
-    delete encoder2;
     delete encoder3;
-    delete appOrchestrator;
+    delete encoder2;
+    delete encoder1;
+    delete button3;
+    delete button2;
+    delete button1;
+    delete logger;
+    delete mockKeypad;
+    delete mockDisplay;
   }
 };
 
@@ -163,4 +167,27 @@ TEST_F(AppOrchestratorTests, TestAppStateNameLogged) {
 
   // Clear logger output
   logger->setOutput(nullptr);
+}
+
+/**
+ * @brief Test AppState changes to Throttle automatically when connected
+ */
+TEST_F(AppOrchestratorTests, TestTransitionOnConnectionSuccess) {
+  // update() should be called twice during this test
+  EXPECT_CALL(*connectionManager, update()).Times(2);
+  // getState() should return Connecting and then Connected
+  EXPECT_CALL(*connectionManager, getState())
+      .WillOnce(Return(ConnectionState::Connecting))
+      .WillOnce(Return(ConnectionState::Connected));
+
+  // We expect the Throttle screen to be displayed once
+  EXPECT_CALL(*mockDisplay, displayThrottleScreen()).Times(1);
+
+  // First update() should be Startup
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+
+  // Second update should be connected, and therefore move to Throttle
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
 }

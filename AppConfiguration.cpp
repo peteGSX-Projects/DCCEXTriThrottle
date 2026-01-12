@@ -78,7 +78,8 @@ void AppConfiguration::initialise() {
 #endif // NATIVE_TESTING
 
   // Lastly, create orchestrator instance
-  _appOrchestrator = new AppOrchestrator(_displayInterface, _userInputInterface, _logger, NUM_THROTTLES, _throttles);
+  _appOrchestrator =
+      new AppOrchestrator(_displayInterface, _userInputInterface, _logger, NUM_THROTTLES, _throttles, nullptr);
 }
 
 AppOrchestrator *AppConfiguration::getAppOrchestrator() { return _appOrchestrator; }
