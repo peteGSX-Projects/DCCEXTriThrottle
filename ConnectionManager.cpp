@@ -22,7 +22,6 @@ ConnectionManager::ConnectionManager(DCCEXProtocol *commandStationClient)
       _retriesRemaining(0) {}
 
 void ConnectionManager::begin() {
-  printf("begin(): getLists()\n");
   _connectionState = ConnectionState::Connecting;
   _retriesRemaining = CONNECT_RETRIES;
   _lastRetry = millis();
@@ -41,12 +40,10 @@ void ConnectionManager::update() {
   unsigned long currentMillis = millis();
   if (currentMillis - _lastRetry >= CONNECT_RETRY_DELAY) {
     if (_retriesRemaining == 0) {
-      printf("update(): Retries exceeded, failing\n");
       _connectionState = ConnectionState::Failed;
       return;
     }
 
-    printf("update(): Retrying, retries left: %d\n", _retriesRemaining);
     _retriesRemaining--;
     _lastRetry = currentMillis;
     _commandStationClient->getLists(true, true, true, true);

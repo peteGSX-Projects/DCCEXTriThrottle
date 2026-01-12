@@ -31,6 +31,7 @@ protected:
   ConnectionManager *connectionManager;
 
   void SetUp() override {
+    millis();
     mockClient = new MockDCCEXProtocol;
     connectionManager = new ConnectionManager(mockClient);
   }
