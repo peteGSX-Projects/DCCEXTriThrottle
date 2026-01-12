@@ -29,7 +29,7 @@
 /**
  * @brief Enumeration of valid state machine states
  */
-enum class AppState { Startup, Throttle };
+enum class AppState { Startup, Throttle, ConnectionError };
 
 /**
  * @brief The AppOrchestrator coordinates all application activity using a state machine and responding to
@@ -76,12 +76,19 @@ private:
   /**
    * @brief Display the startup screen while connecting to the CommandStation
    */
-  void _handleStartupState(UserInputInterface::UserInputEvent event);
+  void _handleStartupState();
 
   /**
    * @brief Display the throttle screen and respond to user interactions
+   * @param event UserInputInterface::UserInputEvent
    */
   void _handleThrottleState(UserInputInterface::UserInputEvent event);
+
+  /**
+   * @brief Display the connection error screen and respond to user interaction
+   * @param event UserInputInterface::UserInputEvent
+   */
+  void _handleConnectionError(UserInputInterface::UserInputEvent event);
 
   /**
    * @brief Switch AppState to the new state and flag a display redraw

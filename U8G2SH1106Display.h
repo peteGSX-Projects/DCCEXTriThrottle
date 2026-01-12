@@ -155,6 +155,11 @@ public:
   void displayMenuScreen(Menu *menu) override;
 
   /**
+   * @brief Display the connection error screen
+   */
+  void displayConnectionErrorScreen() override;
+
+  /**
    * @brief Destroy the U8G2SH1106Display object
    */
   ~U8G2SH1106Display();

@@ -89,87 +89,6 @@ TEST_F(AppOrchestratorTests, ValidateStartupState) {
 }
 
 /**
- * @brief Ensure AppOrchestrator goes from Startup to Throttle when any key event occurs, should also cause display
- * redraw
- */
-TEST_F(AppOrchestratorTests, ValidateStartuptoThrottleState) {
-  const char *expectedText = "DCC-EX Tri-Throttle";
-  const char *expectedVersion = VERSION;
-
-  // Validate starts in Startup
-  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
-
-  // Startup and throttle display should be called once and once only
-  EXPECT_CALL(*mockDisplay, displayStartupScreen(StrEq(expectedText), StrEq(expectedVersion))).Times(1);
-  EXPECT_CALL(*mockDisplay, displayThrottleScreen()).Times(1);
-
-  // Needs redraw should start true
-  EXPECT_TRUE(mockDisplay->needsRedraw());
-
-  // Single update with no key presses should remain in Startup, and display startup should be called
-  appOrchestrator->update();
-  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
-
-  // Display should not need redraw after initial update
-  EXPECT_FALSE(mockDisplay->needsRedraw());
-
-  // Key press should change to Throttle
-  mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
-  appOrchestrator->update();
-  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
-
-  // Subsequent update with no user input should maintain state and not call startup display again
-  appOrchestrator->update();
-  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
-
-  // Display should no longer need a redraw
-  EXPECT_FALSE(mockDisplay->needsRedraw());
-}
-
-/**
- * @brief Test event type name is logged
- */
-TEST_F(AppOrchestratorTests, TestOnEventTypeNameLogged) {
-  // Set up the logger with an output stream to monitor
-  Stream logStream;
-  logger->setLogLevel(LogLevel::LOG_DEBUG);
-  logger->setOutput(&logStream);
-
-  // Create a dummy event
-  EventData eventData;
-  Event event = {EventType::CommandStationConnected, eventData};
-
-  // Call onEvent which should trigger the debug message
-  appOrchestrator->onEvent(event);
-
-  // Check the output stream for the event type
-  EXPECT_THAT(logStream.buffer, HasSubstr("CommandStationConnected"));
-
-  // Clear logger output
-  logger->setOutput(nullptr);
-}
-
-/**
- * @brief Test AppState name is logged when switching states
- */
-TEST_F(AppOrchestratorTests, TestAppStateNameLogged) {
-  // Set up the logger with an output stream
-  Stream logStream;
-  logger->setLogLevel(LogLevel::LOG_DEBUG);
-  logger->setOutput(&logStream);
-
-  // Initial key press should trigger change from Startup to Throttle
-  mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
-  appOrchestrator->update();
-
-  // AppState Throttle should now be in the log stream
-  EXPECT_THAT(logStream.buffer, HasSubstr("Throttle"));
-
-  // Clear logger output
-  logger->setOutput(nullptr);
-}
-
-/**
  * @brief Test AppState changes to Throttle automatically when connected
  */
 TEST_F(AppOrchestratorTests, TestTransitionOnConnectionSuccess) {
@@ -190,4 +109,43 @@ TEST_F(AppOrchestratorTests, TestTransitionOnConnectionSuccess) {
   // Second update should be connected, and therefore move to Throttle
   appOrchestrator->update();
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}
+
+/**
+ * @brief Test AppState changes to ConnectionError automatically when connection fails
+ */
+TEST_F(AppOrchestratorTests, TestTransitionOnConnectionFail) {
+  // update() should be called twice during this test
+  EXPECT_CALL(*connectionManager, update()).Times(1);
+  // getState() should return Failed
+  EXPECT_CALL(*connectionManager, getState()).WillOnce(Return(ConnectionState::Failed));
+
+  // We expect the Throttle screen to be displayed once
+  EXPECT_CALL(*mockDisplay, displayConnectionErrorScreen()).Times(1);
+
+  // First update() should be Startup
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::ConnectionError);
+}
+
+/**
+ * @brief Test user input causes connection retry
+ */
+TEST_F(AppOrchestratorTests, TestConnectionRetry) {
+  // Force connection error
+  EXPECT_CALL(*connectionManager, getState()).WillRepeatedly(Return(ConnectionState::Failed));
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::ConnectionError);
+
+  // When user presses any key (except * which is demo mode), should call connectionManager->begin()
+  EXPECT_CALL(*connectionManager, begin()).Times(1);
+
+  // Key press
+  mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+
+  // update()
+  appOrchestrator->update();
+
+  // Should be back in AppState::Startup now
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
 }

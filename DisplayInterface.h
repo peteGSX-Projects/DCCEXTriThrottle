@@ -70,17 +70,22 @@ public:
   virtual void displayMenuScreen(Menu *menu) = 0;
 
   /**
+   * @brief Display the connection error screen
+   */
+  virtual void displayConnectionErrorScreen() = 0;
+
+  /**
    * @brief Set the redraw flag for the display
    * @param redraw True if redraw is needed, false if not
    */
-  void setRedraw(bool redraw) { _needsRedraw = redraw; }
+  virtual void setRedraw(bool redraw) { _needsRedraw = redraw; }
 
   /**
    * @brief Check if this display needs to be redrawn
    * @return true If needed
    * @return false If not
    */
-  bool needsRedraw() { return _needsRedraw; }
+  virtual bool needsRedraw() { return _needsRedraw; }
 
   /**
    * @brief Destroy the Display Interface object

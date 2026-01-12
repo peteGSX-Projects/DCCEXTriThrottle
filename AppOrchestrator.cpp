@@ -29,9 +29,10 @@ AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputIn
 
 void AppOrchestrator::update() {
   UserInputInterface::UserInputEvent inputEvent = _userInputInterface->check();
+  _connectionManager->update();
   switch (_currentAppState) {
   case AppState::Startup: {
-    _handleStartupState(inputEvent);
+    _handleStartupState();
     break;
   }
   case AppState::Throttle: {
@@ -39,6 +40,10 @@ void AppOrchestrator::update() {
     for (int i = 0; i < _numThrottles; i++) {
       _throttles[i]->update();
     }
+    break;
+  }
+  case AppState::ConnectionError: {
+    _handleConnectionError(inputEvent);
     break;
   }
   default: {
@@ -72,13 +77,25 @@ AppState AppOrchestrator::getCurrentAppState() { return _currentAppState; }
 
 AppOrchestrator::~AppOrchestrator() {}
 
-void AppOrchestrator::_handleStartupState(UserInputInterface::UserInputEvent inputEvent) {
-  if (inputEvent.key != '\0') {
+void AppOrchestrator::_handleStartupState() {
+  ConnectionState state = _connectionManager->getState();
+  if (state == ConnectionState::Connected) {
     _switchState(AppState::Throttle);
+  } else if (state == ConnectionState::Failed) {
+    _switchState(AppState::ConnectionError);
   }
 }
 
-void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent inputEvent) {}
+void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent event) {}
+
+void AppOrchestrator::_handleConnectionError(UserInputInterface::UserInputEvent event) {
+  if (event.key == '*') {
+    LOG(LogLevel::LOG_DEBUG, "Entering demo mode");
+  } else if (event.key != '\0') {
+    _connectionManager->begin();
+    _switchState(AppState::Startup);
+  }
+}
 
 void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
@@ -96,6 +113,10 @@ void AppOrchestrator::_displayCurrentState() {
   }
   case AppState::Throttle: {
     _displayInterface->displayThrottleScreen();
+    break;
+  }
+  case AppState::ConnectionError: {
+    _displayInterface->displayConnectionErrorScreen();
     break;
   }
   default:
@@ -138,7 +159,7 @@ const char *AppOrchestrator::_eventTypeToString(EventType eventType) {
   case ReceivedLocoBroadcast:
     return "ReceivedLocoBroadcast";
   default:
-    return "UNKNOW_EVENT";
+    return "UNKNOWN_EVENT";
   }
 }
 
@@ -148,6 +169,8 @@ const char *AppOrchestrator::_appStateToString(AppState appState) {
     return "Startup";
   case AppState::Throttle:
     return "Throttle";
+  case AppState::ConnectionError:
+    return "ConnectionError";
   default:
     return "UNKNOWN";
   }

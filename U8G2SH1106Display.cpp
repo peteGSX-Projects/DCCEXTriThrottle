@@ -98,6 +98,11 @@ void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
   _displayHeader("This is a menu");
 }
 
+void U8G2SH1106Display::displayConnectionErrorScreen() {
+  _oled->clear();
+  _displayHeader("Connection error");
+}
+
 U8G2SH1106Display::~U8G2SH1106Display() {
   if (_throttleCoordinates == nullptr) {
     delete[] _throttleCoordinates;
