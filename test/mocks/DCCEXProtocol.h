@@ -89,7 +89,7 @@ public:
 
 class DCCEXProtocol {
 public:
-  DCCEXProtocol(int maxCmdBuffer, int maxCommandParams) {}
+  DCCEXProtocol(int maxCmdBuffer = 500, int maxCommandParams = 50) {}
 
   virtual void setDelegate(DCCEXProtocolDelegate *delegate) { _delegate = delegate; }
 

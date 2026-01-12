@@ -25,7 +25,9 @@
 #include "Throttle.h"
 #include "UserInputInterface.h"
 
-// State machine states enum
+/**
+ * @brief Enumeration of valid state machine states
+ */
 enum class AppState { Startup, Throttle };
 
 /**

@@ -27,7 +27,11 @@
 class MockDCCEXProtocol : public DCCEXProtocol {
 public:
   // Pass library constructor parameters up to the base
-  MockDCCEXProtocol(int maxCmdBuffer, int maxCommandParams) : DCCEXProtocol(maxCmdBuffer, maxCommandParams) {}
+  MockDCCEXProtocol(int maxCmdBuffer = 500, int maxCommandParams = 50) : DCCEXProtocol(maxCmdBuffer, maxCommandParams) {
+    ON_CALL(*this, receivedLists()).WillByDefault([this]() { return this->DCCEXProtocol::receivedLists(); });
+    ON_CALL(*this, getLists(testing::_, testing::_, testing::_, testing::_))
+        .WillByDefault([this](bool a, bool b, bool c, bool d) { this->DCCEXProtocol::getLists(a, b, c, d); });
+  }
 
   MOCK_METHOD(void, setDelegate, (DCCEXProtocolDelegate * delegate), (override));
   MOCK_METHOD(void, setLogStream, (Stream * console), (override));

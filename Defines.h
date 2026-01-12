@@ -167,4 +167,12 @@
 #define LOG_LEVEL LOG_WARN
 #endif // LOG_LEVEL
 
+// Set default command station connection retries
+#ifndef CONNECT_RETRIES
+#define CONNECT_RETRIES 10
+#endif // CONNECT_RETRIES
+#ifndef CONNECT_RETRY_DELAY
+#define CONNECT_RETRY_DELAY 1000
+#endif // CONNECT_RETRY_DELAY
+
 #endif // DEFINES_H
