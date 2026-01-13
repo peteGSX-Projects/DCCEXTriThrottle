@@ -36,6 +36,7 @@
 
 #include "AppOrchestrator.h"
 #include "Button.h"
+#include "CommandStationListener.h"
 #include "ConnectionManager.h"
 #include "CustomisableKeypad.h"
 #include "EventManager.h"
@@ -64,7 +65,9 @@ void setup() {
   // Setup application services
   static EventManager eventManger;
   static DCCEXProtocol commandStationClient;
+  static CommandStationListener commandStationListener(&eventManger);
   commandStationClient.setLogStream(&CONSOLE_STREAM);
+  commandStationClient.setDelegate(&commandStationListener);
   commandStationClient.connect(&COMMANDSTATION_STREAM);
   static ConnectionManager connectionManager(&commandStationClient);
 
