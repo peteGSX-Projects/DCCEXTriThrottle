@@ -18,16 +18,12 @@
 #include "SubMenuItem.h"
 #include "Menu.h"
 
-SubMenuItem::SubMenuItem(Menu *menu)
-    : BaseMenuItem(menu->getName(), MenuItemType::SubMenuType), _menu(menu) {}
+SubMenuItem::SubMenuItem(Menu *menu) : BaseMenuItem(menu->getName(), MenuItemType::SubMenuType), _menu(menu) {}
 
 Menu *SubMenuItem::getMenu() { return _menu; }
 
-BaseMenuItem *SubMenuItem::clone() const { return new SubMenuItem(*this); }
-
 SubMenuItem::~SubMenuItem() {
   if (_menu != nullptr) {
-    delete _menu;
     _menu = nullptr;
   }
 }

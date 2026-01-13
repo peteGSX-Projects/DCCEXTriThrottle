@@ -59,10 +59,6 @@ public:
   /// @return MenuItemType
   MenuItemType getItemType();
 
-  /// @brief Virtual method to assist polymorphic destructor clean up
-  /// @return Pointer to the polymorphic instance inheriting from this class
-  virtual BaseMenuItem *clone() const = 0;
-
   /// @brief Destructor for this item - virtual to support polymorphic clean up
   virtual ~BaseMenuItem();
 

@@ -44,6 +44,7 @@ TEST_F(MenuItemTests, LocoMenuItem) {
 
   // Clean up
   delete item;
+  delete loco;
 }
 
 /// @brief Tests for a menu item type containing another menu
@@ -59,4 +60,5 @@ TEST_F(MenuItemTests, SubMenuItem) {
 
   // Clean up
   delete item;
+  delete menu;
 }

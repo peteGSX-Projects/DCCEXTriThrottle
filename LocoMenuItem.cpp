@@ -17,8 +17,7 @@
 
 #include "LocoMenuItem.h"
 
-LocoMenuItem::LocoMenuItem(Loco *loco)
-    : BaseMenuItem(loco->getName(), MenuItemType::LocoType), _loco(loco) {
+LocoMenuItem::LocoMenuItem(Loco *loco) : BaseMenuItem(loco->getName(), MenuItemType::LocoType), _loco(loco) {
   // If there's no name for this loco, set the address as the name
   if (loco->getName() == nullptr) {
     if (_name != nullptr) {
@@ -36,11 +35,8 @@ LocoMenuItem::LocoMenuItem(Loco *loco)
   }
 }
 
-BaseMenuItem *LocoMenuItem::clone() const { return new LocoMenuItem(*this); }
-
 LocoMenuItem::~LocoMenuItem() {
   if (_loco != nullptr) {
-    delete _loco;
     _loco = nullptr;
   }
 }

@@ -56,9 +56,9 @@ TEST_F(MenuTests, NestedMenus) {
   EXPECT_EQ(nestedMenu2->getParent(), nestedMenu1);
 
   // Clean up
-  delete mainMenu;
-  delete nestedMenu1;
   delete nestedMenu2;
+  delete nestedMenu1;
+  delete mainMenu;
 }
 
 /// @brief Test creating a simple menu structure of items
@@ -92,6 +92,9 @@ TEST_F(MenuTests, SimpleMenuStructure) {
 
   // Clean up
   delete mainMenu;
+  delete loco0;
+  delete loco1;
+  delete loco2;
 }
 
 /// @brief Test creating a menu with a submenu
@@ -123,4 +126,10 @@ TEST_F(MenuTests, MenuWithSubMenu) {
 
   // Clean up
   delete mainMenu;
+  delete subMenu;
+  delete loco0;
+  delete loco1;
+  delete loco2;
+  delete loco3;
+  delete loco4;
 }

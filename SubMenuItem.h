@@ -33,10 +33,6 @@ public:
   /// @return Pointer to the Menu instance
   Menu *getMenu();
 
-  /// @brief Override to return the pointer to this instance for polymorphic clean up
-  /// @return Pointer to this instance as a BaseMenuItem
-  BaseMenuItem *clone() const override;
-
   /// @brief Destructor for this SubMenuItem
   ~SubMenuItem();
 private:
