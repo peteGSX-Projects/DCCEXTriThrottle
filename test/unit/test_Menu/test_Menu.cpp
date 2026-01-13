@@ -76,9 +76,8 @@ TEST_F(MenuTests, SimpleMenuStructure) {
   // Validate each menu item has the correct auto generated index and name is
   // the Loco name
   int i = 0;
-  for (LocoMenuItem *item =
-           static_cast<LocoMenuItem *>(mainMenu->getFirstItem());
-       item; item = static_cast<LocoMenuItem *>(item->getNext())) {
+  for (LocoMenuItem *item = static_cast<LocoMenuItem *>(mainMenu->getFirstItem()); item;
+       item = static_cast<LocoMenuItem *>(item->getNext())) {
     EXPECT_EQ(item->getIndex(), i);
     if (i == 0) {
       EXPECT_STREQ(item->getName(), loco0->getName());
@@ -118,8 +117,7 @@ TEST_F(MenuTests, MenuWithSubMenu) {
   EXPECT_EQ(mainMenu->getFirstItem()->getItemType(), MenuItemType::SubMenuType);
 
   int i = 0;
-  for (BaseMenuItem *item = mainMenu->getFirstItem(); item;
-       item = item->getNext()) {
+  for (BaseMenuItem *item = mainMenu->getFirstItem(); item; item = item->getNext()) {
     EXPECT_EQ(item->getIndex(), i);
     i++;
   }
@@ -132,4 +130,38 @@ TEST_F(MenuTests, MenuWithSubMenu) {
   delete loco2;
   delete loco3;
   delete loco4;
+}
+
+/**
+ * @brief Test the pagination logic for a Menu object works
+ */
+TEST_F(MenuTests, TestPaginationLogic) {
+  // Create the menu
+  Menu *menu = new Menu("Pagination Test");
+  Loco *dummyLoco = new Loco(3, LocoSource::LocoSourceEntry);
+
+  // Add 22 items - 3 pages
+  for (int i = 0; i < 22; i++) {
+    menu->addItem(new LocoMenuItem(dummyLoco));
+  }
+
+  // Check initial attributes
+  EXPECT_EQ(menu->getTotalPages(), 3);
+  EXPECT_EQ(menu->getCurrentPage(), 0);
+
+  // Navigate to the page 1
+  menu->nextPage();
+  EXPECT_EQ(menu->getCurrentPage(), 1);
+
+  // Navigate to page 2
+  menu->nextPage();
+  EXPECT_EQ(menu->getCurrentPage(), 2);
+
+  // Navigate back to page 0
+  menu->nextPage();
+  EXPECT_EQ(menu->getCurrentPage(), 0);
+
+  // Cleanup
+  delete menu;
+  delete dummyLoco;
 }

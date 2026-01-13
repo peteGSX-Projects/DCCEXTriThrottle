@@ -27,31 +27,75 @@
  */
 class Menu {
 public:
-  /// @brief Constructor for this Menu
-  /// @param name Name or label for this menu
-  Menu(const char *name);
+  /**
+   * @brief Construct a new Menu object
+   * @param name Name or label for this menu
+   * @param itemsPerPage Override the items per page default of 10 if necessary
+   */
+  Menu(const char *name, int itemsPerPage = 10);
 
-  /// @brief Get the name or label of this Menu
-  /// @return Name or label of this Menu
+  /**
+   * @brief Get the Name of this menu
+   * @return const char* Pointer to the char array name
+   */
   const char *getName();
 
-  /// @brief Add a menu item to this menu and automatically set its index
-  /// @param item Pointer to the menu item to add
+  /**
+   * @brief Add a menu item to this menu and automatically set its index
+   * @param item Pointer to the menu item to add
+   */
   void addItem(BaseMenuItem *item);
 
-  /// @brief Get the first menu item in the list
-  /// @return Pointer to the first menu item
+  /**
+   * @brief Get the First Item object
+   * @return BaseMenuItem* Pointer to the first menu item
+   */
   BaseMenuItem *getFirstItem();
 
-  /// @brief Set this Menu's parent if it is nested
-  /// @param parent Pointer to the parent Menu
+  /**
+   * @brief Set the Parent object if this is a nested menu
+   * @param parent Pointer to the parent Menu object
+   */
   void setParent(Menu *parent);
 
-  /// @brief Get this Menu's parent if it is nested
-  /// @return Pointer to the parent Menu
+  /**
+   * @brief Get the Parent object if it is nested
+   * @return Menu* Pointer to the parent Menu object
+   */
   Menu *getParent();
 
-  /// @brief Destructor for this Menu
+  /**
+   * @brief Get the Current Page
+   * @return int Index of the current page
+   */
+  int getCurrentPage();
+
+  /**
+   * @brief Set the Current Page
+   * @param page Index of the page
+   */
+  void setCurrentPage(int page);
+
+  /**
+   * @brief Get the Total Pages
+   * @return int Count of pages of items
+   */
+  int getTotalPages();
+
+  /**
+   * @brief Advance to the next page, wraps to first page from the last
+   */
+  void nextPage();
+
+  /**
+   * @brief Get the Item Count
+   * @return int Total number of items in this Menu
+   */
+  int getItemCount();
+
+  /**
+   * @brief Destroy the Menu object, also deletes all associated items
+   */
   ~Menu();
 
 private:
@@ -59,6 +103,8 @@ private:
   BaseMenuItem *_firstItem; /** Pointer to the first menu item in the list */
   Menu *_parent;            /** Pointer to a parent menu if this is nested */
   int _nextItemIndex;       /** Auto increment index of next item added */
+  int _currentPage;         /** Index of the current selected page */
+  int _itemsPerPage;        /** Number of items per page for this menu */
 };
 
 #endif // MENU_H

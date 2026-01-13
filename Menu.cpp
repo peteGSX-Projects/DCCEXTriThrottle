@@ -17,7 +17,8 @@
 
 #include "Menu.h"
 
-Menu::Menu(const char *name) : _firstItem(nullptr), _parent(nullptr), _nextItemIndex(0) {
+Menu::Menu(const char *name, int itemsPerPage)
+    : _firstItem(nullptr), _parent(nullptr), _nextItemIndex(0), _currentPage(0) {
   if (name != nullptr) {
     int nameLength = strlen(name);
     _name = new char[nameLength + 1];
@@ -25,6 +26,7 @@ Menu::Menu(const char *name) : _firstItem(nullptr), _parent(nullptr), _nextItemI
   } else {
     _name = nullptr;
   }
+  _itemsPerPage = itemsPerPage;
 }
 
 const char *Menu::getName() { return _name; }
@@ -51,6 +53,29 @@ BaseMenuItem *Menu::getFirstItem() { return _firstItem; }
 void Menu::setParent(Menu *parent) { _parent = parent; }
 
 Menu *Menu::getParent() { return _parent; }
+
+int Menu::getCurrentPage() { return _currentPage; }
+
+void Menu::setCurrentPage(int page) {
+  if (page <= getTotalPages()) {
+    _currentPage = page;
+  }
+}
+
+int Menu::getTotalPages() {
+  if (_nextItemIndex == 0)
+    return 1;
+  return ((_nextItemIndex + _itemsPerPage - 1) / _itemsPerPage);
+}
+
+void Menu::nextPage() {
+  _currentPage++;
+  if (_currentPage >= getTotalPages()) {
+    _currentPage = 0;
+  }
+}
+
+int Menu::getItemCount() { return _nextItemIndex; }
 
 Menu::~Menu() {
   if (_name != nullptr) {
