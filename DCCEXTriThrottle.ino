@@ -27,29 +27,105 @@
 
 // Includes in both production and testing
 #include "Defines.h"
+#include "HardwareManager.h"
 #include "Logger.h"
+#include "Version.h"
 
 // Don't do standard Arduino stuff if testing
 #if !defined(NATIVE_TESTING) && !defined(DEVICE_TESTING)
 
-#include "AppConfiguration.h"
+#include "AppOrchestrator.h"
+#include "Button.h"
+#include "ConnectionManager.h"
+#include "CustomisableKeypad.h"
+#include "EventManager.h"
+#include "RotaryEncoder.h"
+#include "Throttle.h"
+#include "U8G2SH1106Display.h"
 #include <Arduino.h>
 
-AppConfiguration *appConfiguration = nullptr;
+// Global orchestrator
+AppOrchestrator *orchestrator = nullptr;
 
 void setup() {
-  CONSOLE_STREAM.begin(115200);
-  COMMANDSTATION_STREAM.begin(115200);
+  // Setup hardware
+  static HardwareManager hardwareManager;
+  hardwareManager.initialise();
+
+  // Setup logger
+  static Logger logger;
+  logger.setLogLevel(LOG_LEVEL);
+  logger.setOutput(&CONSOLE_STREAM);
+
 #ifdef STARTUP_DELAY
   delay(STARTUP_DELAY);
 #endif // STARTUP_DELAY
-  appConfiguration = new AppConfiguration(&CONSOLE_STREAM, &COMMANDSTATION_STREAM, LOG_LEVEL);
-  appConfiguration->initialise();
+
+  // Setup application services
+  static EventManager eventManger;
+  static DCCEXProtocol commandStationClient;
+  commandStationClient.setLogStream(&CONSOLE_STREAM);
+  commandStationClient.connect(&COMMANDSTATION_STREAM);
+  static ConnectionManager connectionManager(&commandStationClient);
+
+  // Setup keypad
+  static const byte keypadRowPins[] = {KEYPAD_ROW_PINS};
+  static const byte keypadColumnPins[] = {KEYPAD_COLUMN_PINS};
+  static const char keypadKeyMap[] = {KEYPAD_MAP};
+  static CustomisableKeypad keypad(KEYPAD_ROWS, KEYPAD_COLUMNS, keypadRowPins, keypadColumnPins, keypadKeyMap,
+                                   KEYPAD_DEBOUNCE_TIME, KEYPAD_HELD_THRESHOLD);
+  keypad.begin();
+
+  // Setup display
+  static U8G2SH1106Display display(NUM_THROTTLES);
+  display.begin();
+
+  // Setup throttles
+  static RotaryEncoder::Mode encoderMode =
+      (ENCODER_MODE == HALF_STEP) ? RotaryEncoder::Mode::HalfStep : RotaryEncoder::Mode::FullStep;
+
+  // Throttle array of pointers
+  static Throttle *throttles[NUM_THROTTLES];
+
+  // Throttle 0 hardware
+  static Button button0(ENCODER1_BUTTON);
+  static RotaryEncoder encoder0(ENCODER1_DT, ENCODER1_CLK, encoderMode);
+  encoder0.begin();
+
+  // Throttle 1 hardware
+  static Button button1(ENCODER2_BUTTON);
+  static RotaryEncoder encoder1(ENCODER2_DT, ENCODER2_CLK, encoderMode);
+  encoder1.begin();
+
+  // Throttle 2 hardware
+  static Button button2(ENCODER3_BUTTON);
+  static RotaryEncoder encoder2(ENCODER3_DT, ENCODER3_CLK, encoderMode);
+  encoder2.begin();
+
+  // Invert throttle direction if configured
+#if INVERT_THROTTLE
+  encoder0.setThrottleInverted();
+  encoder1.setThrottleInverted();
+  encoder2.setThrottleInverted();
+#endif
+
+  // Define throttles
+  throttles[0] = new Throttle(0, &button0, &encoder0, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  throttles[0]->setLogger(&logger);
+  throttles[1] = new Throttle(1, &button1, &encoder1, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  throttles[1]->setLogger(&logger);
+  throttles[2] = new Throttle(2, &button2, &encoder2, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  throttles[2]->setLogger(&logger);
+
+  // Setup AppOrchestrator
+  static AppOrchestrator appOrchestrator(&display, &keypad, &logger, NUM_THROTTLES, throttles, &connectionManager);
+  orchestrator = &appOrchestrator;
+  appOrchestrator.begin();
+
+  LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle initialised, version %s", VERSION);
 }
 
-void loop() {
-  appConfiguration->getAppOrchestrator()->update();
-}
+void loop() { orchestrator->update(); }
 
 // Include if doing device testing
 #elif defined(DEVICE_TESTING)

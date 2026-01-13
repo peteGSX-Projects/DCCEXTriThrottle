@@ -27,6 +27,12 @@ AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputIn
   _currentAppState = AppState::Startup;
 }
 
+void AppOrchestrator::begin() {
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::begin()");
+  if (_connectionManager)
+    _connectionManager->begin();
+}
+
 void AppOrchestrator::update() {
   UserInputInterface::UserInputEvent inputEvent = _userInputInterface->check();
   _connectionManager->update();

@@ -41,7 +41,6 @@ protected:
   MockRotaryEncoder *encoder2;
   MockRotaryEncoder *encoder3;
   MockConnectionManager *connectionManager;
-  static const int NUM_THROTTLES = 3;
   Throttle *throttles[NUM_THROTTLES];
 
   void SetUp() override {
@@ -86,6 +85,15 @@ protected:
  */
 TEST_F(AppOrchestratorTests, ValidateStartupState) {
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+}
+
+/**
+ * @brief Ensure AppOrchestrator::begin() starts connection manager
+ */
+TEST_F(AppOrchestratorTests, TestBeginStartsConnectionManager) {
+  // Set expectation
+  EXPECT_CALL(*connectionManager, begin()).Times(1);
+  appOrchestrator->begin();
 }
 
 /**

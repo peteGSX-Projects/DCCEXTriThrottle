@@ -175,4 +175,7 @@
 #define CONNECT_RETRY_DELAY 1000
 #endif // CONNECT_RETRY_DELAY
 
+// This will never really change so define throttle count here
+#define NUM_THROTTLES 3
+
 #endif // DEFINES_H

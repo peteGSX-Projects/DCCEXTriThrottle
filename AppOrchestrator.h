@@ -41,6 +41,11 @@ public:
                   int numThrottles, Throttle **throttles, ConnectionManager *connectionManager);
 
   /**
+   * @brief Call any associated begin or initialisation methods
+   */
+  void begin();
+
+  /**
    * @brief Call the update() method at least once per main loop iteration
    */
   void update();
