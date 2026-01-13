@@ -38,7 +38,7 @@ enum class AppState { Startup, Throttle, ConnectionError };
 class AppOrchestrator : public EventListener {
 public:
   AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger,
-                  int numThrottles, Throttle **throttles, ConnectionManager *connectionManager);
+                  int numThrottles, Throttle **throttles, ConnectionManager *connectionManager, EventManager *eventManager);
 
   /**
    * @brief Call any associated begin or initialisation methods
@@ -76,6 +76,7 @@ private:
   int _numThrottles;
   Throttle **_throttles;
   ConnectionManager *_connectionManager;
+  EventManager *_eventManager;
 
   // Methods
   /**

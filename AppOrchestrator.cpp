@@ -20,15 +20,20 @@
 
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
                                  Logger *logger, int numThrottles, Throttle **throttles,
-                                 ConnectionManager *connectionManager)
+                                 ConnectionManager *connectionManager, EventManager *eventManager)
     : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger),
-      _numThrottles(numThrottles), _throttles(throttles), _connectionManager(connectionManager) {
+      _numThrottles(numThrottles), _throttles(throttles), _connectionManager(connectionManager),
+      _eventManager(eventManager) {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
 }
 
 void AppOrchestrator::begin() {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::begin()");
+
+  // Subscribe to events first
+  _eventManager->subscribe(this, EventType::ConnectionRetry);
+
   if (_connectionManager)
     _connectionManager->begin();
 }
@@ -73,6 +78,11 @@ void AppOrchestrator::onEvent(Event &event) {
   case EventType::CommandStationConnected: {
     break;
   }
+  case EventType::ConnectionRetry: {
+    if (_currentAppState == AppState::Startup) {
+      _displayInterface->updateProgressScreen();
+    }
+  }
   default: {
     LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received");
   }
@@ -114,7 +124,7 @@ void AppOrchestrator::_switchState(AppState newState) {
 void AppOrchestrator::_displayCurrentState() {
   switch (_currentAppState) {
   case AppState::Startup: {
-    _displayInterface->displayStartupScreen("DCC-EX Tri-Throttle", VERSION);
+    _displayInterface->displayProgressScreen("DCC-EX Tri-Throttle " VERSION, "Connecting...");
     break;
   }
   case AppState::Throttle: {
@@ -164,6 +174,10 @@ const char *AppOrchestrator::_eventTypeToString(EventType eventType) {
     return "ToggleTrackPower";
   case ReceivedLocoBroadcast:
     return "ReceivedLocoBroadcast";
+  case ConnectionRetry:
+    return "ConnectionRetry";
+  case ReadLocoRetry:
+    return "ReadLocoRetry";
   default:
     return "UNKNOWN_EVENT";
   }

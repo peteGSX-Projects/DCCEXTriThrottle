@@ -69,7 +69,7 @@ void setup() {
   commandStationClient.setLogStream(&CONSOLE_STREAM);
   commandStationClient.setDelegate(&commandStationListener);
   commandStationClient.connect(&COMMANDSTATION_STREAM);
-  static ConnectionManager connectionManager(&commandStationClient);
+  static ConnectionManager connectionManager(&commandStationClient, &eventManger);
 
   // Setup keypad
   static const byte keypadRowPins[] = {KEYPAD_ROW_PINS};
@@ -121,7 +121,8 @@ void setup() {
   throttles[2]->setLogger(&logger);
 
   // Setup AppOrchestrator
-  static AppOrchestrator appOrchestrator(&display, &keypad, &logger, NUM_THROTTLES, throttles, &connectionManager);
+  static AppOrchestrator appOrchestrator(&display, &keypad, &logger, NUM_THROTTLES, throttles, &connectionManager,
+                                         &eventManger);
   orchestrator = &appOrchestrator;
   appOrchestrator.begin();
 

@@ -23,4 +23,6 @@ void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent)
 
 Menu *MenuManager::getCurrentMenu() { return _currentMenu; }
 
+bool MenuManager::isAtRootMenu() { return (_currentMenu == nullptr || _currentMenu->getParent() == nullptr); }
+
 MenuManager::~MenuManager() {}

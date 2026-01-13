@@ -17,6 +17,7 @@
 
 #include "Arduino.h"
 #include "ConnectionManager.h"
+#include "EventManager.h"
 #include "test/mocks/MockDCCEXProtocol.h"
 #include <gtest/gtest.h>
 
@@ -28,16 +29,19 @@ using namespace testing;
 class ConnectionManagerTests : public Test {
 protected:
   MockDCCEXProtocol *mockClient;
+  EventManager *eventManager;
   ConnectionManager *connectionManager;
 
   void SetUp() override {
     millis();
     mockClient = new MockDCCEXProtocol;
-    connectionManager = new ConnectionManager(mockClient);
+    eventManager = new EventManager;
+    connectionManager = new ConnectionManager(mockClient, eventManager);
   }
 
   void TearDown() override {
     delete connectionManager;
+    delete eventManager;
     delete mockClient;
   }
 };

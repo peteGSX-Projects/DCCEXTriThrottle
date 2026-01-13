@@ -43,8 +43,6 @@ public:
 
   MOCK_METHOD(void, clear, (), (override));
 
-  MOCK_METHOD(void, displayStartupScreen, (const char *headerText, const char *version), (override));
-
   MOCK_METHOD(void, displayThrottleScreen, (), (override));
 
   MOCK_METHOD(void, updateThrottleScreen, (int throttleIndex, Throttle *throttles), (override));
@@ -54,6 +52,10 @@ public:
   MOCK_METHOD(void, displayMenuScreen, (Menu * menu), (override));
 
   MOCK_METHOD(void, displayConnectionErrorScreen, (), (override));
+
+  MOCK_METHOD(void, displayProgressScreen, (const char *title, const char *message), (override));
+
+  MOCK_METHOD(void, updateProgressScreen, (), (override));
 
   MOCK_METHOD(void, setRedraw, (bool redraw), (override));
 

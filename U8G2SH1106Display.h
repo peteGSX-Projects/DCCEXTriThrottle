@@ -124,13 +124,6 @@ public:
   void clear() override;
 
   /**
-   * @brief Display the startup information
-   * @param headerText Text to be displayed in the header
-   * @param version Version of the software to be displayed
-   */
-  void displayStartupScreen(const char *headerText, const char *version) override;
-
-  /**
    * @brief Display the throttle screen
    */
   void displayThrottleScreen() override;
@@ -160,6 +153,18 @@ public:
   void displayConnectionErrorScreen() override;
 
   /**
+   * @brief Display the progress screen
+   * @param title Title of the screen
+   * @param message Message indicating what the progress is
+   */
+  void displayProgressScreen(const char *title, const char *message) override;
+
+  /**
+   * @brief Cause the progress screen to increment the progress indicator
+   */
+  void updateProgressScreen();
+
+  /**
    * @brief Destroy the U8G2SH1106Display object
    */
   ~U8G2SH1106Display();
@@ -172,6 +177,7 @@ private:
   const uint8_t *_throttleFont = THROTTLE_FONT;
   int _numThrottles;
   ThrottleCoordinates *_throttleCoordinates;
+  int _progressCounter;
 
   /**
    * @brief Calculate the height of the header text and line based on the menu font
@@ -185,10 +191,10 @@ private:
   void _displayHeader(const char *headerText);
 
   /**
-   * @brief Displays the version and other startup info on screen
-   * @param version Version to be displayed
+   * @brief Displays the progress message on screen
+   * @param message Activity in progress
    */
-  void _displayStartupInfo(const char *version);
+  void _displayProgressMessage(const char *message);
 
   /**
    * @brief Displays the current speed for the associated throttle

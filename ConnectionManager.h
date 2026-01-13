@@ -19,6 +19,7 @@
 #define CONNECTIONMANAGER_H
 
 #include "Defines.h"
+#include "EventManager.h"
 #include <DCCEXProtocol.h>
 
 /**
@@ -34,8 +35,9 @@ public:
   /**
    * @brief Construct a new Connection Manager object
    * @param commandStationClient Pointer to the DCCEXProtocol instance to use as the client
+   * @param eventManager Pointer to the application EventManager instance
    */
-  ConnectionManager(DCCEXProtocol *commandStationClient);
+  ConnectionManager(DCCEXProtocol *commandStationClient, EventManager *eventManager);
 
   /**
    * @brief Initialise the client
@@ -60,6 +62,7 @@ public:
 
 private:
   DCCEXProtocol *_commandStationClient;
+  EventManager *_eventManager;
   ConnectionState _connectionState;
   unsigned long _lastRetry;
   int _retriesRemaining;

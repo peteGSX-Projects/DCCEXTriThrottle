@@ -47,6 +47,7 @@ U8G2SH1106Display::U8G2SH1106Display(int numThrottles) : _numThrottles(numThrott
   _throttleCoordinates[2].direction.y = 35;
   _throttleCoordinates[2].address.x = 87;
   _throttleCoordinates[2].address.y = 50;
+  _progressCounter = 0;
 }
 
 void U8G2SH1106Display::begin() {
@@ -59,11 +60,6 @@ void U8G2SH1106Display::begin() {
 void U8G2SH1106Display::clear() {
   _oled->clear();
   _oled->sendBuffer();
-}
-
-void U8G2SH1106Display::displayStartupScreen(const char *headerText, const char *version) {
-  _displayHeader(headerText);
-  _displayStartupInfo(version);
 }
 
 void U8G2SH1106Display::displayThrottleScreen() {
@@ -103,6 +99,25 @@ void U8G2SH1106Display::displayConnectionErrorScreen() {
   _displayHeader("Connection error");
 }
 
+void U8G2SH1106Display::displayProgressScreen(const char *title, const char *message) {
+  _progressCounter = 0;
+  _oled->clear();
+  _displayHeader(title);
+  _displayProgressMessage(message);
+}
+
+void U8G2SH1106Display::updateProgressScreen() {
+  _oled->setDrawColor(1);
+  _oled->setFont(_menuFont);
+  uint16_t fontHeight = _oled->getMaxCharHeight();
+  uint16_t fontWidth = _oled->getMaxCharWidth();
+  uint16_t x = fontWidth * _progressCounter;
+  uint16_t y = _calculateHeaderHeight() + (fontHeight * 3);
+  _oled->drawStr(x, y, ".");
+  _oled->sendBuffer();
+  _progressCounter++;
+}
+
 U8G2SH1106Display::~U8G2SH1106Display() {
   if (_throttleCoordinates == nullptr) {
     delete[] _throttleCoordinates;
@@ -127,20 +142,13 @@ void U8G2SH1106Display::_displayHeader(const char *headerText) {
   _oled->sendBuffer();
 }
 
-void U8G2SH1106Display::_displayStartupInfo(const char *version) {
+void U8G2SH1106Display::_displayProgressMessage(const char *message) {
   _oled->setDrawColor(1);
   _oled->setFont(_menuFont);
   uint16_t fontHeight = _oled->getMaxCharHeight();
   uint16_t x = 0;
   uint16_t y = _calculateHeaderHeight() + fontHeight + 1;
-  const char *text = "Version: ";
-  uint16_t textWidth = _oled->getStrWidth(text);
-  _oled->drawStr(x, y, text);
-  x += textWidth;
-  _oled->drawStr(x, y, version);
-  y = _oled->getHeight() - 1;
-  x = 0;
-  _oled->drawStr(x, y, "Press any key to continue");
+  _oled->drawStr(x, y, message);
   _oled->sendBuffer();
 }
 

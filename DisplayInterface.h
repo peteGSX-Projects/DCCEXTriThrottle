@@ -39,13 +39,6 @@ public:
   virtual void clear() = 0;
 
   /**
-   * @brief Display the startup screen
-   * @param headerText Text to display in the header
-   * @param version Version of the software to be displayed
-   */
-  virtual void displayStartupScreen(const char *headerText, const char *version) = 0;
-
-  /**
    * @brief Display the throttle screen
    */
   virtual void displayThrottleScreen() = 0;
@@ -73,6 +66,18 @@ public:
    * @brief Display the connection error screen
    */
   virtual void displayConnectionErrorScreen() = 0;
+
+  /**
+   * @brief Display the progress screen
+   * @param title Pointer to the char array for the title
+   * @param message Pointer to the char array for the message
+   */
+  virtual void displayProgressScreen(const char *title, const char *message) = 0;
+
+  /**
+   * @brief Update the progress screen, which should cause an additional progress indicator to be shown
+   */
+  virtual void updateProgressScreen() = 0;
 
   /**
    * @brief Set the redraw flag for the display

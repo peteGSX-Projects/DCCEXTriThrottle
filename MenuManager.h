@@ -42,6 +42,13 @@ public:
   Menu *getCurrentMenu();
 
   /**
+   * @brief Check if the MenuManager is currently at the root Menu instance
+   * @return true If Menu::getParent() is nullptr
+   * @return false If Menu::getParent() is another Menu instance
+   */
+  bool isAtRootMenu();
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();

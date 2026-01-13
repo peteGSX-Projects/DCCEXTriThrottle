@@ -33,7 +33,9 @@ enum EventType {
   ReceivedTrackPower,
   ReceivedReadLoco,
   ToggleTrackPower,
-  ReceivedLocoBroadcast
+  ReceivedLocoBroadcast,
+  ConnectionRetry,
+  ReadLocoRetry
 };
 
 /// @brief Structure for data relating to a Loco broadcast that can be contained
