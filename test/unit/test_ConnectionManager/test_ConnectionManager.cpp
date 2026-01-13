@@ -98,6 +98,9 @@ TEST_F(ConnectionManagerTests, TestConnectionSuccessTransition) {
   testing::Mock::VerifyAndClearExpectations(connectionManager);
 }
 
+/**
+ * @brief Test that connection fails after retries are exceeded
+ */
 TEST_F(ConnectionManagerTests, TestConnectionRetryTransition) {
   // We know receivedLists() will be called a lot, suppress this
   EXPECT_CALL(*mockClient, receivedLists()).WillRepeatedly(Invoke([this]() {

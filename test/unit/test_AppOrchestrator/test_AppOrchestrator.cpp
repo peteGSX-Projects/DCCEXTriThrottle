@@ -16,6 +16,7 @@
  */
 
 #include "AppOrchestrator.h"
+#include "EventManager.h"
 #include "Throttle.h"
 #include "Version.h"
 #include "test/mocks/MockButton.h"
@@ -42,6 +43,7 @@ protected:
   MockRotaryEncoder *encoder3;
   MockConnectionManager *connectionManager;
   Throttle *throttles[NUM_THROTTLES];
+  EventManager *eventManager;
 
   void SetUp() override {
     mockDisplay = new MockDisplay;
@@ -57,11 +59,14 @@ protected:
     throttles[1] = new Throttle(1, button2, encoder2, 1, 2, 5);
     throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
     connectionManager = new MockConnectionManager;
-    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles, connectionManager);
+    eventManager = new EventManager;
+    appOrchestrator =
+        new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles, connectionManager, eventManager);
   }
 
   void TearDown() override {
     delete appOrchestrator;
+    delete eventManager;
     delete connectionManager;
 
     for (int i = 0; i < 3; i++) {
@@ -156,4 +161,18 @@ TEST_F(AppOrchestratorTests, TestConnectionRetry) {
 
   // Should be back in AppState::Startup now
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+}
+
+/**
+ * @brief Ensure AppOrchestrator event subscriptions work
+ */
+TEST_F(AppOrchestratorTests, TestEventSubscription) {
+  // Call begin() to setup subscriptions
+  appOrchestrator->begin();
+
+  // Setup expectations
+  EXPECT_CALL(*mockDisplay, updateProgressScreen()).Times(1);
+
+  // Publish event
+  eventManager->publish(EventType::ConnectionRetry, EventData());
 }
