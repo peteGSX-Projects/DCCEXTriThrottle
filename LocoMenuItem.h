@@ -23,11 +23,21 @@
 
 class LocoMenuItem : public BaseMenuItem {
 public:
-  /// @brief Constructor for this LocoMenuItem
-  /// @param loco Pointer to the associated Loco instance
+  /**
+   * @brief Construct a new Loco Menu Item object
+   * @param loco Pointer to the associated Loco instance
+   */
   LocoMenuItem(Loco *loco);
 
-  /// @brief Destructor for this LocoMenuItem
+  /**
+   * @brief Get the Loco object associated with this menu item
+   * @return Loco* Pointer to the Loco instance
+   */
+  Loco *getLoco();
+
+  /**
+   * @brief Destroy the Loco Menu Item object
+   */
   ~LocoMenuItem();
 
 private:

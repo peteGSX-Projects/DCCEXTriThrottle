@@ -128,3 +128,36 @@ TEST_F(MenuManagerTests, TestExitMenu) {
   delete orchestrator;
   delete root;
 }
+
+/**
+ * @brief Test selecting a Loco menu item publishes the loco via the event
+ */
+TEST_F(MenuManagerTests, TestSelectLoco) {
+  // Setup a mock listener and subscribe to LocoSelected
+  MockEventListener *orchestrator = new MockEventListener();
+  eventManager->subscribe(orchestrator, EventType::LocoSelected);
+
+  // Create the dummy Loco and add to a menu and menu item
+  Loco *loco = new Loco(3, LocoSource::LocoSourceEntry);
+  Menu *menu = new Menu("Roster");
+  LocoMenuItem *item = new LocoMenuItem(loco);
+  menu->addItem(item);
+  menuManager->setCurrentMenu(menu);
+
+  // Setup expectation of the event with the Loco data
+  EXPECT_CALL(
+      *orchestrator,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::LocoSelected),
+          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::dataType, EventData::DataType::LocoData)))))
+      .Times(1);
+
+  // Simulate key press of '0'
+  UserInputInterface::UserInputEvent event = {'0', UserInputInterface::UserInputAction::Pressed};
+  menuManager->handleUserInput(event);
+
+  // Clean up
+  delete menu;
+  delete loco;
+  delete orchestrator;
+}

@@ -85,4 +85,31 @@ void MenuManager::_handleNextPage() {
   }
 }
 
-void MenuManager::_handleSelection(int digit) {}
+void MenuManager::_handleSelection(int digit) {
+  BaseMenuItem *item = _currentMenu->getItemByPageIndex(digit);
+
+  if (item == nullptr) {
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d): No item at this index", digit);
+    return;
+  }
+
+  switch (item->getItemType()) {
+  case MenuItemType::SubMenuType: {
+    SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
+    _currentMenu = subMenu->getMenu();
+    _currentMenu->setCurrentPage(0);
+    _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+    break;
+  }
+  case MenuItemType::LocoType: {
+    LocoMenuItem *locoItem = static_cast<LocoMenuItem *>(item);
+    EventData eventData(locoItem->getLoco());
+    _eventManager->publish(EventType::LocoSelected, eventData);
+    break;
+  }
+  default: {
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d): Unhandled MenuItemType %d", digit,
+        item->getItemType());
+  }
+  }
+}

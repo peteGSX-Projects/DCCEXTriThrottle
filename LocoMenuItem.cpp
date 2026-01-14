@@ -35,6 +35,8 @@ LocoMenuItem::LocoMenuItem(Loco *loco) : BaseMenuItem(loco->getName(), MenuItemT
   }
 }
 
+Loco *LocoMenuItem::getLoco() { return _loco; }
+
 LocoMenuItem::~LocoMenuItem() {
   if (_loco != nullptr) {
     _loco = nullptr;

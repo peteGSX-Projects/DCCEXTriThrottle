@@ -42,6 +42,9 @@ TEST_F(MenuItemTests, LocoMenuItem) {
   EXPECT_EQ(item->getNext(), nullptr);
   EXPECT_EQ(item->getItemType(), MenuItemType::LocoType);
 
+  // Check we can get the Loco
+  EXPECT_EQ(item->getLoco(), loco);
+
   // Clean up
   delete item;
   delete loco;

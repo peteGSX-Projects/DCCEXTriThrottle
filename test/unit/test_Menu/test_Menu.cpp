@@ -210,3 +210,39 @@ TEST_F(MenuTests, TestGetItemByPageIndex) {
   delete locoPage0;
   delete locoPage1;
 }
+
+/**
+ * @brief Test clearItems() deletes all related items and resets Menu state
+ */
+TEST_F(MenuTests, TestClearItems) {
+  // Create our test objects
+  Menu *menu = new Menu("Clear Test");
+  Loco *dummy = new Loco(1, LocoSource::LocoSourceEntry);
+
+  // Add a bunch to the menu so we have two pages
+  for (int i = 0; i < 15; i++) {
+    menu->addItem(new LocoMenuItem(dummy));
+  }
+
+  // Navigate to the second page
+  menu->nextPage();
+
+  // Verify state is as we expect
+  ASSERT_EQ(menu->getItemCount(), 15);
+  EXPECT_EQ(menu->getCurrentPage(), 1);
+
+  // Now clear and verify reset state
+  menu->clearItems();
+
+  EXPECT_EQ(menu->getItemCount(), 0);
+  EXPECT_EQ(menu->getFirstItem(), nullptr);
+  EXPECT_EQ(menu->getCurrentPage(), 0);
+  EXPECT_EQ(menu->getTotalPages(), 1);
+
+  // Verify adding a new item restarts correctly
+  menu->addItem(new LocoMenuItem(dummy));
+  EXPECT_EQ(menu->getFirstItem()->getIndex(), 0);
+
+  delete menu;
+  delete dummy;
+}

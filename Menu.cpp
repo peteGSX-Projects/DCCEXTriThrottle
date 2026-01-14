@@ -110,21 +110,27 @@ BaseMenuItem *Menu::getItemByPageIndex(int index) {
   return nullptr;
 }
 
+void Menu::clearItems() {
+  // Iterate through the list and delete the items
+  BaseMenuItem *currentItem = _firstItem;
+  while (currentItem != nullptr) {
+    BaseMenuItem *nextItem = currentItem->getNext();
+    delete currentItem;
+    currentItem = nextItem;
+  }
+
+  _firstItem = nullptr;
+  _nextItemIndex = 0;
+  _currentPage = 0;
+}
+
 Menu::~Menu() {
   if (_name != nullptr) {
     delete[] _name;
     _name = nullptr;
   }
 
-  if (_firstItem != nullptr) {
-    BaseMenuItem *currentItem = _firstItem;
-    while (currentItem != nullptr) {
-      BaseMenuItem *nextItem = currentItem->getNext();
-      delete currentItem;
-      currentItem = nextItem;
-    }
-    _firstItem = nullptr;
-  }
+  clearItems();
 
   _parent = nullptr;
 }

@@ -107,6 +107,11 @@ public:
   BaseMenuItem *getItemByPageIndex(int index);
 
   /**
+   * @brief Clears all related menu items and resets menu state
+   */
+  void clearItems();
+
+  /**
    * @brief Destroy the Menu object, also deletes all associated items
    */
   ~Menu();
