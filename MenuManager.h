@@ -69,15 +69,42 @@ public:
   void setActiveThrottleIndex(int index);
 
   /**
+   * @brief Reset the menu navigation state to the root menu and no throttle context
+   */
+  void reset();
+
+  /**
+   * @brief Set the Root Menu object
+   * @param menu Pointer to the root Menu instance
+   */
+  void setRootMenu(Menu *menu);
+
+  /**
+   * @brief Get the Root Menu object
+   * @return Menu* Pointer to the root Menu instance
+   */
+  Menu *getRootMenu();
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();
 
 private:
+  // Structure to facilitate menu navigation keeping throttle context where needed
+  struct NavigationNode {
+    Menu *menu;
+    int throttleIndex;
+  };
+
   EventManager *_eventManager;
   Logger *_logger;
   Menu *_currentMenu;
   int _activeThrottleIndex;
+  static const int _MAX_MENU_DEPTH = 6;
+  NavigationNode _history[_MAX_MENU_DEPTH];
+  int _historyIndex;
+  Menu *_rootMenu;
 
   /**
    * @brief Handle navigating to the parent item
@@ -94,6 +121,19 @@ private:
    * @param digit Number of the key pressed by the user
    */
   void _handleSelection(int digit);
+
+  /**
+   * @brief Push the current menu context and throttle index to the stack
+   * @param menu Pointer to the current menu
+   * @param index Index of the current throttle
+   */
+  void _push(Menu *menu, int index);
+
+  /**
+   * @brief Pop the latest NavigationNode from the stack
+   * @return NavigationNode Pointer to the Menu and the throttle index
+   */
+  NavigationNode _pop();
 };
 
 #endif // MENUMANAGER_H

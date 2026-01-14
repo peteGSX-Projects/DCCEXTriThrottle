@@ -18,7 +18,8 @@
 #include "MenuManager.h"
 
 MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
-    : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr), _activeThrottleIndex(-1) {}
+    : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr), _activeThrottleIndex(-1), _historyIndex(-1),
+      _rootMenu(nullptr) {}
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
   if (!_currentMenu)
@@ -62,27 +63,36 @@ Menu *MenuManager::getCurrentMenu() { return _currentMenu; }
 
 void MenuManager::setCurrentMenu(Menu *menu) { _currentMenu = menu; }
 
-bool MenuManager::isAtRootMenu() { return (_currentMenu == nullptr || _currentMenu->getParent() == nullptr); }
+bool MenuManager::isAtRootMenu() { return (_historyIndex == -1); }
 
 int MenuManager::getActiveThrottleIndex() { return _activeThrottleIndex; }
 
 void MenuManager::setActiveThrottleIndex(int index) { _activeThrottleIndex = index; }
 
+void MenuManager::reset() {
+  _historyIndex = -1;
+  _activeThrottleIndex = -1;
+  _currentMenu = _rootMenu;
+}
+
+void MenuManager::setRootMenu(Menu *menu) { _rootMenu = menu; }
+
+Menu *MenuManager::getRootMenu() { return _rootMenu; }
+
 MenuManager::~MenuManager() {}
 
 void MenuManager::_handleBack() {
-  Menu *parent = _currentMenu->getParent();
+  // Get the latest navigation state
+  NavigationNode node = _pop();
 
   // If we're at the top, exit the menu system and reset throttle context
-  if (parent == nullptr) {
-    _activeThrottleIndex = -1;
+  if (node.menu == nullptr) {
+    reset();
     _eventManager->publish(EventType::ExitMenu, EventData());
   } else {
-    _currentMenu = parent;
-    // If we're going to the top, reset throttle context
-    if (_currentMenu->getParent() == nullptr) {
-      _activeThrottleIndex = -1;
-    }
+    // Restore the navigation state
+    _currentMenu = node.menu;
+    _activeThrottleIndex = node.throttleIndex;
     _eventManager->publish(EventType::MenuRefreshRequired, EventData());
   }
 }
@@ -105,6 +115,10 @@ void MenuManager::_handleSelection(int digit) {
   switch (item->getItemType()) {
   case MenuItemType::ThrottleMenuType: {
     ThrottleMenuItem *throttleMenu = static_cast<ThrottleMenuItem *>(item);
+
+    // Save current navigation state
+    _push(_currentMenu, _activeThrottleIndex);
+
     _activeThrottleIndex = throttleMenu->getThrottleIndex();
     _currentMenu = throttleMenu->getMenu();
     _currentMenu->setCurrentPage(0);
@@ -113,6 +127,10 @@ void MenuManager::_handleSelection(int digit) {
   }
   case MenuItemType::SubMenuType: {
     SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
+
+    // Save current navigation state
+    _push(_currentMenu, _activeThrottleIndex);
+
     _currentMenu = subMenu->getMenu();
     _currentMenu->setCurrentPage(0);
     _eventManager->publish(EventType::MenuRefreshRequired, EventData());
@@ -133,4 +151,19 @@ void MenuManager::_handleSelection(int digit) {
         item->getItemType());
   }
   }
+}
+
+void MenuManager::_push(Menu *menu, int index) {
+  if (_historyIndex < _MAX_MENU_DEPTH - 1) {
+    _historyIndex++;
+    _history[_historyIndex] = {menu, index};
+  }
+}
+
+MenuManager::NavigationNode MenuManager::_pop() {
+  if (_historyIndex >= 0) {
+    return _history[_historyIndex--];
+  }
+
+  return {nullptr, -1};
 }

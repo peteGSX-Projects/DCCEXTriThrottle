@@ -38,16 +38,6 @@ void Menu::addItem(BaseMenuItem *item) {
 
   item->setIndex(_nextItemIndex++);
 
-  // Set parent menu if this is a submenu
-  if (item->getItemType() == MenuItemType::SubMenuType) {
-    SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
-    Menu *childMenu = subMenu->getMenu();
-
-    if (childMenu != nullptr) {
-      childMenu->setParent(this);
-    }
-  }
-
   if (_firstItem == nullptr) {
     _firstItem = item;
     return;

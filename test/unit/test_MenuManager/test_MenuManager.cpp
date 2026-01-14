@@ -63,38 +63,85 @@ TEST_F(MenuManagerTests, TestMenuSelectionToSubMenu) {
 }
 
 /**
- * @brief Test using the '*' key navigates from a nested menu to the parent menu
+ * @brief Test the navigation stack works forward and backwards
  */
-TEST_F(MenuManagerTests, TestBackNavigation) {
-  // Setup a nested menu
+TEST_F(MenuManagerTests, TestStackBasedNavigation) {
+  // Create menu structure and start at root
   Menu *root = new Menu("Root");
   Menu *subMenu = new Menu("Submenu");
   root->addItem(new SubMenuItem(subMenu));
+  menuManager->setCurrentMenu(root);
 
-  // Set current to the Submenu to start
-  menuManager->setCurrentMenu(subMenu);
+  // Simulate user input '0' to select submenu
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_EQ(menuManager->getCurrentMenu(), subMenu);
 
-  // Setup a mock listener and subscribe to MenuRefreshRequired
-  MockEventListener *orchestrator = new MockEventListener();
-  eventManager->subscribe(orchestrator, EventType::MenuRefreshRequired);
-
-  // Setup call expectation
-  EXPECT_CALL(*orchestrator,
-              onEvent(AllOf(Field(&Event::eventType, EventType::MenuRefreshRequired),
-                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::NoneData)))))
-      .Times(1);
-
-  // Submenu is at index 0, simulate a keypress
-  UserInputInterface::UserInputEvent event = {'*', UserInputInterface::UserInputAction::Pressed};
-  menuManager->handleUserInput(event);
-
-  // Verify the current menu is now root
+  // Simulate back with '*'
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
   EXPECT_EQ(menuManager->getCurrentMenu(), root);
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Root");
 
-  // Cleanup
-  delete orchestrator;
+  // Clean up
   delete subMenu;
+  delete root;
+}
+
+/**
+ * @brief Test navigation maintains appropriate throttle index/context
+ */
+TEST_F(MenuManagerTests, TestThrottleContextInNavigation) {
+  // Create menu structure and start at root
+  Menu *root = new Menu("Root");
+  Menu *throttleMenu = new Menu("Throttle 2");
+  Menu *throttleSubMenu = new Menu("Throttle Submenu");
+  root->addItem(new ThrottleMenuItem(throttleMenu, 1));
+  throttleMenu->addItem(new SubMenuItem(throttleSubMenu));
+  menuManager->setCurrentMenu(root);
+
+  // Simulate '0' twice to get to the throttle submenu
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+
+  // Throttle index should be 1
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
+
+  // Back to throttle menu, index should still be 1
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
+
+  // Back to root menu, index should now be unset (-1)
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // Clean up
+  delete throttleSubMenu;
+  delete throttleMenu;
+  delete root;
+}
+
+/**
+ * @brief Test a reset() clears the MenuManager navigation stack
+ */
+TEST_F(MenuManagerTests, TestResetNavigationState) {
+  // Create a menu structure
+  Menu *root = new Menu("Root");
+  Menu *throttleMenu = new Menu("Throttle 3");
+  root->addItem(new ThrottleMenuItem(throttleMenu, 2));
+  menuManager->setCurrentMenu(root);
+  menuManager->setRootMenu(root);
+
+  // Navigate to the throttle menu and ensure state is as expected
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  ASSERT_EQ(menuManager->getCurrentMenu(), throttleMenu);
+  ASSERT_EQ(menuManager->getActiveThrottleIndex(), 2);
+
+  // Reset navigation state and ensure state is reset
+  menuManager->reset();
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+  EXPECT_TRUE(menuManager->isAtRootMenu());
+  EXPECT_EQ(menuManager->getCurrentMenu(), root);
+
+  // Clean up
+  delete throttleMenu;
   delete root;
 }
 

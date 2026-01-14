@@ -35,35 +35,12 @@ TEST_F(MenuTests, NewMenu) {
   Menu *menu = new Menu("Test Menu");
 
   EXPECT_STREQ(menu->getName(), "Test Menu");
-  EXPECT_EQ(menu->getParent(), nullptr);
 
   // Ensure default 10 items per page is set
   EXPECT_EQ(menu->getItemsPerPage(), 10);
 
   // Clean up
   delete menu;
-}
-
-/// @brief Test basic nested menus
-TEST_F(MenuTests, NestedMenus) {
-  // Create three menus, nest them, and validate
-  Menu *mainMenu = new Menu("Main Menu");
-  Menu *nestedMenu1 = new Menu("First Nested Menu");
-  Menu *nestedMenu2 = new Menu("Second Nested Menu");
-
-  // Add the items to the menu
-  mainMenu->addItem(new SubMenuItem(nestedMenu1));
-  nestedMenu1->addItem(new SubMenuItem(nestedMenu2));
-
-  EXPECT_STREQ(mainMenu->getName(), "Main Menu");
-  EXPECT_EQ(mainMenu->getParent(), nullptr);
-  EXPECT_EQ(nestedMenu1->getParent(), mainMenu);
-  EXPECT_EQ(nestedMenu2->getParent(), nestedMenu1);
-
-  // Clean up
-  delete nestedMenu2;
-  delete nestedMenu1;
-  delete mainMenu;
 }
 
 /// @brief Test creating a simple menu structure of items
