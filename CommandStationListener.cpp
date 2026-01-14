@@ -17,7 +17,8 @@
 
 #include "CommandStationListener.h"
 
-CommandStationListener::CommandStationListener(EventManager *eventManager) : _eventManager(eventManager) {}
+CommandStationListener::CommandStationListener(EventManager *eventManager, Logger *logger)
+    : _eventManager(eventManager), _logger(logger) {}
 
 void CommandStationListener::receivedLocoUpdate(Loco *loco) {
   if (_eventManager) {

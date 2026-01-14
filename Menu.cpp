@@ -32,10 +32,20 @@ Menu::Menu(const char *name, int itemsPerPage)
 const char *Menu::getName() { return _name; }
 
 void Menu::addItem(BaseMenuItem *item) {
-  if (item == nullptr) {
+  if (item == nullptr)
     return;
-  }
+
   item->setIndex(_nextItemIndex++);
+
+  // Set parent menu if this is a submenu
+  if (item->getItemType() == MenuItemType::SubMenuType) {
+    SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
+    Menu *childMenu = subMenu->getMenu();
+
+    if (childMenu != nullptr) {
+      childMenu->setParent(this);
+    }
+  }
 
   if (_firstItem == nullptr) {
     _firstItem = item;
@@ -76,6 +86,29 @@ void Menu::nextPage() {
 }
 
 int Menu::getItemCount() { return _nextItemIndex; }
+
+int Menu::getItemsPerPage() { return _itemsPerPage; }
+
+BaseMenuItem *Menu::getItemByPageIndex(int index) {
+  // Out of bounds check
+  if (index < 0 || index >= _itemsPerPage)
+    return nullptr;
+
+  // Map index against current page and items per page
+  int menuIndex = (_currentPage * _itemsPerPage) + index;
+
+  // Now find this item in the list
+  BaseMenuItem *current = _firstItem;
+  while (current != nullptr) {
+    if (current->getIndex() == menuIndex) {
+      return current;
+    }
+    current = current->getNext();
+  }
+
+  // If we get here, index doesn't exist on this page
+  return nullptr;
+}
 
 Menu::~Menu() {
   if (_name != nullptr) {

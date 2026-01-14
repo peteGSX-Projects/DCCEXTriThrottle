@@ -19,6 +19,7 @@
 #define COMMANDSTATIONLISTENER_H
 
 #include "EventManager.h"
+#include "Logger.h"
 #include <DCCEXProtocol.h>
 
 class CommandStationListener : public DCCEXProtocolDelegate {
@@ -26,8 +27,9 @@ public:
   /**
    * @brief Construct a new Command Station Listener object
    * @param eventManager Pointer to the EventManager instance for the application
+   * @param logger Pointer to the application Logger instance
    */
-  CommandStationListener(EventManager *eventManager);
+  CommandStationListener(EventManager *eventManager, Logger *logger);
 
   /**
    * @brief Publish a Loco update event
@@ -57,6 +59,7 @@ public:
 
 private:
   EventManager *_eventManager;
+  Logger *_logger;
 };
 
 #endif // COMMANDSTATIONLISTENER_H

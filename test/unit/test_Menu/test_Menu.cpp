@@ -36,6 +36,9 @@ TEST_F(MenuTests, NewMenu) {
   EXPECT_STREQ(menu->getName(), "Test Menu");
   EXPECT_EQ(menu->getParent(), nullptr);
 
+  // Ensure default 10 items per page is set
+  EXPECT_EQ(menu->getItemsPerPage(), 10);
+
   // Clean up
   delete menu;
 }
@@ -47,8 +50,9 @@ TEST_F(MenuTests, NestedMenus) {
   Menu *nestedMenu1 = new Menu("First Nested Menu");
   Menu *nestedMenu2 = new Menu("Second Nested Menu");
 
-  nestedMenu1->setParent(mainMenu);
-  nestedMenu2->setParent(nestedMenu1);
+  // Add the items to the menu
+  mainMenu->addItem(new SubMenuItem(nestedMenu1));
+  nestedMenu1->addItem(new SubMenuItem(nestedMenu2));
 
   EXPECT_STREQ(mainMenu->getName(), "Main Menu");
   EXPECT_EQ(mainMenu->getParent(), nullptr);
@@ -164,4 +168,45 @@ TEST_F(MenuTests, TestPaginationLogic) {
   // Cleanup
   delete menu;
   delete dummyLoco;
+}
+
+/**
+ * @brief Test retrieving an item's index based on the current page and user selection
+ */
+TEST_F(MenuTests, TestGetItemByPageIndex) {
+  // Create a menu with the default 10 items per page
+  Menu *menu = new Menu("Selection Test");
+  int itemsPerPage = menu->getItemsPerPage();
+
+  // Create two separate Locos for testing
+  Loco *locoPage0 = new Loco(100, LocoSource::LocoSourceEntry);
+  Loco *locoPage1 = new Loco(200, LocoSource::LocoSourceEntry);
+
+  // Fill page 0
+  for (int i = 0; i < itemsPerPage; i++) {
+    menu->addItem(new LocoMenuItem(locoPage0));
+  }
+
+  // Add a new one which goes to page 1
+  menu->addItem(new LocoMenuItem(locoPage1));
+
+  // Page 0 index 0 should return first Loco
+  BaseMenuItem *item0 = menu->getItemByPageIndex(0);
+  ASSERT_NE(item0, nullptr);
+  EXPECT_STREQ(item0->getName(), "100");
+
+  // Move to next page
+  menu->nextPage();
+
+  // Now index 0 should be second Loco
+  BaseMenuItem *item1 = menu->getItemByPageIndex(0);
+  ASSERT_NE(item1, nullptr);
+  EXPECT_STREQ(item1->getName(), "200");
+
+  // Test out of bounds
+  EXPECT_EQ(menu->getItemByPageIndex(11), nullptr);
+
+  delete menu;
+  delete locoPage0;
+  delete locoPage1;
 }

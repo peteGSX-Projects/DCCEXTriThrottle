@@ -16,15 +16,115 @@
  */
 
 #include "MenuManager.h"
+#include "test/mocks/MockEventListener.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
 
 class MenuManagerTests : public Test {
 protected:
+  EventManager *eventManager;
   MenuManager *menuManager;
 
-  void SetUp() override {}
+  void SetUp() override {
+    eventManager = new EventManager();
+    menuManager = new MenuManager(eventManager, nullptr);
+  }
 
-  void TearDown() override { delete menuManager; }
+  void TearDown() override {
+    delete menuManager;
+    delete eventManager;
+  }
 };
+
+/**
+ * @brief Test selection of a sub menu changes the current menu
+ */
+TEST_F(MenuManagerTests, TestMenuSelectionToSubMenu) {
+  // Setup a nested menu
+  Menu *root = new Menu("Root");
+  Menu *subMenu = new Menu("Submenu");
+  root->addItem(new SubMenuItem(subMenu));
+
+  // Set current to the root to start
+  menuManager->setCurrentMenu(root);
+
+  // Submenu is at index 0, simulate a keypress
+  UserInputInterface::UserInputEvent event = {'0', UserInputInterface::UserInputAction::Pressed};
+  menuManager->handleUserInput(event);
+
+  // Verify the current menu is now Submenu
+  EXPECT_EQ(menuManager->getCurrentMenu(), subMenu);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Submenu");
+
+  // Cleanup
+  delete subMenu;
+  delete root;
+}
+
+/**
+ * @brief Test using the '*' key navigates from a nested menu to the parent menu
+ */
+TEST_F(MenuManagerTests, TestBackNavigation) {
+  // Setup a nested menu
+  Menu *root = new Menu("Root");
+  Menu *subMenu = new Menu("Submenu");
+  root->addItem(new SubMenuItem(subMenu));
+
+  // Set current to the Submenu to start
+  menuManager->setCurrentMenu(subMenu);
+
+  // Setup a mock listener and subscribe to MenuRefreshRequired
+  MockEventListener *orchestrator = new MockEventListener();
+  eventManager->subscribe(orchestrator, EventType::MenuRefreshRequired);
+
+  // Setup call expectation
+  EXPECT_CALL(
+      *orchestrator,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::MenuRefreshRequired),
+          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::dataType, EventData::DataType::NoneData)))))
+      .Times(1);
+
+  // Submenu is at index 0, simulate a keypress
+  UserInputInterface::UserInputEvent event = {'*', UserInputInterface::UserInputAction::Pressed};
+  menuManager->handleUserInput(event);
+
+  // Verify the current menu is now root
+  EXPECT_EQ(menuManager->getCurrentMenu(), root);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Root");
+
+  // Cleanup
+  delete orchestrator;
+  delete subMenu;
+  delete root;
+}
+
+/**
+ * @brief Test pressing '*' at the root menu publishes an ExitMenu event
+ */
+TEST_F(MenuManagerTests, TestExitMenu) {
+  // Setup a mock listener and subscribe to ExitMenu
+  MockEventListener *orchestrator = new MockEventListener();
+  eventManager->subscribe(orchestrator, EventType::ExitMenu);
+
+  // Setup the root menu
+  Menu *root = new Menu("Root");
+  menuManager->setCurrentMenu(root);
+
+  // Setup expectation of the event with no data
+  EXPECT_CALL(
+      *orchestrator,
+      onEvent(::testing::AllOf(
+          ::testing::Field(&Event::eventType, EventType::ExitMenu),
+          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::dataType, EventData::DataType::NoneData)))))
+      .Times(1);
+
+  // Simulate key press of '*'
+  UserInputInterface::UserInputEvent event = {'*', UserInputInterface::UserInputAction::Pressed};
+  menuManager->handleUserInput(event);
+
+  // Clean up
+  delete orchestrator;
+  delete root;
+}

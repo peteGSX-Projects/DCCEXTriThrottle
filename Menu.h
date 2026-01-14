@@ -94,6 +94,19 @@ public:
   int getItemCount();
 
   /**
+   * @brief Get the Items Per Page
+   * @return int Items per page to display for this menu
+   */
+  int getItemsPerPage();
+
+  /**
+   * @brief Get the Item By Page Index, uses user select and current page to determine index
+   * @param index Index of the item selected by the user
+   * @return BaseMenuItem* Pointer to the selected item
+   */
+  BaseMenuItem *getItemByPageIndex(int index);
+
+  /**
    * @brief Destroy the Menu object, also deletes all associated items
    */
   ~Menu();

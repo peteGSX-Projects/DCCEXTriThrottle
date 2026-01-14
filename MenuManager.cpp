@@ -17,12 +17,72 @@
 
 #include "MenuManager.h"
 
-MenuManager::MenuManager(Logger *logger) : _logger(logger), _currentMenu(nullptr) {}
+MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
+    : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr) {}
 
-void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {}
+void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
+  if (!_currentMenu)
+    return;
+
+  if (inputEvent.key != '\0') {
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: %c", inputEvent.key);
+  }
+
+  switch (inputEvent.key) {
+  case '*': {
+    _handleBack();
+    break;
+  }
+  case '#': {
+    _handleNextPage();
+    break;
+  }
+  case '0':
+  case '1':
+  case '2':
+  case '3':
+  case '4':
+  case '5':
+  case '6':
+  case '7':
+  case '8':
+  case '9': {
+    int digit = inputEvent.key - '0';
+    _handleSelection(digit);
+    break;
+  }
+  default: {
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() unknown key %c", inputEvent.key);
+    break;
+  }
+  }
+}
 
 Menu *MenuManager::getCurrentMenu() { return _currentMenu; }
+
+void MenuManager::setCurrentMenu(Menu *menu) { _currentMenu = menu; }
 
 bool MenuManager::isAtRootMenu() { return (_currentMenu == nullptr || _currentMenu->getParent() == nullptr); }
 
 MenuManager::~MenuManager() {}
+
+void MenuManager::_handleBack() {
+  Menu *parent = _currentMenu->getParent();
+
+  // If we're at the top, exit the menu system
+  if (parent == nullptr) {
+    _eventManager->publish(EventType::ExitMenu, EventData());
+  } else {
+    _currentMenu = parent;
+    _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+  }
+}
+
+void MenuManager::_handleNextPage() {
+  if (_currentMenu->getTotalPages() > 0) {
+    _currentMenu->nextPage();
+    _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+  }
+}
+
+void MenuManager::_handleSelection(int digit) {}

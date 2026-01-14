@@ -18,6 +18,7 @@
 #ifndef MENUMANAGER_H
 #define MENUMANAGER_H
 
+#include "EventManager.h"
 #include "Menu.h"
 #include "UserInputInterface.h"
 
@@ -25,9 +26,10 @@ class MenuManager {
 public:
   /**
    * @brief Construct a new Menu Manager object
+   * @param eventManager Pointer to the application EventManager instance
    * @param logger Pointer to the application Logger instance
    */
-  MenuManager(Logger *logger);
+  MenuManager(EventManager *eventManager, Logger *logger);
 
   /**
    * @brief Respond to user input
@@ -42,6 +44,12 @@ public:
   Menu *getCurrentMenu();
 
   /**
+   * @brief Set the Current Menu object
+   * @param menu Pointer to the Menu object
+   */
+  void setCurrentMenu(Menu *menu);
+
+  /**
    * @brief Check if the MenuManager is currently at the root Menu instance
    * @return true If Menu::getParent() is nullptr
    * @return false If Menu::getParent() is another Menu instance
@@ -54,8 +62,25 @@ public:
   ~MenuManager();
 
 private:
+  EventManager *_eventManager;
   Logger *_logger;
   Menu *_currentMenu;
+
+  /**
+   * @brief Handle navigating to the parent item
+   */
+  void _handleBack();
+
+  /**
+   * @brief Handle navigating to the next page
+   */
+  void _handleNextPage();
+
+  /**
+   * @brief Handle selection of the item
+   * @param digit Number of the key pressed by the user
+   */
+  void _handleSelection(int digit);
 };
 
 #endif // MENUMANAGER_H

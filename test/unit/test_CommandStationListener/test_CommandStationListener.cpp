@@ -31,7 +31,7 @@ protected:
   void SetUp() override {
     mockOrchestrator = new MockEventListener();
     eventManager = new EventManager();
-    commandStationListener = new CommandStationListener(eventManager);
+    commandStationListener = new CommandStationListener(eventManager, nullptr);
 
     // Subscribe events
     eventManager->subscribe(mockOrchestrator, EventType::ReceivedTrackPower);
