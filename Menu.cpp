@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify

@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -22,7 +23,7 @@
 #include <Arduino.h>
 
 /// @brief Types of menu items - used to determine how to deal with these items
-enum MenuItemType { LocoType, SubMenuType };
+enum MenuItemType { LocoType, SubMenuType, ThrottleMenuType };
 
 /**
  * @brief BaseMenuItem is designed to be extended by other menu item classes as
