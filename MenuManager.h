@@ -51,8 +51,8 @@ public:
 
   /**
    * @brief Check if the MenuManager is currently at the root Menu instance
-   * @return true If Menu::getParent() is nullptr
-   * @return false If Menu::getParent() is another Menu instance
+   * @return true If navigation is at the root of the stack (-1)
+   * @return false If navigation is anywhere else in the stack
    */
   bool isAtRootMenu();
 

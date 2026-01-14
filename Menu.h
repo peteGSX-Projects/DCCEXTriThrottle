@@ -55,18 +55,6 @@ public:
   BaseMenuItem *getFirstItem();
 
   /**
-   * @brief Set the Parent object if this is a nested menu
-   * @param parent Pointer to the parent Menu object
-   */
-  void setParent(Menu *parent);
-
-  /**
-   * @brief Get the Parent object if it is nested
-   * @return Menu* Pointer to the parent Menu object
-   */
-  Menu *getParent();
-
-  /**
    * @brief Get the Current Page
    * @return int Index of the current page
    */
@@ -121,7 +109,6 @@ public:
 private:
   char *_name;              /** Name or label of this menu */
   BaseMenuItem *_firstItem; /** Pointer to the first menu item in the list */
-  Menu *_parent;            /** Pointer to a parent menu if this is nested */
   int _nextItemIndex;       /** Auto increment index of next item added */
   int _currentPage;         /** Index of the current selected page */
   int _itemsPerPage;        /** Number of items per page for this menu */

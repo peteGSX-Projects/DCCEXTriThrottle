@@ -18,8 +18,7 @@
 
 #include "Menu.h"
 
-Menu::Menu(const char *name, int itemsPerPage)
-    : _firstItem(nullptr), _parent(nullptr), _nextItemIndex(0), _currentPage(0) {
+Menu::Menu(const char *name, int itemsPerPage) : _firstItem(nullptr), _nextItemIndex(0), _currentPage(0) {
   if (name != nullptr) {
     int nameLength = strlen(name);
     _name = new char[nameLength + 1];
@@ -50,10 +49,6 @@ void Menu::addItem(BaseMenuItem *item) {
 }
 
 BaseMenuItem *Menu::getFirstItem() { return _firstItem; }
-
-void Menu::setParent(Menu *parent) { _parent = parent; }
-
-Menu *Menu::getParent() { return _parent; }
 
 int Menu::getCurrentPage() { return _currentPage; }
 
@@ -122,6 +117,4 @@ Menu::~Menu() {
   }
 
   clearItems();
-
-  _parent = nullptr;
 }
