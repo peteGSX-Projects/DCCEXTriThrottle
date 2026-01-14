@@ -212,3 +212,38 @@ TEST_F(EventManagerTests, TestLocoBroadcastData) {
   // Verify and clear expectations
   Mock::VerifyAndClearExpectations(listener);
 }
+
+/**
+ * @brief Test an event with SelectLocoData can be published and received by a listener
+ */
+TEST_F(EventManagerTests, TestSelectLocoData) {
+  // Subscribe the listener
+  eventManager->subscribe(listener, EventType::LocoSelected);
+
+  // Create a dummy Loco instance and set throttle instance 1
+  Loco *loco = new Loco(3, LocoSource::LocoSourceEntry);
+  int targetThrottle = 1;
+
+  // Set the expectation
+  EXPECT_CALL(*listener,
+              onEvent(::testing::AllOf(
+                  ::testing::Field(&Event::eventType, EventType::LocoSelected),
+                  ::testing::Field(&Event::eventData,
+                                   ::testing::Field(&EventData::dataType, EventData::DataType::SelectLocoData)),
+                  ::testing::Field(&Event::eventData,
+                                   ::testing::Field(&EventData::selectLocoValue,
+                                                    ::testing::AllOf(::testing::Field(&SelectLoco::loco, loco),
+                                                                     ::testing::Field(&SelectLoco::throttleIndex,
+                                                                                      targetThrottle)))))))
+      .Times(1);
+
+  // Publish and event
+  EventData eventData(loco, targetThrottle);
+  eventManager->publish(EventType::LocoSelected, eventData);
+
+  // Clean up
+  delete loco;
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
+}

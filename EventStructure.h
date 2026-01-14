@@ -53,6 +53,14 @@ struct LocoBroadcast {
   int functionMap;
 };
 
+/**
+ * @brief Structure for receiving SelectLoco event data that contains the Loco and throttle index
+ */
+struct SelectLoco {
+  Loco *loco;
+  int throttleIndex;
+};
+
 /// @brief Structure to enable supporting EventData that has various different
 /// types ByteData - caters for 8 bit unsigned integer data (uint8_t x)
 /// IntegerData - caters for signed integer data (int y)
@@ -65,14 +73,7 @@ struct LocoBroadcast {
 /// - Add the type to the union
 /// - Add a new constructor for EventData
 struct EventData {
-  enum class DataType {
-    ByteData,
-    IntegerData,
-    LocoData,
-    NoneData,
-    TrackPowerData,
-    LocoBroadcastData
-  };
+  enum class DataType { ByteData, IntegerData, LocoData, NoneData, TrackPowerData, LocoBroadcastData, SelectLocoData };
   DataType dataType;
 
   union {
@@ -81,6 +82,7 @@ struct EventData {
     Loco *locoValue;
     TrackPower trackPowerValue;
     LocoBroadcast locoBroadcastValue;
+    SelectLoco selectLocoValue;
   };
 
   /// @brief Constructor for events with a uint8_t parameter
@@ -99,13 +101,21 @@ struct EventData {
   EventData() : dataType(DataType::NoneData) {}
 
   /// @brief Constructor for events containing track power
-  EventData(TrackPower value)
-      : dataType(DataType::TrackPowerData), trackPowerValue(value) {}
+  EventData(TrackPower value) : dataType(DataType::TrackPowerData), trackPowerValue(value) {}
 
   /// @brief Constructor for events containing loco broadcast information
   /// @param value LocoBroadcast data
-  EventData(LocoBroadcast value)
-      : dataType(DataType::LocoBroadcastData), locoBroadcastValue(value) {}
+  EventData(LocoBroadcast value) : dataType(DataType::LocoBroadcastData), locoBroadcastValue(value) {}
+
+  /**
+   * @brief Construct a new Event Data object for a SelectLoco event
+   * @param loco Pointer to the loco selected
+   * @param throttleIndex Index of the throttle that will control this Loco
+   */
+  EventData(Loco *loco, int throttleIndex) : dataType(DataType::SelectLocoData) {
+    selectLocoValue.loco = loco;
+    selectLocoValue.throttleIndex = throttleIndex;
+  }
 };
 
 /// @brief Structure for each Event that is published
@@ -116,8 +126,7 @@ struct Event {
   /// @brief Constructor for each event
   /// @param eventType A valid EventType
   /// @param eventData Valid EventData
-  Event(EventType eventType, EventData eventData)
-      : eventType(eventType), eventData(eventData) {}
+  Event(EventType eventType, EventData eventData) : eventType(eventType), eventData(eventData) {}
 };
 
 #endif // EVENTSTRUCTURE_H
