@@ -79,11 +79,9 @@ TEST_F(MenuManagerTests, TestBackNavigation) {
   eventManager->subscribe(orchestrator, EventType::MenuRefreshRequired);
 
   // Setup call expectation
-  EXPECT_CALL(
-      *orchestrator,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::MenuRefreshRequired),
-          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::dataType, EventData::DataType::NoneData)))))
+  EXPECT_CALL(*orchestrator,
+              onEvent(AllOf(Field(&Event::eventType, EventType::MenuRefreshRequired),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::NoneData)))))
       .Times(1);
 
   // Submenu is at index 0, simulate a keypress
@@ -113,11 +111,9 @@ TEST_F(MenuManagerTests, TestExitMenu) {
   menuManager->setCurrentMenu(root);
 
   // Setup expectation of the event with no data
-  EXPECT_CALL(
-      *orchestrator,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::ExitMenu),
-          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::dataType, EventData::DataType::NoneData)))))
+  EXPECT_CALL(*orchestrator,
+              onEvent(AllOf(Field(&Event::eventType, EventType::ExitMenu),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::NoneData)))))
       .Times(1);
 
   // Simulate key press of '*'
@@ -145,14 +141,15 @@ TEST_F(MenuManagerTests, TestSelectLoco) {
   menuManager->setCurrentMenu(menu);
 
   // Set the active throttle index
-  menuManager->setActiveTrottleIndex(1);
+  menuManager->setActiveThrottleIndex(1);
 
   // Setup expectation of the event with the Loco data
-  EXPECT_CALL(
-      *orchestrator,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::LocoSelected),
-          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::dataType, EventData::DataType::LocoData)))))
+  EXPECT_CALL(*orchestrator,
+              onEvent(AllOf(Field(&Event::eventType, EventType::LocoSelected),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::SelectLocoData)),
+                            Field(&Event::eventData,
+                                  Field(&EventData::selectLocoValue,
+                                        AllOf(Field(&SelectLoco::loco, loco), Field(&SelectLoco::throttleIndex, 1)))))))
       .Times(1);
 
   // Simulate key press of '0'

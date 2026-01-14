@@ -66,11 +66,10 @@ TEST_F(EventManagerTests, TestByteData) {
 
   // Expect a uint8_t value of 1 with CommandStationSelected
   Event expectedEvent(EventType::CommandStationSelected, EventData((uint8_t)1));
-  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
-                             ::testing::Field(&Event::eventType, EventType::CommandStationSelected),
-                             ::testing::Field(&Event::eventData,
-                                              ::testing::Field(&EventData::dataType, EventData::DataType::ByteData)),
-                             ::testing::Field(&Event::eventData, ::testing::Field(&EventData::byteValue, 1)))))
+  EXPECT_CALL(*listener,
+              onEvent(AllOf(Field(&Event::eventType, EventType::CommandStationSelected),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::ByteData)),
+                            Field(&Event::eventData, Field(&EventData::byteValue, 1)))))
       .Times(1);
 
   // Publish a CommandStationSelected event
@@ -90,11 +89,10 @@ TEST_F(EventManagerTests, TestIntegerData) {
 
   // Expect int value of -1 with ReceivedReadLoco
   Event expectedEvent(EventType::ReceivedReadLoco, EventData((int)-1));
-  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
-                             ::testing::Field(&Event::eventType, EventType::ReceivedReadLoco),
-                             ::testing::Field(&Event::eventData,
-                                              ::testing::Field(&EventData::dataType, EventData::DataType::IntegerData)),
-                             ::testing::Field(&Event::eventData, ::testing::Field(&EventData::intValue, -1)))))
+  EXPECT_CALL(*listener,
+              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedReadLoco),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::IntegerData)),
+                            Field(&Event::eventData, Field(&EventData::intValue, -1)))))
       .Times(1);
 
   // Publish a ReceivedReadLoco event
@@ -117,11 +115,10 @@ TEST_F(EventManagerTests, TestLocoData) {
 
   // Expect our dummy Loco instance with ReceivedLocoUpdate
   Event expectedEvent(EventType::ReceivedLocoUpdate, EventData(loco));
-  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
-                             ::testing::Field(&Event::eventType, EventType::ReceivedLocoUpdate),
-                             ::testing::Field(&Event::eventData,
-                                              ::testing::Field(&EventData::dataType, EventData::DataType::LocoData)),
-                             ::testing::Field(&Event::eventData, ::testing::Field(&EventData::locoValue, loco)))))
+  EXPECT_CALL(*listener,
+              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedLocoUpdate),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoData)),
+                            Field(&Event::eventData, Field(&EventData::locoValue, loco)))))
       .Times(1);
 
   // Publish a ReceivedLocoUpdate event
@@ -143,10 +140,9 @@ TEST_F(EventManagerTests, TestNoneData) {
 
   // Expect empty data
   Event expectedEvent(EventType::ReceivedRosterList, EventData());
-  EXPECT_CALL(*listener, onEvent(::testing::AllOf(
-                             ::testing::Field(&Event::eventType, EventType::ReceivedRosterList),
-                             ::testing::Field(&Event::eventData,
-                                              ::testing::Field(&EventData::dataType, EventData::DataType::NoneData)))))
+  EXPECT_CALL(*listener,
+              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedRosterList),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::NoneData)))))
       .Times(1);
 
   // Publish a ReceivedRosterList event with empty data
@@ -165,13 +161,10 @@ TEST_F(EventManagerTests, TestTrackPowerData) {
 
   // Expect TrackPower value of TrackPower::PowerOn with ReceivedTrackPower
   Event expectedEvent(EventType::ReceivedTrackPower, EventData(TrackPower::PowerOn));
-  EXPECT_CALL(
-      *listener,
-      onEvent(::testing::AllOf(
-          ::testing::Field(&Event::eventType, EventType::ReceivedTrackPower),
-          ::testing::Field(&Event::eventData,
-                           ::testing::Field(&EventData::dataType, EventData::DataType::TrackPowerData)),
-          ::testing::Field(&Event::eventData, ::testing::Field(&EventData::trackPowerValue, TrackPower::PowerOn)))))
+  EXPECT_CALL(*listener,
+              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedTrackPower),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::TrackPowerData)),
+                            Field(&Event::eventData, Field(&EventData::trackPowerValue, TrackPower::PowerOn)))))
       .Times(1);
 
   // Publish a ReceivedTrackPower event
@@ -189,18 +182,15 @@ TEST_F(EventManagerTests, TestLocoBroadcastData) {
   eventManager->subscribe(listener, EventType::ReceivedLocoBroadcast);
 
   // Expect a LocoBroadcast event type with LocoBroadcastData
-  EXPECT_CALL(*listener,
-              onEvent(::testing::AllOf(
-                  ::testing::Field(&Event::eventType, EventType::ReceivedLocoBroadcast),
-                  ::testing::Field(&Event::eventData,
-                                   ::testing::Field(&EventData::dataType, EventData::DataType::LocoBroadcastData)),
-                  ::testing::Field(
-                      &Event::eventData,
-                      ::testing::Field(&EventData::locoBroadcastValue,
-                                       ::testing::AllOf(::testing::Field(&LocoBroadcast::address, 3),
-                                                        ::testing::Field(&LocoBroadcast::speed, 50),
-                                                        ::testing::Field(&LocoBroadcast::direction, Direction::Forward),
-                                                        ::testing::Field(&LocoBroadcast::functionMap, 2)))))))
+  EXPECT_CALL(
+      *listener,
+      onEvent(AllOf(
+          Field(&Event::eventType, EventType::ReceivedLocoBroadcast),
+          Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoBroadcastData)),
+          Field(&Event::eventData, Field(&EventData::locoBroadcastValue,
+                                         AllOf(Field(&LocoBroadcast::address, 3), Field(&LocoBroadcast::speed, 50),
+                                               Field(&LocoBroadcast::direction, Direction::Forward),
+                                               Field(&LocoBroadcast::functionMap, 2)))))))
       .Times(1);
 
   // Publish a ReceivedLocoBroadcast event for loco 3 moving forward at speed
@@ -226,15 +216,11 @@ TEST_F(EventManagerTests, TestSelectLocoData) {
 
   // Set the expectation
   EXPECT_CALL(*listener,
-              onEvent(::testing::AllOf(
-                  ::testing::Field(&Event::eventType, EventType::LocoSelected),
-                  ::testing::Field(&Event::eventData,
-                                   ::testing::Field(&EventData::dataType, EventData::DataType::SelectLocoData)),
-                  ::testing::Field(&Event::eventData,
-                                   ::testing::Field(&EventData::selectLocoValue,
-                                                    ::testing::AllOf(::testing::Field(&SelectLoco::loco, loco),
-                                                                     ::testing::Field(&SelectLoco::throttleIndex,
-                                                                                      targetThrottle)))))))
+              onEvent(AllOf(Field(&Event::eventType, EventType::LocoSelected),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::SelectLocoData)),
+                            Field(&Event::eventData, Field(&EventData::selectLocoValue,
+                                                           AllOf(Field(&SelectLoco::loco, loco),
+                                                                 Field(&SelectLoco::throttleIndex, targetThrottle)))))))
       .Times(1);
 
   // Publish and event
