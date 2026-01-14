@@ -63,13 +63,13 @@ void setup() {
 #endif // STARTUP_DELAY
 
   // Setup application services
-  static EventManager eventManager;
+  static EventManager eventManager(&logger);
   static DCCEXProtocol commandStationClient;
   static CommandStationListener commandStationListener(&eventManager, &logger);
   commandStationClient.setLogStream(&CONSOLE_STREAM);
   commandStationClient.setDelegate(&commandStationListener);
   commandStationClient.connect(&COMMANDSTATION_STREAM);
-  static ConnectionManager connectionManager(&commandStationClient, &eventManager);
+  static ConnectionManager connectionManager(&commandStationClient, &eventManager, &logger);
 
   // Setup keypad
   static const byte keypadRowPins[] = {KEYPAD_ROW_PINS};

@@ -35,8 +35,8 @@ protected:
   void SetUp() override {
     millis();
     mockClient = new MockDCCEXProtocol;
-    eventManager = new EventManager;
-    connectionManager = new ConnectionManager(mockClient, eventManager);
+    eventManager = new EventManager(nullptr);
+    connectionManager = new ConnectionManager(mockClient, eventManager, nullptr);
   }
 
   void TearDown() override {

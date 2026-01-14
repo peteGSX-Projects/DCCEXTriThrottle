@@ -30,7 +30,7 @@ protected:
 
   void SetUp() override {
     mockOrchestrator = new MockEventListener();
-    eventManager = new EventManager();
+    eventManager = new EventManager(nullptr);
     commandStationListener = new CommandStationListener(eventManager, nullptr);
 
     // Subscribe events

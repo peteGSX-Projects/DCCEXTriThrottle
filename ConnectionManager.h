@@ -36,8 +36,9 @@ public:
    * @brief Construct a new Connection Manager object
    * @param commandStationClient Pointer to the DCCEXProtocol instance to use as the client
    * @param eventManager Pointer to the application EventManager instance
+   * @param logger Pointer to the application Logger instance
    */
-  ConnectionManager(DCCEXProtocol *commandStationClient, EventManager *eventManager);
+  ConnectionManager(DCCEXProtocol *commandStationClient, EventManager *eventManager, Logger *logger);
 
   /**
    * @brief Initialise the client
@@ -63,6 +64,7 @@ public:
 private:
   DCCEXProtocol *_commandStationClient;
   EventManager *_eventManager;
+  Logger *_logger;
   ConnectionState _connectionState;
   unsigned long _lastRetry;
   int _retriesRemaining;

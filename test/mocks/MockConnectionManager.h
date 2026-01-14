@@ -23,7 +23,7 @@
 
 class MockConnectionManager : public ConnectionManager {
 public:
-  MockConnectionManager() : ConnectionManager(nullptr, nullptr) {}
+  MockConnectionManager() : ConnectionManager(nullptr, nullptr, nullptr) {}
 
   MOCK_METHOD(void, begin, (), (override));
 

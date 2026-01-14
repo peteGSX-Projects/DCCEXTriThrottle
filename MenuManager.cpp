@@ -18,7 +18,7 @@
 #include "MenuManager.h"
 
 MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
-    : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr) {}
+    : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr), _activeThrottleIndex(-1) {}
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
   if (!_currentMenu)
@@ -64,16 +64,25 @@ void MenuManager::setCurrentMenu(Menu *menu) { _currentMenu = menu; }
 
 bool MenuManager::isAtRootMenu() { return (_currentMenu == nullptr || _currentMenu->getParent() == nullptr); }
 
+int MenuManager::getActiveThrottleIndex() { return _activeThrottleIndex; }
+
+void MenuManager::setActiveThrottleIndex(int index) { _activeThrottleIndex = index; }
+
 MenuManager::~MenuManager() {}
 
 void MenuManager::_handleBack() {
   Menu *parent = _currentMenu->getParent();
 
-  // If we're at the top, exit the menu system
+  // If we're at the top, exit the menu system and reset throttle context
   if (parent == nullptr) {
+    _activeThrottleIndex = -1;
     _eventManager->publish(EventType::ExitMenu, EventData());
   } else {
     _currentMenu = parent;
+    // If we're going to the top, reset throttle context
+    if (_currentMenu->getParent() == nullptr) {
+      _activeThrottleIndex = -1;
+    }
     _eventManager->publish(EventType::MenuRefreshRequired, EventData());
   }
 }
@@ -94,6 +103,13 @@ void MenuManager::_handleSelection(int digit) {
   }
 
   switch (item->getItemType()) {
+  case MenuItemType::ThrottleMenuType: {
+    ThrottleMenuItem *throttleMenu = static_cast<ThrottleMenuItem *>(item);
+    _activeThrottleIndex = throttleMenu->getThrottleIndex();
+    _currentMenu = throttleMenu->getMenu();
+    _currentMenu->setCurrentPage(0);
+    _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+  }
   case MenuItemType::SubMenuType: {
     SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
     _currentMenu = subMenu->getMenu();
@@ -102,9 +118,13 @@ void MenuManager::_handleSelection(int digit) {
     break;
   }
   case MenuItemType::LocoType: {
-    LocoMenuItem *locoItem = static_cast<LocoMenuItem *>(item);
-    EventData eventData(locoItem->getLoco());
-    _eventManager->publish(EventType::LocoSelected, eventData);
+    if (_activeThrottleIndex != -1) {
+      LocoMenuItem *locoItem = static_cast<LocoMenuItem *>(item);
+      EventData eventData(locoItem->getLoco(), _activeThrottleIndex);
+      _eventManager->publish(EventType::LocoSelected, eventData);
+    } else {
+      LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Loco selected with no throttle context, ignoring");
+    }
     break;
   }
   default: {

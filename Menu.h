@@ -22,6 +22,7 @@
 #include "BaseMenuItem.h"
 #include "LocoMenuItem.h"
 #include "SubMenuItem.h"
+#include "ThrottleMenuItem.h"
 
 /**
  * @brief Menu class supporting nested menus.

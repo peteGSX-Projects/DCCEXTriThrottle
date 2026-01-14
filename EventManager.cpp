@@ -17,7 +17,7 @@
 
 #include "EventManager.h"
 
-EventManager::EventManager() : _firstEventSubscriber(nullptr) {}
+EventManager::EventManager(Logger *logger) : _logger(logger), _firstEventSubscriber(nullptr) {}
 
 void EventManager::subscribe(EventListener *eventListener, EventType eventType) {
   if (eventListener == nullptr)

@@ -17,9 +17,9 @@
 
 #include "ConnectionManager.h"
 
-ConnectionManager::ConnectionManager(DCCEXProtocol *commandStationClient, EventManager *eventManager)
-    : _commandStationClient(commandStationClient), _eventManager(eventManager), _connectionState(ConnectionState::None),
-      _lastRetry(0), _retriesRemaining(0) {}
+ConnectionManager::ConnectionManager(DCCEXProtocol *commandStationClient, EventManager *eventManager, Logger *logger)
+    : _commandStationClient(commandStationClient), _eventManager(eventManager), _logger(logger),
+      _connectionState(ConnectionState::None), _lastRetry(0), _retriesRemaining(0) {}
 
 void ConnectionManager::begin() {
   _connectionState = ConnectionState::Connecting;

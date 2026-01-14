@@ -57,6 +57,18 @@ public:
   bool isAtRootMenu();
 
   /**
+   * @brief Get the index of the Throttle instance that is being managed
+   * @return int Throttle index, -1 when no throttle selected
+   */
+  int getActiveThrottleIndex();
+
+  /**
+   * @brief Set the Active Throttle Index
+   * @param index Index of the throttle to manage, or -1 for none
+   */
+  void setActiveThrottleIndex(int index);
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();
@@ -65,6 +77,7 @@ private:
   EventManager *_eventManager;
   Logger *_logger;
   Menu *_currentMenu;
+  int _activeThrottleIndex;
 
   /**
    * @brief Handle navigating to the parent item

@@ -27,7 +27,7 @@ protected:
   MenuManager *menuManager;
 
   void SetUp() override {
-    eventManager = new EventManager();
+    eventManager = new EventManager(nullptr);
     menuManager = new MenuManager(eventManager, nullptr);
   }
 
@@ -143,6 +143,9 @@ TEST_F(MenuManagerTests, TestSelectLoco) {
   LocoMenuItem *item = new LocoMenuItem(loco);
   menu->addItem(item);
   menuManager->setCurrentMenu(menu);
+
+  // Set the active throttle index
+  menuManager->setActiveTrottleIndex(1);
 
   // Setup expectation of the event with the Loco data
   EXPECT_CALL(

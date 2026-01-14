@@ -30,7 +30,7 @@ protected:
 
   void SetUp() override {
     listener = new MockEventListener();
-    eventManager = new EventManager();
+    eventManager = new EventManager(nullptr);
   }
 
   void TearDown() override {

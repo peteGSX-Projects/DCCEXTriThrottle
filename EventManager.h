@@ -29,8 +29,11 @@
 /// EventListener class and implement the onEvent() virtual method provided
 class EventManager {
 public:
-  /// @brief Constructor for the instance
-  EventManager();
+  /**
+   * @brief Construct a new Event Manager object
+   * @param logger Pointer to the application Logger instance
+   */
+  EventManager(Logger *logger);
 
   /// @brief Method to subscribe a listener to the specified event type
   /// @param eventLister Pointer to a class instance that extends the
@@ -61,6 +64,8 @@ public:
   ~EventManager();
 
 private:
+  Logger *_logger;
+
   /// @brief EventSubscriber structure to maintain the linked list of
   /// subscribers
   struct EventSubscriber {

@@ -59,7 +59,7 @@ protected:
     throttles[1] = new Throttle(1, button2, encoder2, 1, 2, 5);
     throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
     connectionManager = new MockConnectionManager;
-    eventManager = new EventManager;
+    eventManager = new EventManager(nullptr);
     appOrchestrator =
         new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles, connectionManager, eventManager);
   }
