@@ -161,3 +161,31 @@ TEST_F(MenuManagerTests, TestSelectLoco) {
   delete loco;
   delete orchestrator;
 }
+
+/**
+ * @brief Test selecting a Loco menu with no throttle context does not publish an event
+ */
+TEST_F(MenuManagerTests, TestViewOnlyRoster) {
+  // Setup a mock listener and subscribe to LocoSelected
+  MockEventListener *orchestrator = new MockEventListener();
+  eventManager->subscribe(orchestrator, EventType::LocoSelected);
+
+  // Create the dummy Loco and add to a menu and menu item
+  Loco *loco = new Loco(3, LocoSource::LocoSourceEntry);
+  Menu *menu = new Menu("Roster");
+  LocoMenuItem *item = new LocoMenuItem(loco);
+  menu->addItem(item);
+  menuManager->setCurrentMenu(menu);
+
+  // Setup expectation of the event with the Loco data
+  EXPECT_CALL(*orchestrator, onEvent(_)).Times(0);
+
+  // Simulate key press of '0'
+  UserInputInterface::UserInputEvent event = {'0', UserInputInterface::UserInputAction::Pressed};
+  menuManager->handleUserInput(event);
+
+  // Clean up
+  delete menu;
+  delete loco;
+  delete orchestrator;
+}
