@@ -36,6 +36,12 @@ public:
   int getThrottleIndex();
 
   /**
+   * @brief Get the Item Type object, overrides BaseMenuItem method
+   * @return MenuItemType Always returns MenuItemType::ThrottleMenuType
+   */
+  MenuItemType getItemType() override;
+
+  /**
    * @brief Destroy the Throttle Menu Item object
    */
   ~ThrottleMenuItem();

@@ -58,7 +58,7 @@ public:
 
   /// @brief Get the type of this menu item
   /// @return MenuItemType
-  MenuItemType getItemType();
+  virtual MenuItemType getItemType();
 
   /// @brief Destructor for this item - virtual to support polymorphic clean up
   virtual ~BaseMenuItem();

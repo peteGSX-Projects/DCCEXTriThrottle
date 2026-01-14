@@ -21,4 +21,6 @@ ThrottleMenuItem::ThrottleMenuItem(Menu *menu, int throttleIndex) : SubMenuItem(
 
 int ThrottleMenuItem::getThrottleIndex() { return _throttleIndex; }
 
+MenuItemType ThrottleMenuItem::getItemType() { return MenuItemType::ThrottleMenuType; }
+
 ThrottleMenuItem::~ThrottleMenuItem() {}

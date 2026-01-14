@@ -19,6 +19,7 @@
 #include "LocoMenuItem.h"
 #include "Menu.h"
 #include "SubMenuItem.h"
+#include "ThrottleMenuItem.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -61,6 +62,25 @@ TEST_F(MenuItemTests, SubMenuItem) {
   EXPECT_EQ(item->getIndex(), -1);
   EXPECT_EQ(item->getNext(), nullptr);
   EXPECT_EQ(item->getItemType(), MenuItemType::SubMenuType);
+
+  // Clean up
+  delete item;
+  delete menu;
+}
+
+/**
+ * @brief Test the Throttle menu extending SubMenuItem
+ */
+TEST_F(MenuItemTests, ThrottleMenuItem) {
+  // Create a menu and a ThrottleMenuItem and validate
+  Menu *menu = new Menu("Test Throttle Menu");
+  ThrottleMenuItem *item = new ThrottleMenuItem(menu, 1);
+
+  EXPECT_STREQ(item->getName(), "Test Throttle Menu");
+  EXPECT_EQ(item->getIndex(), -1);
+  EXPECT_EQ(item->getNext(), nullptr);
+  EXPECT_EQ(item->getItemType(), MenuItemType::ThrottleMenuType);
+  EXPECT_EQ(item->getThrottleIndex(), 1);
 
   // Clean up
   delete item;
