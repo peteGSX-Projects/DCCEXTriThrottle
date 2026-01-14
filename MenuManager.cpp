@@ -109,6 +109,7 @@ void MenuManager::_handleSelection(int digit) {
     _currentMenu = throttleMenu->getMenu();
     _currentMenu->setCurrentPage(0);
     _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+    break;
   }
   case MenuItemType::SubMenuType: {
     SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
