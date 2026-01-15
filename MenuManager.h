@@ -32,6 +32,11 @@ public:
   MenuManager(EventManager *eventManager, Logger *logger);
 
   /**
+   * @brief Call this once at startup to create the necessary static menu structure
+   */
+  void initialise();
+
+  /**
    * @brief Respond to user input
    * @param inputEvent UserInputInterface::UserInputEvent
    */
@@ -102,9 +107,17 @@ private:
   Menu *_currentMenu;
   int _activeThrottleIndex;
   static const int _MAX_MENU_DEPTH = 6;
+  static const int _MAX_MANAGED_MENUS = 20;
   NavigationNode _history[_MAX_MENU_DEPTH];
+  Menu *_allManagedMenus[_MAX_MANAGED_MENUS];
   int _historyIndex;
   Menu *_rootMenu;
+  Menu *_rosterMenu;
+  Menu *_turnoutMenu;
+  Menu *_turntableMenu;
+  Menu *_routeMenu;
+  Menu *_automationMenu;
+  int _menuCount;
 
   /**
    * @brief Handle navigating to the parent item
@@ -134,6 +147,19 @@ private:
    * @return NavigationNode Pointer to the Menu and the throttle index
    */
   NavigationNode _pop();
+
+  /**
+   * @brief Helper method to create and register a menu
+   * @param name Menu name
+   * @return Menu* Pointer to the created Menu instance
+   */
+  Menu *_createManagedMenu(const char *name);
+
+  /**
+   * @brief Creates a throttle menu for the index provided
+   * @param index Index this throttle is associated with, will be incremented for the name
+   */
+  Menu *_createThrottleMenu(int index);
 };
 
 #endif // MENUMANAGER_H

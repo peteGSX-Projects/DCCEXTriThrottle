@@ -19,7 +19,35 @@
 
 MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
     : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr), _activeThrottleIndex(-1), _historyIndex(-1),
-      _rootMenu(nullptr) {}
+      _rootMenu(nullptr), _rosterMenu(nullptr), _turnoutMenu(nullptr), _turntableMenu(nullptr), _routeMenu(nullptr),
+      _automationMenu(nullptr), _menuCount(0) {}
+
+void MenuManager::initialise() {
+  // Create Menu instances
+  _rootMenu = _createManagedMenu("Main Menu");
+  _currentMenu = _rootMenu;
+  Menu *throttle0Menu = _createThrottleMenu(0);
+  Menu *throttle1Menu = _createThrottleMenu(1);
+  Menu *throttle2Menu = _createThrottleMenu(2);
+  _rosterMenu = _createManagedMenu("Roster");
+  _turnoutMenu = _createManagedMenu("Turnouts");
+  _turntableMenu = _createManagedMenu("Turntables");
+  _routeMenu = _createManagedMenu("Routes");
+  _automationMenu = _createManagedMenu("Automations");
+  Menu *tracksMenu = _createManagedMenu("Tracks");
+  Menu *systemMenu = _createManagedMenu("System");
+
+  // Setup main menu items
+  _rootMenu->addItem(new ThrottleMenuItem(throttle0Menu, 0));
+  _rootMenu->addItem(new ThrottleMenuItem(throttle1Menu, 1));
+  _rootMenu->addItem(new ThrottleMenuItem(throttle2Menu, 2));
+  _rootMenu->addItem(new SubMenuItem(_turnoutMenu));
+  _rootMenu->addItem(new SubMenuItem(_turntableMenu));
+  _rootMenu->addItem(new SubMenuItem(_routeMenu));
+  _rootMenu->addItem(new SubMenuItem(_rosterMenu));
+  _rootMenu->addItem(new SubMenuItem(tracksMenu));
+  _rootMenu->addItem(new SubMenuItem(systemMenu));
+}
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
   if (!_currentMenu)
@@ -79,7 +107,11 @@ void MenuManager::setRootMenu(Menu *menu) { _rootMenu = menu; }
 
 Menu *MenuManager::getRootMenu() { return _rootMenu; }
 
-MenuManager::~MenuManager() {}
+MenuManager::~MenuManager() {
+  for (int i = 0; i < _menuCount; i++) {
+    delete _allManagedMenus[i];
+  }
+}
 
 void MenuManager::_handleBack() {
   // Get the latest navigation state
@@ -166,4 +198,22 @@ MenuManager::NavigationNode MenuManager::_pop() {
   }
 
   return {nullptr, -1};
+}
+
+Menu *MenuManager::_createManagedMenu(const char *name) {
+  if (_menuCount < _MAX_MANAGED_MENUS) {
+    Menu *newMenu = new Menu(name);
+    _allManagedMenus[_menuCount++] = newMenu;
+    return newMenu;
+  }
+  return nullptr;
+}
+
+Menu *MenuManager::_createThrottleMenu(int index) {
+  char nameBuffer[25];
+  int throttleNumber = index + 1;
+  snprintf(nameBuffer, sizeof(nameBuffer), "Throttle %d", throttleNumber);
+  Menu *throttleMenu = _createManagedMenu(nameBuffer);
+  throttleMenu->addItem(new SubMenuItem(_rosterMenu, "Select Loco"));
+  return throttleMenu;
 }

@@ -236,3 +236,104 @@ TEST_F(MenuManagerTests, TestViewOnlyRoster) {
   delete loco;
   delete orchestrator;
 }
+
+/**
+ * @brief Test calling initialise() creates the initial static menu structure
+ */
+TEST_F(MenuManagerTests, TestInitialiseCreatesStructure) {
+  // Call initialise
+  menuManager->initialise();
+
+  // Expect initially current menu to be Main Menu
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+
+  // '0' selects first throttle
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Throttle 1");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 0);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '1' selects second throttle
+  menuManager->handleUserInput({'1', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Throttle 2");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '2' selects third throttle
+  menuManager->handleUserInput({'2', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Throttle 3");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 2);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '3' selects turnouts
+  menuManager->handleUserInput({'3', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turnouts");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '4' selects turntables
+  menuManager->handleUserInput({'4', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turntables");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '5' selects routes
+  menuManager->handleUserInput({'5', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Routes");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '6' views roster
+  menuManager->handleUserInput({'6', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '7' manages tracks
+  menuManager->handleUserInput({'7', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Tracks");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '8' shows system info
+  menuManager->handleUserInput({'8', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "System");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // '*' Back to main
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+}
