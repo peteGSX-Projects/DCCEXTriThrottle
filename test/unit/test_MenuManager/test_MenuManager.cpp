@@ -337,3 +337,25 @@ TEST_F(MenuManagerTests, TestInitialiseCreatesStructure) {
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
   EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
 }
+
+/**
+ * @brief Test a throttle menu contains the correct menus and throttle context
+ */
+TEST_F(MenuManagerTests, TestThrottleMenuStructure) {
+  // Call initialise
+  menuManager->initialise();
+
+  // Navigate to throttle 2 (index 1) and validate
+  menuManager->handleUserInput({'1', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Throttle 2");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
+
+  // Index item 0 should be Select Loco which is the roster menu
+  BaseMenuItem *item0 = menuManager->getCurrentMenu()->getItemByPageIndex(0);
+  EXPECT_STREQ(item0->getName(), "Select Loco");
+
+  // First item should be the roster
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
+}

@@ -26,9 +26,6 @@ void MenuManager::initialise() {
   // Create Menu instances
   _rootMenu = _createManagedMenu("Main Menu");
   _currentMenu = _rootMenu;
-  Menu *throttle0Menu = _createThrottleMenu(0);
-  Menu *throttle1Menu = _createThrottleMenu(1);
-  Menu *throttle2Menu = _createThrottleMenu(2);
   _rosterMenu = _createManagedMenu("Roster");
   _turnoutMenu = _createManagedMenu("Turnouts");
   _turntableMenu = _createManagedMenu("Turntables");
@@ -36,6 +33,11 @@ void MenuManager::initialise() {
   _automationMenu = _createManagedMenu("Automations");
   Menu *tracksMenu = _createManagedMenu("Tracks");
   Menu *systemMenu = _createManagedMenu("System");
+
+  // Create throttle menus
+  Menu *throttle0Menu = _createThrottleMenu(0);
+  Menu *throttle1Menu = _createThrottleMenu(1);
+  Menu *throttle2Menu = _createThrottleMenu(2);
 
   // Setup main menu items
   _rootMenu->addItem(new ThrottleMenuItem(throttle0Menu, 0));
