@@ -26,8 +26,9 @@ public:
    * @brief Construct a new Throttle Menu Item object
    * @param menu Pointer to the Menu instance associated with this item
    * @param throttleIndex Index of the throttle this menu manages
+   * @param name Optional name override for the menu, otherwise use Menu name
    */
-  ThrottleMenuItem(Menu *menu, int throttleIndex);
+  ThrottleMenuItem(Menu *menu, int throttleIndex, const char *name = nullptr);
 
   /**
    * @brief Get the Throttle Index

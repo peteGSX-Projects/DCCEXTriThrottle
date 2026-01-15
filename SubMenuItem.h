@@ -27,7 +27,8 @@ class SubMenuItem : public BaseMenuItem {
 public:
   /// @brief Constructor for this SubMenuItem
   /// @param menu Pointer to the Menu instance associated with this item
-  SubMenuItem(Menu *menu);
+  /// @param name Optional name override for the menu, otherwise use Menu name
+  SubMenuItem(Menu *menu, const char *name = nullptr);
 
   /// @brief Get the Menu instance associated with this item
   /// @return Pointer to the Menu instance

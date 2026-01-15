@@ -69,6 +69,26 @@ TEST_F(MenuItemTests, SubMenuItem) {
 }
 
 /**
+ * @brief Test overriding a SubMenuItem's menu name
+ */
+TEST_F(MenuItemTests, SubMenuItemNameOverride) {
+  // Create roster menu
+  Menu *menu = new Menu("Roster");
+
+  // Test default behaviour
+  SubMenuItem *defaultName = new SubMenuItem(menu);
+  EXPECT_STREQ(defaultName->getName(), "Roster");
+
+  // Test override behaviour
+  SubMenuItem *overrideName = new SubMenuItem(menu, "Select loco");
+  EXPECT_STREQ(overrideName->getName(), "Select loco");
+
+  delete overrideName;
+  delete defaultName;
+  delete menu;
+}
+
+/**
  * @brief Test the Throttle menu extending SubMenuItem
  */
 TEST_F(MenuItemTests, ThrottleMenuItem) {
@@ -83,6 +103,27 @@ TEST_F(MenuItemTests, ThrottleMenuItem) {
   EXPECT_EQ(item->getThrottleIndex(), 1);
 
   // Clean up
+  delete item;
+  delete menu;
+}
+
+/**
+ * @brief Test the name override works for a throttle menu also
+ */
+TEST_F(MenuItemTests, ThrottleMenuItemNameOverride) {
+  // Create a menu and a ThrottleMenuItem and validate
+  Menu *menu = new Menu("Test Throttle Menu");
+
+  // Expect default behaviour to use menu name
+  ThrottleMenuItem *item = new ThrottleMenuItem(menu, 1);
+  EXPECT_STREQ(item->getName(), "Test Throttle Menu");
+
+  // Expect supplying a name to override
+  ThrottleMenuItem *namedItem = new ThrottleMenuItem(menu, 1, "Override Name");
+  EXPECT_STREQ(namedItem->getName(), "Override Name");
+
+  // Clean up
+  delete namedItem;
   delete item;
   delete menu;
 }

@@ -17,7 +17,8 @@
 
 #include "ThrottleMenuItem.h"
 
-ThrottleMenuItem::ThrottleMenuItem(Menu *menu, int throttleIndex) : SubMenuItem(menu), _throttleIndex(throttleIndex) {}
+ThrottleMenuItem::ThrottleMenuItem(Menu *menu, int throttleIndex, const char *name)
+    : SubMenuItem(menu, name), _throttleIndex(throttleIndex) {}
 
 int ThrottleMenuItem::getThrottleIndex() { return _throttleIndex; }
 

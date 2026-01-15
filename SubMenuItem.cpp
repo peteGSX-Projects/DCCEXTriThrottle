@@ -18,7 +18,9 @@
 #include "SubMenuItem.h"
 #include "Menu.h"
 
-SubMenuItem::SubMenuItem(Menu *menu) : BaseMenuItem(menu->getName(), MenuItemType::SubMenuType), _menu(menu) {}
+SubMenuItem::SubMenuItem(Menu *menu, const char *name)
+    : BaseMenuItem(name == nullptr ? (menu ? menu->getName() : "Unknown") : name, MenuItemType::SubMenuType),
+      _menu(menu) {}
 
 Menu *SubMenuItem::getMenu() { return _menu; }
 
