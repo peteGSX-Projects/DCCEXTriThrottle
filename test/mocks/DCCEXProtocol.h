@@ -19,7 +19,10 @@
 #ifndef DCCEXPROTOCOL_H
 #define DCCEXPROTOCOL_H
 
-#include "DCCEXLoco.h"
+#include "../../src/DCCEXLoco.h"
+#include "../../src/DCCEXRoutes.h"
+#include "../../src/DCCEXTurnouts.h"
+#include "../../src/DCCEXTurntables.h"
 
 /**
  * @brief Mock DCCEXProtocol class
@@ -39,12 +42,6 @@ enum TrackManagerMode {
   DCX,  // Reverse polarity DC mode
   NONE, // Track is unused
 };
-
-class Turnout {};
-
-class Route {};
-
-class Turntable {};
 
 class DCCEXProtocolDelegate {
 public:
