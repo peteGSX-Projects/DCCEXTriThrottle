@@ -91,6 +91,12 @@ public:
   Menu *getRootMenu();
 
   /**
+   * @brief Create the Roster Menu from the DCC-EX roster
+   * @param roster Pointer to the first Loco in the roster
+   */
+  void createRosterMenu(Loco *roster);
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();

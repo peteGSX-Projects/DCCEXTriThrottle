@@ -109,6 +109,21 @@ void MenuManager::setRootMenu(Menu *menu) { _rootMenu = menu; }
 
 Menu *MenuManager::getRootMenu() { return _rootMenu; }
 
+void MenuManager::createRosterMenu(Loco *roster) {
+  if (_rosterMenu == nullptr)
+    return;
+
+  // Make sure the menu is clear before adding new ones
+  _rosterMenu->clearItems();
+
+  if (roster == nullptr)
+    return;
+
+  for (Loco *loco = roster; loco; loco = loco->getNext()) {
+    _rosterMenu->addItem(new LocoMenuItem(loco));
+  }
+}
+
 MenuManager::~MenuManager() {
   for (int i = 0; i < _menuCount; i++) {
     delete _allManagedMenus[i];

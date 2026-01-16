@@ -359,3 +359,40 @@ TEST_F(MenuManagerTests, TestThrottleMenuStructure) {
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
   EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
 }
+
+/**
+ * @brief Test createRoster() creates the roster menu from the protocol roster object
+ */
+TEST_F(MenuManagerTests, TestCreateRosterMenu) {
+  // Initialise menus
+  menuManager->initialise();
+  
+  // Create a roster
+  Loco *rosterLoco1 = new Loco(1, LocoSource::LocoSourceRoster);
+  Loco *rosterLoco2 = new Loco(2, LocoSource::LocoSourceRoster);
+  Loco *rosterLoco3 = new Loco(3, LocoSource::LocoSourceRoster);
+  Loco *rosterLoco4 = new Loco(4, LocoSource::LocoSourceRoster);
+  Loco *rosterLoco5 = new Loco(5, LocoSource::LocoSourceRoster);
+
+  // Call createRosterMenu() with the first entry
+  Loco *roster = Loco::getFirst();
+  menuManager->createRosterMenu(roster);
+
+  // Ensure roster is accessible via Throttle 1 via two '0' presses
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "5");
+
+  // Ensure roster is accessible via main menu, '*' back to main then '6'
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  menuManager->handleUserInput({'6', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "5");
+
+  // Clean up
+  Loco::clearRoster();
+}
