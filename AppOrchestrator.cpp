@@ -20,10 +20,11 @@
 
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
                                  Logger *logger, int numThrottles, Throttle **throttles,
-                                 ConnectionManager *connectionManager, EventManager *eventManager)
+                                 ConnectionManager *connectionManager, EventManager *eventManager,
+                                 MenuManager *menuManager)
     : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger),
       _numThrottles(numThrottles), _throttles(throttles), _connectionManager(connectionManager),
-      _eventManager(eventManager) {
+      _eventManager(eventManager), _menuManager(menuManager) {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
 }
@@ -57,6 +58,10 @@ void AppOrchestrator::update() {
     _handleConnectionError(inputEvent);
     break;
   }
+  case AppState::Menu: {
+    _handleMenuState(inputEvent);
+    break;
+  }
   default: {
     LOG(LogLevel::LOG_ERROR, "AppOrchestrator::update(): Unknown AppState");
     break;
@@ -72,7 +77,7 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", _eventTypeToString(event.eventType));
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s (%d)", _eventTypeToString(event.eventType), event.eventType);
   EventType eventType = event.eventType;
   switch (eventType) {
   case EventType::CommandStationConnected: {
@@ -82,6 +87,7 @@ void AppOrchestrator::onEvent(Event &event) {
     if (_currentAppState == AppState::Startup) {
       _displayInterface->updateProgressScreen();
     }
+    break;
   }
   default: {
     LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received");
@@ -102,16 +108,23 @@ void AppOrchestrator::_handleStartupState() {
   }
 }
 
-void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent event) {}
+void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent event) {
+  if (event.key == '*') {
+    _switchState(AppState::Menu);
+  }
+}
 
 void AppOrchestrator::_handleConnectionError(UserInputInterface::UserInputEvent event) {
   if (event.key == '*') {
     LOG(LogLevel::LOG_DEBUG, "Entering demo mode");
+    _switchState(AppState::Throttle);
   } else if (event.key != '\0') {
     _connectionManager->begin();
     _switchState(AppState::Startup);
   }
 }
+
+void AppOrchestrator::_handleMenuState(UserInputInterface::UserInputEvent event) {}
 
 void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
@@ -133,6 +146,10 @@ void AppOrchestrator::_displayCurrentState() {
   }
   case AppState::ConnectionError: {
     _displayInterface->displayConnectionErrorScreen();
+    break;
+  }
+  case AppState::Menu: {
+    // _displayInterface->displayMenuScreen(_menuManager->getCurrentMenu());
     break;
   }
   default:
@@ -178,6 +195,10 @@ const char *AppOrchestrator::_eventTypeToString(EventType eventType) {
     return "ConnectionRetry";
   case ReadLocoRetry:
     return "ReadLocoRetry";
+  case ExitMenu:
+    return "ExitMenu";
+  case MenuRefreshRequired:
+    return "MenuRefreshRequired";
   default:
     return "UNKNOWN_EVENT";
   }
@@ -191,6 +212,8 @@ const char *AppOrchestrator::_appStateToString(AppState appState) {
     return "Throttle";
   case AppState::ConnectionError:
     return "ConnectionError";
+  case AppState::Menu:
+    return "Menu";
   default:
     return "UNKNOWN";
   }

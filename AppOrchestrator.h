@@ -23,13 +23,14 @@
 #include "DisplayInterface.h"
 #include "EventListener.h"
 #include "Logger.h"
+#include "MenuManager.h"
 #include "Throttle.h"
 #include "UserInputInterface.h"
 
 /**
  * @brief Enumeration of valid state machine states
  */
-enum class AppState { Startup, Throttle, ConnectionError };
+enum class AppState { Startup, Throttle, ConnectionError, Menu };
 
 /**
  * @brief The AppOrchestrator coordinates all application activity using a state machine and responding to
@@ -38,7 +39,8 @@ enum class AppState { Startup, Throttle, ConnectionError };
 class AppOrchestrator : public EventListener {
 public:
   AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger,
-                  int numThrottles, Throttle **throttles, ConnectionManager *connectionManager, EventManager *eventManager);
+                  int numThrottles, Throttle **throttles, ConnectionManager *connectionManager,
+                  EventManager *eventManager, MenuManager *menuManager);
 
   /**
    * @brief Call any associated begin or initialisation methods
@@ -77,6 +79,7 @@ private:
   Throttle **_throttles;
   ConnectionManager *_connectionManager;
   EventManager *_eventManager;
+  MenuManager *_menuManager;
 
   // Methods
   /**
@@ -95,6 +98,12 @@ private:
    * @param event UserInputInterface::UserInputEvent
    */
   void _handleConnectionError(UserInputInterface::UserInputEvent event);
+
+  /**
+   * @brief Display the menu screen and enable user to interact with it
+   * @param event UserInputInterface::UserInputEvent
+   */
+  void _handleMenuState(UserInputInterface::UserInputEvent event);
 
   /**
    * @brief Switch AppState to the new state and flag a display redraw

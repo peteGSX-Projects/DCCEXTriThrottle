@@ -97,6 +97,7 @@ void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
 void U8G2SH1106Display::displayConnectionErrorScreen() {
   _oled->clear();
   _displayHeader("Connection error");
+  _displayProgressMessage("* for demo");
 }
 
 void U8G2SH1106Display::displayProgressScreen(const char *title, const char *message) {
@@ -119,7 +120,7 @@ void U8G2SH1106Display::updateProgressScreen() {
 }
 
 U8G2SH1106Display::~U8G2SH1106Display() {
-  if (_throttleCoordinates == nullptr) {
+  if (_throttleCoordinates != nullptr) {
     delete[] _throttleCoordinates;
     _throttleCoordinates = nullptr;
   }

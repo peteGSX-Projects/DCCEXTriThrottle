@@ -70,6 +70,7 @@ void setup() {
   commandStationClient.setDelegate(&commandStationListener);
   commandStationClient.connect(&COMMANDSTATION_STREAM);
   static ConnectionManager connectionManager(&commandStationClient, &eventManager, &logger);
+  static MenuManager menuManager(&eventManager, &logger);
 
   // Setup keypad
   static const byte keypadRowPins[] = {KEYPAD_ROW_PINS};
@@ -122,7 +123,7 @@ void setup() {
 
   // Setup AppOrchestrator
   static AppOrchestrator appOrchestrator(&display, &keypad, &logger, NUM_THROTTLES, throttles, &connectionManager,
-                                         &eventManager);
+                                         &eventManager, &menuManager);
   orchestrator = &appOrchestrator;
   appOrchestrator.begin();
 
