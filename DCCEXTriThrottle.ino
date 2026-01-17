@@ -71,7 +71,6 @@ void setup() {
   commandStationClient.connect(&COMMANDSTATION_STREAM);
   static ConnectionManager connectionManager(&commandStationClient, &eventManager, &logger);
   static MenuManager menuManager(&eventManager, &logger);
-  menuManager.initialise();
 
   // Setup keypad
   static const byte keypadRowPins[] = {KEYPAD_ROW_PINS};
@@ -79,11 +78,9 @@ void setup() {
   static const char keypadKeyMap[] = {KEYPAD_MAP};
   static CustomisableKeypad keypad(KEYPAD_ROWS, KEYPAD_COLUMNS, keypadRowPins, keypadColumnPins, keypadKeyMap,
                                    KEYPAD_DEBOUNCE_TIME, KEYPAD_HELD_THRESHOLD);
-  keypad.begin();
 
   // Setup display
   static U8G2SH1106Display display(NUM_THROTTLES);
-  display.begin();
 
   // Setup throttles
   static RotaryEncoder::Mode encoderMode =

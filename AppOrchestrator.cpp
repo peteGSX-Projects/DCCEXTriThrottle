@@ -46,6 +46,18 @@ void AppOrchestrator::begin() {
   _eventManager->subscribe(this, EventType::ExitMenu);
   _eventManager->subscribe(this, EventType::MenuRefreshRequired);
 
+  if (_displayInterface) {
+    _displayInterface->begin();
+  }
+
+  if (_userInputInterface) {
+    _userInputInterface->begin();
+  }
+
+  if (_menuManager) {
+    _menuManager->initialise();
+  }
+
   if (_connectionManager)
     _connectionManager->begin();
 }
