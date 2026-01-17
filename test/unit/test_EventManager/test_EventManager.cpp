@@ -58,29 +58,6 @@ TEST_F(EventManagerTests, TestSubscribeUnsubscribe) {
   EXPECT_FALSE(eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
 }
 
-/// @brief Test an event with ByteData can be published and received by a
-/// Listener
-TEST_F(EventManagerTests, TestByteData) {
-  // Subscribe to CommandStationSelected which would typically use a uint8_t
-  eventManager->subscribe(listener, EventType::CommandStationSelected);
-
-  // Expect a uint8_t value of 1 with CommandStationSelected
-  Event expectedEvent(EventType::CommandStationSelected, EventData((uint8_t)1));
-  EXPECT_CALL(*listener,
-              onEvent(AllOf(Field(&Event::eventType, EventType::CommandStationSelected),
-                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::ByteData)),
-                            Field(&Event::eventData, Field(&EventData::byteValue, 1)))))
-      .Times(1);
-
-  // Publish a CommandStationSelected event
-  uint8_t csSelected = 1;
-  EventData data(csSelected);
-  eventManager->publish(EventType::CommandStationSelected, data);
-
-  // Verify and clear expectations
-  Mock::VerifyAndClearExpectations(listener);
-}
-
 /// @brief Test an event with IntegerData can be published and received by a
 /// Listener
 TEST_F(EventManagerTests, TestIntegerData) {

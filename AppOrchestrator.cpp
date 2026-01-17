@@ -33,7 +33,18 @@ void AppOrchestrator::begin() {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::begin()");
 
   // Subscribe to events first
+  _eventManager->subscribe(this, EventType::CommandStationConnected);
+  _eventManager->subscribe(this, EventType::ReceivedRosterList);
+  _eventManager->subscribe(this, EventType::LocoSelected);
+  _eventManager->subscribe(this, EventType::ReceivedLocoUpdate);
+  _eventManager->subscribe(this, EventType::ReceivedTrackPower);
+  _eventManager->subscribe(this, EventType::ReceivedReadLoco);
+  _eventManager->subscribe(this, EventType::ToggleTrackPower);
+  _eventManager->subscribe(this, EventType::ReceivedLocoBroadcast);
   _eventManager->subscribe(this, EventType::ConnectionRetry);
+  _eventManager->subscribe(this, EventType::ReadLocoRetry);
+  _eventManager->subscribe(this, EventType::ExitMenu);
+  _eventManager->subscribe(this, EventType::MenuRefreshRequired);
 
   if (_connectionManager)
     _connectionManager->begin();
@@ -77,7 +88,7 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s (%d)", _eventTypeToString(event.eventType), event.eventType);
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", eventTypeToString(event.eventType));
   EventType eventType = event.eventType;
   switch (eventType) {
   case EventType::CommandStationConnected: {
@@ -87,6 +98,14 @@ void AppOrchestrator::onEvent(Event &event) {
     if (_currentAppState == AppState::Startup) {
       _displayInterface->updateProgressScreen();
     }
+    break;
+  }
+  case EventType::ExitMenu: {
+    _switchState(AppState::Throttle);
+    break;
+  }
+  case EventType::MenuRefreshRequired: {
+    _displayInterface->setRedraw(true);
     break;
   }
   default: {
@@ -124,7 +143,9 @@ void AppOrchestrator::_handleConnectionError(UserInputInterface::UserInputEvent 
   }
 }
 
-void AppOrchestrator::_handleMenuState(UserInputInterface::UserInputEvent event) {}
+void AppOrchestrator::_handleMenuState(UserInputInterface::UserInputEvent event) {
+  _menuManager->handleUserInput(event);
+}
 
 void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
@@ -149,7 +170,7 @@ void AppOrchestrator::_displayCurrentState() {
     break;
   }
   case AppState::Menu: {
-    // _displayInterface->displayMenuScreen(_menuManager->getCurrentMenu());
+    _displayInterface->displayMenuScreen(_menuManager->getCurrentMenu());
     break;
   }
   default:
@@ -168,39 +189,6 @@ void AppOrchestrator::_updateThrottleDisplay() {
     if (_throttles[i]->locoChanged()) {
       _displayInterface->updateThrottleScreen(i, _throttles[i]);
     }
-  }
-}
-
-const char *AppOrchestrator::_eventTypeToString(EventType eventType) {
-  switch (eventType) {
-  case CommandStationSelected:
-    return "CommandStationSelected";
-  case CommandStationConnected:
-    return "CommandStationConnected";
-  case ReceivedRosterList:
-    return "ReceivedRosterList";
-  case LocoSelected:
-    return "LocoSelected";
-  case ReceivedLocoUpdate:
-    return "ReceivedLocoUpdate";
-  case ReceivedTrackPower:
-    return "ReceivedTrackPower";
-  case ReceivedReadLoco:
-    return "ReceivedReadLoco";
-  case ToggleTrackPower:
-    return "ToggleTrackPower";
-  case ReceivedLocoBroadcast:
-    return "ReceivedLocoBroadcast";
-  case ConnectionRetry:
-    return "ConnectionRetry";
-  case ReadLocoRetry:
-    return "ReadLocoRetry";
-  case ExitMenu:
-    return "ExitMenu";
-  case MenuRefreshRequired:
-    return "MenuRefreshRequired";
-  default:
-    return "UNKNOWN_EVENT";
   }
 }
 

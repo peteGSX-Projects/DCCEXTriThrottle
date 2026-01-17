@@ -83,7 +83,6 @@ void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent)
     break;
   }
   default: {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() unknown key %c", inputEvent.key);
     break;
   }
   }
@@ -136,12 +135,14 @@ void MenuManager::_handleBack() {
 
   // If we're at the top, exit the menu system and reset throttle context
   if (node.menu == nullptr) {
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleBack(): Exit Menu");
     reset();
     _eventManager->publish(EventType::ExitMenu, EventData());
   } else {
     // Restore the navigation state
     _currentMenu = node.menu;
     _activeThrottleIndex = node.throttleIndex;
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleBack(): Back to %s", _currentMenu->getName());
     _eventManager->publish(EventType::MenuRefreshRequired, EventData());
   }
 }
@@ -160,6 +161,7 @@ void MenuManager::_handleSelection(int digit) {
     LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d): No item at this index", digit);
     return;
   }
+  LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d) select %s", digit, item->getName());
 
   switch (item->getItemType()) {
   case MenuItemType::ThrottleMenuType: {

@@ -44,6 +44,7 @@ protected:
   MockConnectionManager *connectionManager;
   Throttle *throttles[NUM_THROTTLES];
   EventManager *eventManager;
+  MenuManager *menuManager;
 
   void SetUp() override {
     mockDisplay = new MockDisplay;
@@ -60,12 +61,14 @@ protected:
     throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
     connectionManager = new MockConnectionManager;
     eventManager = new EventManager(nullptr);
-    appOrchestrator =
-        new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles, connectionManager, eventManager);
+    menuManager = new MenuManager(eventManager, logger);
+    appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles, connectionManager,
+                                          eventManager, menuManager);
   }
 
   void TearDown() override {
     delete appOrchestrator;
+    delete menuManager;
     delete eventManager;
     delete connectionManager;
 
@@ -175,4 +178,20 @@ TEST_F(AppOrchestratorTests, TestEventSubscription) {
 
   // Publish event
   eventManager->publish(EventType::ConnectionRetry, EventData());
+}
+
+/**
+ * @brief Test successful transition from Throttle to Menu
+ */
+TEST_F(AppOrchestratorTests, TestThrottleToMenu) {
+  // Connection success should have Throttle state
+  EXPECT_CALL(*connectionManager, getState()).WillOnce(Return(ConnectionState::Connected));
+  appOrchestrator->update();
+
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Now press '*' should move to Menu
+  mockKeypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
 }

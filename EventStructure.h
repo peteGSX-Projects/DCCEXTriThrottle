@@ -25,7 +25,6 @@
 /// and publishers can publish Listeners and publishers must use one of these
 /// when creating or listening for a valid Event
 enum EventType {
-  CommandStationSelected,
   CommandStationConnected,
   ReceivedRosterList,
   LocoSelected,
@@ -39,6 +38,13 @@ enum EventType {
   ExitMenu,
   MenuRefreshRequired
 };
+
+/**
+ * @brief Helper method to return the EventType as a string
+ * @param eventType EventType enum value
+ * @return const char* Char array string of the enum value
+ */
+const char *eventTypeToString(EventType eventType);
 
 /// @brief Structure for data relating to a Loco broadcast that can be contained
 /// within EventData.

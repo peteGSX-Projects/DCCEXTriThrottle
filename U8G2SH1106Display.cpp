@@ -90,8 +90,51 @@ void U8G2SH1106Display::updateThrottleTrackPower(TrackPower state) {
 }
 
 void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
+  if (menu == nullptr)
+    return;
+
   _oled->clear();
-  _displayHeader("This is a menu");
+  _displayHeader(menu->getName());
+  int x = 0;
+  int y = _calculateHeaderHeight() + 8;
+  _oled->setFont(MENU_FONT);
+
+  for (int i = 0; i < menu->getItemsPerPage(); i++) {
+    BaseMenuItem *item = menu->getItemByPageIndex(i);
+
+    if (item != nullptr) {
+      _oled->setCursor(x, y);
+      _oled->print(i);
+      _oled->print(" ");
+      const char *label = item->getName();
+      _oled->print(label);
+
+      y += 9;
+
+      if (i == 4) {
+        x = 64;
+        y = _calculateHeaderHeight() + 8;
+      }
+    }
+  }
+
+  _oled->drawHLine(0, 54, 128);
+  _oled->setFont(STATUS_FONT); // Use smaller font for status bar
+
+  // Left: Back hint
+  _oled->setCursor(0, 63);
+  _oled->print("* Back");
+
+  // Right: Pagination (only show if there's more than one page)
+  if (menu->getTotalPages() > 1) {
+    _oled->setCursor(70, 63);
+    _oled->print("# Page ");
+    _oled->print(menu->getCurrentPage() + 1);
+    _oled->print("/");
+    _oled->print(menu->getTotalPages());
+  }
+
+  _oled->sendBuffer();
 }
 
 void U8G2SH1106Display::displayConnectionErrorScreen() {

@@ -122,13 +122,6 @@ private:
   void _updateThrottleDisplay();
 
   /**
-   * @brief Helper method to return the event type name rather than int value
-   * @param eventType EventType
-   * @return const char* Pointer to the char array string
-   */
-  const char *_eventTypeToString(EventType eventType);
-
-  /**
    * @brief Helper method to return the AppState name rather than int value
    * @param appState AppState
    * @return const char* Pointer to the char array string

@@ -71,6 +71,7 @@ void setup() {
   commandStationClient.connect(&COMMANDSTATION_STREAM);
   static ConnectionManager connectionManager(&commandStationClient, &eventManager, &logger);
   static MenuManager menuManager(&eventManager, &logger);
+  menuManager.initialise();
 
   // Setup keypad
   static const byte keypadRowPins[] = {KEYPAD_ROW_PINS};
