@@ -366,13 +366,10 @@ TEST_F(MenuManagerTests, TestThrottleMenuStructure) {
 TEST_F(MenuManagerTests, TestCreateRosterMenu) {
   // Initialise menus
   menuManager->initialise();
-  
-  // Create a roster
-  Loco *rosterLoco1 = new Loco(1, LocoSource::LocoSourceRoster);
-  Loco *rosterLoco2 = new Loco(2, LocoSource::LocoSourceRoster);
-  Loco *rosterLoco3 = new Loco(3, LocoSource::LocoSourceRoster);
-  Loco *rosterLoco4 = new Loco(4, LocoSource::LocoSourceRoster);
-  Loco *rosterLoco5 = new Loco(5, LocoSource::LocoSourceRoster);
+
+  // Create a DCCEXProtocol instance and create the dummy roster
+  DCCEXProtocol *client = new DCCEXProtocol;
+  client->createMockRoster();
 
   // Call createRosterMenu() with the first entry
   Loco *roster = Loco::getFirst();
@@ -382,17 +379,17 @@ TEST_F(MenuManagerTests, TestCreateRosterMenu) {
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "1");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "5");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco 1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco 5");
 
   // Ensure roster is accessible via main menu, '*' back to main then '6'
   menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
   menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
   menuManager->handleUserInput({'6', UserInputInterface::UserInputAction::Pressed});
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "1");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "5");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco 1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco 5");
 
   // Clean up
-  Loco::clearRoster();
+  delete client;
 }

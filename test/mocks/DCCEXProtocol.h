@@ -107,6 +107,18 @@ public:
            (!_routeListRequested || _receivedRouteList) && (!_turntableListRequested || _receivedTurntableList);
   }
 
+  /// @brief Linked list of Loco objects to form the roster
+  Loco *roster = nullptr;
+
+  /// @brief Linked list of Turnout objects to form the turnout list
+  Turnout *turnouts = nullptr;
+
+  /// @brief Linked list of Route objects to form the list of routes and automations
+  Route *routes = nullptr;
+
+  /// @brief Linked list of Turntable objects to form the list of turntables
+  Turntable *turntables = nullptr;
+
   void setReceivedRoster(bool received) { _receivedRoster = received; }
 
   void setReceivedTurnoutList(bool received) { _receivedTurnoutList = received; }
@@ -115,7 +127,43 @@ public:
 
   void setReceivedTurntableList(bool received) { _receivedTurntableList = received; }
 
-  virtual ~DCCEXProtocol() {}
+  void createMockRoster() {
+    Loco *rosterLoco1 = new Loco(1, LocoSource::LocoSourceRoster);
+    rosterLoco1->setName("Loco 1");
+    Loco *rosterLoco2 = new Loco(2, LocoSource::LocoSourceRoster);
+    rosterLoco2->setName("Loco 2");
+    Loco *rosterLoco3 = new Loco(3, LocoSource::LocoSourceRoster);
+    rosterLoco3->setName("Loco 3");
+    Loco *rosterLoco4 = new Loco(4, LocoSource::LocoSourceRoster);
+    rosterLoco4->setName("Loco 4");
+    Loco *rosterLoco5 = new Loco(5, LocoSource::LocoSourceRoster);
+    rosterLoco5->setName("Loco 5");
+    roster = Loco::getFirst();
+  }
+
+  void createMockTurnoutList() {}
+
+  void createMockTurntableList() {}
+
+  void createMockRouteList() {}
+
+  virtual ~DCCEXProtocol() {
+    if (roster != nullptr) {
+      Loco::clearRoster();
+    }
+
+    if (turnouts != nullptr) {
+      Turnout::clearTurnoutList();
+    }
+
+    if (routes != nullptr) {
+      Route::clearRouteList();
+    }
+
+    if (turntables != nullptr) {
+      Turntable::clearTurntableList();
+    }
+  }
 
 private:
   DCCEXProtocolDelegate *_delegate = nullptr;
