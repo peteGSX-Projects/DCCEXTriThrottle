@@ -25,12 +25,15 @@ void ConnectionManager::begin() {
   _connectionState = ConnectionState::Connecting;
   _retriesRemaining = CONNECT_RETRIES;
   _lastRetry = millis();
-  _commandStationClient->getLists(true, true, true, true);
 }
 
 void ConnectionManager::update() {
   _commandStationClient->check();
-  
+
+  if (!_commandStationClient->receivedLists()) {
+    _commandStationClient->getLists(true, true, true, true);
+  }
+
   if (_connectionState != ConnectionState::Connecting)
     return;
 
@@ -48,7 +51,6 @@ void ConnectionManager::update() {
 
     _retriesRemaining--;
     _lastRetry = currentMillis;
-    _commandStationClient->getLists(true, true, true, true);
     EventData eventData;
     _eventManager->publish(EventType::ConnectionRetry, eventData);
   }

@@ -50,9 +50,6 @@ protected:
  * @brief Test that begin() attempts to start the connection
  */
 TEST_F(ConnectionManagerTests, TestBeginInitiatesConnection) {
-  // Expect getLists() is called for all object types
-  EXPECT_CALL(*mockClient, getLists(true, true, true, true)).Times(1);
-
   // Initial connection state should be None as it hasn't done anything yet
   EXPECT_EQ(connectionManager->getState(), ConnectionState::None);
 

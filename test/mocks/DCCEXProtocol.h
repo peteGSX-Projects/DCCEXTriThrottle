@@ -96,10 +96,33 @@ public:
 
   virtual void getLists(bool rosterRequired, bool turnoutListRequired, bool routeListRequired,
                         bool turntableListRequired) {
-    _rosterRequested = rosterRequired;
-    _turnoutListRequested = turnoutListRequired;
-    _routeListRequested = routeListRequired;
-    _turntableListRequested = turntableListRequired;
+    if (!_receivedLists) {
+      if (rosterRequired && !_rosterRequested) {
+        _rosterRequested = true;
+        if (_stream)
+          _stream->print("<JR>"); // Internal _getRoster()
+      } else if (!rosterRequired || _receivedRoster) {
+        if (turnoutListRequired && !_turnoutListRequested) {
+          _turnoutListRequested = true;
+          if (_stream)
+            _stream->print("<JT>"); // Internal _getTurnouts()
+        } else if (!turnoutListRequired || _receivedTurnoutList) {
+          if (routes && !_routeListRequested) {
+            _routeListRequested = true;
+            if (_stream)
+              _stream->print("<JA>"); // Internal _getRoutes()
+          } else if (!routeListRequired || _receivedRouteList) {
+            if (turntableListRequired && !_turntableListRequested) {
+              _turntableListRequested = true;
+              if (_stream)
+                _stream->print("<JO>"); // Internal _getTurntables()
+            } else if (!turntableListRequired || _receivedTurntableList) {
+              _receivedLists = true;
+            }
+          }
+        }
+      }
+    }
   }
 
   virtual bool receivedLists() {

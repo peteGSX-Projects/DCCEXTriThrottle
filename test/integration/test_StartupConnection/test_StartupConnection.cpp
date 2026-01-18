@@ -21,22 +21,38 @@
  * @brief Test receiving DCCEXProtocol lists flags connection success
  */
 TEST_F(IntegrationTestBase, TestStartupConnectionCompletes) {
-  // update() should still be in Startup
+  // Make sure buffer is clear to start
+  csConnection.clear();
+  
+  // update() should send <JR>
   appOrchestrator->update();
-  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Startup);
+  printf("BUFFER: %s\n", csConnection.buffer.c_str());
+  EXPECT_TRUE(csConnection.buffer.find("<JR>") != std::string::npos);
+  csConnection.clear();
 
-  // Minimum of 4 updates required to process all lists and get connected
-  for (int i = 0; i < 4; i++) {
-    appOrchestrator->update();
-  }
+  // Next update() should send <JT>
+  appOrchestrator->update();
+  printf("BUFFER: %s\n", csConnection.buffer.c_str());
+  EXPECT_TRUE(csConnection.buffer.find("<JT>") != std::string::npos);
+  csConnection.clear();
 
-  // Should now flag connected and move to throttle
+  // Next update() should send <JA>
+  appOrchestrator->update();
+  printf("BUFFER: %s\n", csConnection.buffer.c_str());
+  EXPECT_TRUE(csConnection.buffer.find("<JA>") != std::string::npos);
+  csConnection.clear();
+
+  // Final update() should send <JO>
+  appOrchestrator->update();
+  printf("BUFFER: %s\n", csConnection.buffer.c_str());
+  EXPECT_TRUE(csConnection.buffer.find("<JO>") != std::string::npos);
+  csConnection.clear();
+
+  // We should now be in Throttle
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
 }
 
 /**
  * @brief Test connection success populates menu items
  */
-TEST_F(IntegrationTestBase, TestStartupConnectionAppSetup) {
-
-}
+TEST_F(IntegrationTestBase, TestStartupConnectionAppSetup) {}
