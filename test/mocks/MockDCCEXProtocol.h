@@ -40,6 +40,7 @@ public:
               (bool rosterRequired, bool turnoutListRequired, bool routeListRequired, bool turntableListRequired),
               (override));
   MOCK_METHOD(bool, receivedLists, (), (override));
+  MOCK_METHOD(void, check, (), (override));
 };
 
 /**

@@ -29,6 +29,8 @@ void ConnectionManager::begin() {
 }
 
 void ConnectionManager::update() {
+  _commandStationClient->check();
+  
   if (_connectionState != ConnectionState::Connecting)
     return;
 

@@ -107,6 +107,40 @@ public:
            (!_routeListRequested || _receivedRouteList) && (!_turntableListRequested || _receivedTurntableList);
   }
 
+  virtual void check() {
+    if (_rosterRequested && !_receivedRoster) {
+      _receivedRoster = true;
+      if (_delegate) {
+        _delegate->receivedRosterList();
+      }
+      return;
+    }
+
+    if (_turnoutListRequested && !_receivedTurnoutList) {
+      _receivedTurnoutList = true;
+      if (_delegate) {
+        _delegate->receivedTurnoutList();
+      }
+      return;
+    }
+
+    if (_routeListRequested && !_receivedRouteList) {
+      _receivedRouteList = true;
+      if (_delegate) {
+        _delegate->receivedRouteList();
+      }
+      return;
+    }
+
+    if (_turntableListRequested && !_receivedTurntableList) {
+      _receivedTurntableList = true;
+      if (_delegate) {
+        _delegate->receivedTurntableList();
+      }
+      return;
+    }
+  }
+
   /// @brief Linked list of Loco objects to form the roster
   Loco *roster = nullptr;
 
