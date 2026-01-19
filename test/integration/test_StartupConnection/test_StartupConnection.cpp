@@ -26,25 +26,21 @@ TEST_F(IntegrationTestBase, TestStartupConnectionCompletes) {
   
   // update() should send <JR>
   appOrchestrator->update();
-  printf("BUFFER: %s\n", csConnection.buffer.c_str());
   EXPECT_TRUE(csConnection.buffer.find("<JR>") != std::string::npos);
   csConnection.clear();
 
   // Next update() should send <JT>
   appOrchestrator->update();
-  printf("BUFFER: %s\n", csConnection.buffer.c_str());
   EXPECT_TRUE(csConnection.buffer.find("<JT>") != std::string::npos);
   csConnection.clear();
 
   // Next update() should send <JA>
   appOrchestrator->update();
-  printf("BUFFER: %s\n", csConnection.buffer.c_str());
   EXPECT_TRUE(csConnection.buffer.find("<JA>") != std::string::npos);
   csConnection.clear();
 
   // Fourth update() should send <JO>
   appOrchestrator->update();
-  printf("BUFFER: %s\n", csConnection.buffer.c_str());
   EXPECT_TRUE(csConnection.buffer.find("<JO>") != std::string::npos);
   csConnection.clear();
 

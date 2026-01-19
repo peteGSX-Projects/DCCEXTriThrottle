@@ -105,7 +105,6 @@ public:
     }
 
     if (_rosterRequested && !_receivedRoster) {
-      _receivedRoster = true;
       return;
     }
 
@@ -116,7 +115,6 @@ public:
     }
 
     if (_turnoutListRequested && !_receivedTurnoutList) {
-      _receivedTurnoutList = true;
       return;
     }
 
@@ -127,7 +125,6 @@ public:
     }
 
     if (_routeListRequested && !_receivedRouteList) {
-      _receivedRouteList = true;
       return;
     }
 
@@ -138,7 +135,6 @@ public:
     }
 
     if (_turntableListRequested && !_receivedTurntableList) {
-      _receivedTurntableList = true;
       return;
     }
 
