@@ -175,6 +175,14 @@
 #define CONNECT_RETRY_DELAY 1000
 #endif // CONNECT_RETRY_DELAY
 
+// Set default DCCEXProtocol parameters
+#ifndef MAX_CMD_BUFFER_SIZE
+#define MAX_CMD_BUFFER_SIZE 500
+#endif // MAX_CMD_BUFFER_SIZE
+#ifndef MAX_CMD_PARAMS
+#define MAX_CMD_PARAMS 50
+#endif // MAX_CMD_PARAMS
+
 // This will never really change so define throttle count here
 #define NUM_THROTTLES 3
 

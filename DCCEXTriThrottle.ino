@@ -64,7 +64,7 @@ void setup() {
 
   // Setup application services
   static EventManager eventManager(&logger);
-  static DCCEXProtocol commandStationClient;
+  static DCCEXProtocol commandStationClient(MAX_CMD_BUFFER_SIZE, MAX_CMD_PARAMS);
   static CommandStationListener commandStationListener(&eventManager, &logger);
   commandStationClient.setLogStream(&CONSOLE_STREAM);
   commandStationClient.setDelegate(&commandStationListener);
