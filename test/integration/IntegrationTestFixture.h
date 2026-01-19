@@ -54,14 +54,14 @@ protected:
 
   void SetUp() override {
     // Create objects
-    button1 = new MockButton;
-    button2 = new MockButton;
-    button3 = new MockButton;
-    encoder1 = new MockRotaryEncoder;
-    encoder2 = new MockRotaryEncoder;
-    encoder3 = new MockRotaryEncoder;
-    display = new MockDisplay;
-    keypad = new MockKeypad;
+    button1 = new NiceMock<MockButton>();
+    button2 = new NiceMock<MockButton>();
+    button3 = new NiceMock<MockButton>();
+    encoder1 = new NiceMock<MockRotaryEncoder>();
+    encoder2 = new NiceMock<MockRotaryEncoder>();
+    encoder3 = new NiceMock<MockRotaryEncoder>();
+    display = new NiceMock<MockDisplay>();
+    keypad = new NiceMock<MockKeypad>();
     logger = new Logger;
     eventManager = new EventManager(logger);
     csClient = new DCCEXProtocol;

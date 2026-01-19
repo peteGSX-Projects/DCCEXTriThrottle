@@ -42,11 +42,14 @@ TEST_F(IntegrationTestBase, TestStartupConnectionCompletes) {
   EXPECT_TRUE(csConnection.buffer.find("<JA>") != std::string::npos);
   csConnection.clear();
 
-  // Final update() should send <JO>
+  // Fourth update() should send <JO>
   appOrchestrator->update();
   printf("BUFFER: %s\n", csConnection.buffer.c_str());
   EXPECT_TRUE(csConnection.buffer.find("<JO>") != std::string::npos);
   csConnection.clear();
+
+  // Final call should now see lists received and connect
+  appOrchestrator->update();
 
   // We should now be in Throttle
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);

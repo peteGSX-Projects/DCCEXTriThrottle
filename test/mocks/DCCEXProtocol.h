@@ -96,39 +96,56 @@ public:
 
   virtual void getLists(bool rosterRequired, bool turnoutListRequired, bool routeListRequired,
                         bool turntableListRequired) {
-    if (!_receivedLists) {
-      if (rosterRequired && !_rosterRequested) {
-        _rosterRequested = true;
-        if (_stream)
-          _stream->print("<JR>"); // Internal _getRoster()
-      } else if (!rosterRequired || _receivedRoster) {
-        if (turnoutListRequired && !_turnoutListRequested) {
-          _turnoutListRequested = true;
-          if (_stream)
-            _stream->print("<JT>"); // Internal _getTurnouts()
-        } else if (!turnoutListRequired || _receivedTurnoutList) {
-          if (routes && !_routeListRequested) {
-            _routeListRequested = true;
-            if (_stream)
-              _stream->print("<JA>"); // Internal _getRoutes()
-          } else if (!routeListRequired || _receivedRouteList) {
-            if (turntableListRequired && !_turntableListRequested) {
-              _turntableListRequested = true;
-              if (_stream)
-                _stream->print("<JO>"); // Internal _getTurntables()
-            } else if (!turntableListRequired || _receivedTurntableList) {
-              _receivedLists = true;
-            }
-          }
-        }
-      }
+    if (_receivedLists || !_delegate) return;
+
+    if (rosterRequired && !_receivedRoster) {
+      _rosterRequested = true;
+      _stream->print("<JR>");
+      return;
     }
+
+    if (_rosterRequested && !_receivedRoster) {
+      _receivedRoster = true;
+      return;
+    }
+
+    if (turnoutListRequired && !_receivedTurnoutList) {
+      _turnoutListRequested = true;
+      _stream->print("<JT>");
+      return;
+    }
+
+    if (_turnoutListRequested && !_receivedTurnoutList) {
+      _receivedTurnoutList = true;
+      return;
+    }
+
+    if (routeListRequired && !_receivedRouteList) {
+      _routeListRequested = true;
+      _stream->print("<JA>");
+      return;
+    }
+
+    if (_routeListRequested && !_receivedRouteList) {
+      _receivedRouteList = true;
+      return;
+    }
+
+    if (turntableListRequired && !_receivedTurntableList) {
+      _turntableListRequested = true;
+      _stream->print("<JO>");
+      return;
+    }
+
+    if (_turntableListRequested && !_receivedTurntableList) {
+      _receivedTurntableList = true;
+      return;
+    }
+
+    _receivedLists = true;
   }
 
-  virtual bool receivedLists() {
-    return (!_rosterRequested || _receivedRoster) && (!_turnoutListRequested || _receivedTurnoutList) &&
-           (!_routeListRequested || _receivedRouteList) && (!_turntableListRequested || _receivedTurntableList);
-  }
+  virtual bool receivedLists() { return _receivedLists; }
 
   virtual void check() {
     if (_rosterRequested && !_receivedRoster) {
