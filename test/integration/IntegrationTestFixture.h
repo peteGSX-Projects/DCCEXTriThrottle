@@ -18,13 +18,13 @@
 #ifndef INTEGRATIONTESTFIXTURE_H
 #define INTEGRATIONTESTFIXTURE_H
 
-#include <gtest/gtest.h>
 #include "AppOrchestrator.h"
 #include "CommandStationListener.h"
+#include "test/mocks/MockButton.h"
 #include "test/mocks/MockDisplay.h"
 #include "test/mocks/MockKeypad.h"
-#include "test/mocks/MockButton.h"
 #include "test/mocks/MockRotaryEncoder.h"
+#include <gtest/gtest.h>
 
 using namespace testing;
 
@@ -66,12 +66,16 @@ protected:
     eventManager = new EventManager(logger);
     csClient = new DCCEXProtocol;
     csListener = new CommandStationListener(eventManager, logger);
+    csClient->setLogStream(&console);
+    csClient->setDelegate(csListener);
+    csClient->connect(&csConnection);
     connectionManager = new ConnectionManager(csClient, eventManager, logger);
     menuManager = new MenuManager(eventManager, logger);
     throttles[0] = new Throttle(0, button1, encoder1, 1, 2, 5);
     throttles[1] = new Throttle(1, button2, encoder2, 1, 2, 5);
     throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
-    appOrchestrator = new AppOrchestrator(display, keypad, logger, NUM_THROTTLES, throttles, connectionManager, eventManager, menuManager);
+    appOrchestrator = new AppOrchestrator(display, keypad, logger, NUM_THROTTLES, throttles, connectionManager,
+                                          eventManager, menuManager);
 
     // Initialise
     logger->setOutput(&console);
