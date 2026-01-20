@@ -18,7 +18,8 @@
 #include "Arduino.h"
 #include "ConnectionManager.h"
 #include "EventManager.h"
-#include "test/mocks/MockDCCEXProtocol.h"
+#include "test/mocks/DCCEXProtocol.h"
+#include "test/mocks/Stream.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -28,13 +29,18 @@ using namespace testing;
  */
 class ConnectionManagerTests : public Test {
 protected:
-  MockDCCEXProtocol *mockClient;
+  DCCEXProtocolDelegate *mockDelegate;
+  DCCEXProtocol *mockClient;
   EventManager *eventManager;
   ConnectionManager *connectionManager;
+  Stream mockStream;
 
   void SetUp() override {
     millis();
-    mockClient = new MockDCCEXProtocol;
+    mockDelegate = new DCCEXProtocolDelegate;
+    mockClient = new DCCEXProtocol;
+    mockClient->setDelegate(mockDelegate);
+    mockClient->connect(&mockStream);
     eventManager = new EventManager(nullptr);
     connectionManager = new ConnectionManager(mockClient, eventManager, nullptr);
   }
@@ -43,6 +49,7 @@ protected:
     delete connectionManager;
     delete eventManager;
     delete mockClient;
+    delete mockDelegate;
   }
 };
 
@@ -64,58 +71,32 @@ TEST_F(ConnectionManagerTests, TestBeginInitiatesConnection) {
  * @brief Test that receiving all lists transitions to Connected state
  */
 TEST_F(ConnectionManagerTests, TestConnectionSuccessTransition) {
-  // We know receivedLists() will be called a lot, suppress this
-  EXPECT_CALL(*mockClient, receivedLists()).WillRepeatedly(Invoke([this]() {
-    return this->mockClient->DCCEXProtocol::receivedLists();
-  }));
-
-  // We also should expect getLists() to be called
-  EXPECT_CALL(*mockClient, getLists(testing::_, testing::_, testing::_, testing::_)).Times(1);
-
   // Start with begin()
   connectionManager->begin();
 
-  // Ensure lists aren't received yet and state is Connecting
-  mockClient->setReceivedRoster(false);
-  connectionManager->update();
-  EXPECT_EQ(connectionManager->getState(), ConnectionState::Connecting);
+  // Should start in Connecting state
+  ASSERT_EQ(connectionManager->getState(), ConnectionState::Connecting);
 
-  // Now set all lists as received
-  mockClient->setReceivedRoster(true);
-  mockClient->setReceivedTurnoutList(true);
-  mockClient->setReceivedRouteList(true);
-  mockClient->setReceivedTurntableList(true);
+  // Should take at least 8 updates() to complete getting lists and complete
+  for (int i = 0; i < 9; i++) {
+    connectionManager->update();
+    if (connectionManager->getState() == ConnectionState::Connected)
+      break;
+  }
 
-  // Call update again which should update state to Connected
-  connectionManager->update();
+  // Validation
   EXPECT_EQ(connectionManager->getState(), ConnectionState::Connected);
-
-  // Clean up expectations
-  testing::Mock::VerifyAndClearExpectations(mockClient);
-  testing::Mock::VerifyAndClearExpectations(connectionManager);
 }
 
 /**
  * @brief Test that connection fails after retries are exceeded
  */
 TEST_F(ConnectionManagerTests, TestConnectionRetryTransition) {
-  // We know receivedLists() will be called a lot, suppress this
-  EXPECT_CALL(*mockClient, receivedLists()).WillRepeatedly(Invoke([this]() {
-    return this->mockClient->DCCEXProtocol::receivedLists();
-  }));
-
-  // We should have a total of CONNECT_RETRIES plus the begin() call to getLists()
-  EXPECT_CALL(*mockClient, getLists(true, true, true, true))
-      .Times(CONNECT_RETRIES + 1)
-      .WillRepeatedly(
-          Invoke([this](bool a, bool b, bool c, bool d) { this->mockClient->DCCEXProtocol::getLists(a, b, c, d); }));
-
   // Start with begin()
   connectionManager->begin();
 
-  // Immediate update, should be connecting with no retry
-  connectionManager->update();
-  EXPECT_EQ(connectionManager->getState(), ConnectionState::Connecting);
+  // Set mock's disconnected flag to simulate no connection
+  mockClient->setDisconnected(true);
 
   // Call update while advancing time according to retry delay and retries
   for (int i = 0; i < CONNECT_RETRIES; i++) {
@@ -129,8 +110,4 @@ TEST_F(ConnectionManagerTests, TestConnectionRetryTransition) {
   advanceMillis(CONNECT_RETRY_DELAY + 1);
   connectionManager->update();
   EXPECT_EQ(connectionManager->getState(), ConnectionState::Failed);
-
-  // Clean up expectations
-  testing::Mock::VerifyAndClearExpectations(mockClient);
-  testing::Mock::VerifyAndClearExpectations(connectionManager);
 }

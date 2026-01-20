@@ -23,7 +23,7 @@
 TEST_F(IntegrationTestBase, TestStartupConnectionCompletes) {
   // Make sure buffer is clear to start
   csConnection.clear();
-  
+
   // update() should send <JR>
   appOrchestrator->update();
   EXPECT_TRUE(csConnection.buffer.find("<JR>") != std::string::npos);

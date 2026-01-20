@@ -82,6 +82,8 @@ public:
   virtual void receivedWriteCV(int cv, int value) {}
 
   virtual void receivedScreenUpdate(int screen, int row, char *message) {}
+
+  virtual ~DCCEXProtocolDelegate() {}
 };
 
 class DCCEXProtocol {
@@ -96,7 +98,8 @@ public:
 
   virtual void getLists(bool rosterRequired, bool turnoutListRequired, bool routeListRequired,
                         bool turntableListRequired) {
-    if (_receivedLists || !_delegate) return;
+    if (_receivedLists || !_delegate)
+      return;
 
     if (rosterRequired && !_receivedRoster) {
       _rosterRequested = true;
@@ -144,6 +147,9 @@ public:
   virtual bool receivedLists() { return _receivedLists; }
 
   virtual void check() {
+    if (_disconnected)
+      return;
+
     if (_rosterRequested && !_receivedRoster) {
       _receivedRoster = true;
       if (_delegate) {
@@ -217,6 +223,8 @@ public:
 
   void createMockRouteList() {}
 
+  void setDisconnected(bool disconnected) { _disconnected = disconnected; }
+
   virtual ~DCCEXProtocol() {
     if (roster != nullptr) {
       Loco::clearRoster();
@@ -249,6 +257,7 @@ private:
   bool _receivedRouteList = false;
   bool _turntableListRequested = false;
   bool _receivedTurntableList = false;
+  bool _disconnected = false;
 };
 
 #endif // DCCEXPROTOCOL_H
