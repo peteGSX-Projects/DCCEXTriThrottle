@@ -120,6 +120,12 @@ void AppOrchestrator::onEvent(Event &event) {
     _displayInterface->setRedraw(true);
     break;
   }
+  case EventType::ReceivedRosterList: {
+    DCCEXProtocol *csClient = _connectionManager->getCommandStationClient();
+    Loco *roster = csClient->roster;
+    _menuManager->createRosterMenu(roster);
+    break;
+  }
   default: {
     LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received");
   }

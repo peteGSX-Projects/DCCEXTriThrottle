@@ -20,6 +20,14 @@
 CommandStationListener::CommandStationListener(EventManager *eventManager, Logger *logger)
     : _eventManager(eventManager), _logger(logger) {}
 
+void CommandStationListener::receivedServerVersion(int major, int minor, int patch) {}
+
+void CommandStationListener::receivedRosterList() {
+  if (_eventManager) {
+    _eventManager->publish(EventType::ReceivedRosterList, EventData());
+  }
+}
+
 void CommandStationListener::receivedLocoUpdate(Loco *loco) {
   if (_eventManager) {
     EventData eventData(loco);

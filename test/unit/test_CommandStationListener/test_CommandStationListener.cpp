@@ -37,6 +37,7 @@ protected:
     eventManager->subscribe(mockOrchestrator, EventType::ReceivedTrackPower);
     eventManager->subscribe(mockOrchestrator, EventType::ReceivedLocoUpdate);
     eventManager->subscribe(mockOrchestrator, EventType::ReceivedLocoBroadcast);
+    eventManager->subscribe(mockOrchestrator, EventType::ReceivedRosterList);
   }
 
   void TearDown() override {
@@ -107,4 +108,18 @@ TEST_F(CommandStationListenerTests, TestTrackPowerEventPublishes) {
 
   // Simulate receiving the update
   commandStationListener->receivedTrackPower(TrackPower::PowerOn);
+}
+
+/**
+ * @brief Test receiving the roster publishes the event
+ */
+TEST_F(CommandStationListenerTests, TestReceivedRosterEventPublishes) {
+  // Set the expectation
+  EXPECT_CALL(*mockOrchestrator,
+              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedRosterList),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::NoneData)))))
+      .Times(1);
+
+  // Simulate receiving the roster
+  commandStationListener->receivedRosterList();
 }

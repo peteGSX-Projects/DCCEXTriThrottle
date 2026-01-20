@@ -32,6 +32,19 @@ public:
   CommandStationListener(EventManager *eventManager, Logger *logger);
 
   /**
+   * @brief Publish the server version event
+   * @param major Major version of the command station software
+   * @param minor Minor version of the command station software
+   * @param patch Patch version of the command station software
+   */
+  void receivedServerVersion(int major, int minor, int patch) override;
+
+  /**
+   * @brief Publish the received roster event
+   */
+  void receivedRosterList() override;
+
+  /**
    * @brief Publish a Loco update event
    * @param loco Pointer to the Loco object
    */
