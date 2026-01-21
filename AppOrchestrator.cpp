@@ -104,6 +104,15 @@ void AppOrchestrator::onEvent(Event &event) {
   EventType eventType = event.eventType;
   switch (eventType) {
   case EventType::CommandStationConnected: {
+    if (_commandStationClient != nullptr) {
+      Loco *roster = _commandStationClient->roster->getFirst();
+      if (roster->getFirst()) {
+        LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createRosterMenu(%s)", roster->getName());
+        _menuManager->createRosterMenu(roster);
+      } else {
+        LOG(LogLevel::LOG_DEBUG, "Empty roster, cannot create menu");
+      }
+    }
     break;
   }
   case EventType::ConnectionRetry: {
@@ -121,10 +130,6 @@ void AppOrchestrator::onEvent(Event &event) {
     break;
   }
   case EventType::ReceivedRosterList: {
-    if (_commandStationClient != nullptr) {
-      Loco *roster = _commandStationClient->roster;
-      _menuManager->createRosterMenu(roster);
-    }
     break;
   }
   default: {

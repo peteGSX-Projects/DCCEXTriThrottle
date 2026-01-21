@@ -39,6 +39,7 @@ void ConnectionManager::update() {
 
   if (_commandStationClient->receivedLists()) {
     _connectionState = ConnectionState::Connected;
+    _eventManager->publish(EventType::CommandStationConnected, EventData());
     return;
   }
 
