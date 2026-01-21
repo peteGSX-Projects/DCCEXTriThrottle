@@ -112,16 +112,16 @@ void setup() {
 #endif
 
   // Define throttles
-  throttles[0] = new Throttle(0, &button0, &encoder0, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
-  throttles[0]->setLogger(&logger);
-  throttles[1] = new Throttle(1, &button1, &encoder1, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
-  throttles[1]->setLogger(&logger);
-  throttles[2] = new Throttle(2, &button2, &encoder2, THROTTLE_STEP, THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
-  throttles[2]->setLogger(&logger);
+  throttles[0] = new Throttle(0, &button0, &encoder0, &commandStationClient, &logger, THROTTLE_STEP,
+                              THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  throttles[1] = new Throttle(1, &button1, &encoder1, &commandStationClient, &logger, THROTTLE_STEP,
+                              THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
+  throttles[2] = new Throttle(2, &button2, &encoder2, &commandStationClient, &logger, THROTTLE_STEP,
+                              THROTTLE_STEP_FASTER, THROTTLE_STEP_FASTEST);
 
   // Setup AppOrchestrator
   static AppOrchestrator appOrchestrator(&display, &keypad, &logger, NUM_THROTTLES, throttles, &connectionManager,
-                                         &eventManager, &menuManager);
+                                         &eventManager, &menuManager, &commandStationClient);
   orchestrator = &appOrchestrator;
   appOrchestrator.begin();
 

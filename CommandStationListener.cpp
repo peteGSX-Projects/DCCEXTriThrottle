@@ -24,6 +24,7 @@ void CommandStationListener::receivedServerVersion(int major, int minor, int pat
 
 void CommandStationListener::receivedRosterList() {
   if (_eventManager) {
+    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedRosterList(): published event");
     _eventManager->publish(EventType::ReceivedRosterList, EventData());
   }
 }
@@ -31,6 +32,8 @@ void CommandStationListener::receivedRosterList() {
 void CommandStationListener::receivedLocoUpdate(Loco *loco) {
   if (_eventManager) {
     EventData eventData(loco);
+    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoUpdate(): published event for loco %s",
+        loco->getName());
     _eventManager->publish(EventType::ReceivedLocoUpdate, eventData);
   }
 }
@@ -39,6 +42,8 @@ void CommandStationListener::receivedLocoBroadcast(int address, int speed, Direc
   if (_eventManager) {
     LocoBroadcast broadcast = {address, speed, direction, functionMap};
     EventData eventData(broadcast);
+    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address %d",
+        address);
     _eventManager->publish(EventType::ReceivedLocoBroadcast, eventData);
   }
 }
@@ -46,6 +51,7 @@ void CommandStationListener::receivedLocoBroadcast(int address, int speed, Direc
 void CommandStationListener::receivedTrackPower(TrackPower powerState) {
   if (_eventManager) {
     EventData eventData(powerState);
+    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedTrackPower(): published event");
     _eventManager->publish(EventType::ReceivedTrackPower, eventData);
   }
 }

@@ -19,11 +19,13 @@
 #include "EventManager.h"
 #include "Throttle.h"
 #include "Version.h"
+#include "test/mocks/DCCEXProtocol.h"
 #include "test/mocks/MockButton.h"
 #include "test/mocks/MockConnectionManager.h"
 #include "test/mocks/MockDisplay.h"
 #include "test/mocks/MockKeypad.h"
 #include "test/mocks/MockRotaryEncoder.h"
+#include "test/mocks/Stream.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -45,6 +47,8 @@ protected:
   Throttle *throttles[NUM_THROTTLES];
   EventManager *eventManager;
   MenuManager *menuManager;
+  Stream csConnection;
+  DCCEXProtocol *csClient;
 
   void SetUp() override {
     mockDisplay = new MockDisplay;
@@ -56,14 +60,16 @@ protected:
     encoder1 = new MockRotaryEncoder;
     encoder2 = new MockRotaryEncoder;
     encoder3 = new MockRotaryEncoder;
-    throttles[0] = new Throttle(0, button1, encoder1, 1, 2, 5);
-    throttles[1] = new Throttle(1, button2, encoder2, 1, 2, 5);
-    throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
+    csClient = new DCCEXProtocol;
+    csClient->connect(&csConnection);
+    throttles[0] = new Throttle(0, button1, encoder1, csClient, logger, 1, 2, 5);
+    throttles[1] = new Throttle(1, button2, encoder2, csClient, logger, 1, 2, 5);
+    throttles[2] = new Throttle(2, button3, encoder3, csClient, logger, 1, 2, 5);
     connectionManager = new MockConnectionManager;
     eventManager = new EventManager(nullptr);
     menuManager = new MenuManager(eventManager, logger);
     appOrchestrator = new AppOrchestrator(mockDisplay, mockKeypad, logger, NUM_THROTTLES, throttles, connectionManager,
-                                          eventManager, menuManager);
+                                          eventManager, menuManager, csClient);
   }
 
   void TearDown() override {
@@ -76,6 +82,7 @@ protected:
       delete throttles[i];
     }
 
+    delete csClient;
     delete encoder3;
     delete encoder2;
     delete encoder1;

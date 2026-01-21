@@ -19,9 +19,11 @@
 #include "Throttle.h"
 
 Throttle::Throttle(int index, UserConfirmationInterface *confirmer, UserSelectionInterface *selector,
-                   uint8_t throttleStep, uint8_t throttleStepFaster, uint8_t throttleStepFastest)
-    : _index(index), _confirmer(confirmer), _selector(selector), _throttleStep(throttleStep),
-      _throttleStepFaster(throttleStepFaster), _throttleStepFastest(throttleStepFastest) {
+                   DCCEXProtocol *commandStationClient, Logger *logger, uint8_t throttleStep,
+                   uint8_t throttleStepFaster, uint8_t throttleStepFastest)
+    : _index(index), _confirmer(confirmer), _selector(selector), _commandStationClient(commandStationClient),
+      _logger(logger), _throttleStep(throttleStep), _throttleStepFaster(throttleStepFaster),
+      _throttleStepFastest(throttleStepFastest) {
 
   _consist = nullptr;
   _loco = nullptr;
@@ -74,8 +76,6 @@ void Throttle::update() {
   UserSelectionInterface::UserSelectionAction select = _selector->check();
   _handleUserSelectionAction(select);
 }
-
-void Throttle::setLogger(Logger *logger) { _logger = logger; }
 
 Throttle::~Throttle() {}
 

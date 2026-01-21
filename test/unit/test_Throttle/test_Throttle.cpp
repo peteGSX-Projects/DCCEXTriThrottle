@@ -16,9 +16,10 @@
  */
 
 #include "Throttle.h"
+#include "test/mocks/DCCEXProtocol.h"
 #include "test/mocks/MockButton.h"
 #include "test/mocks/MockRotaryEncoder.h"
-#include <DCCEXProtocol.h>
+#include "test/mocks/Stream.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -28,19 +29,24 @@ protected:
   MockButton *button;
   MockRotaryEncoder *encoder;
   Throttle *throttle;
+  Stream csConnection;
+  DCCEXProtocol *csClient;
 
   // Optional setup method
   void SetUp() override {
     button = new MockButton;
     encoder = new MockRotaryEncoder;
-    throttle = new Throttle(0, button, encoder, 1, 2, 5);
+    csClient = new DCCEXProtocol;
+    csClient->connect(&csConnection);
+    throttle = new Throttle(0, button, encoder, csClient, nullptr, 1, 2, 5);
   }
 
   // Optional teardown method
   void TearDown() override {
+    delete csClient;
     delete throttle;
-    delete button;
     delete encoder;
+    delete button;
   }
 };
 

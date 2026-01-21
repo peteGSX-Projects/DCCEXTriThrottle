@@ -71,11 +71,11 @@ protected:
     csClient->connect(&csConnection);
     connectionManager = new ConnectionManager(csClient, eventManager, logger);
     menuManager = new MenuManager(eventManager, logger);
-    throttles[0] = new Throttle(0, button1, encoder1, 1, 2, 5);
-    throttles[1] = new Throttle(1, button2, encoder2, 1, 2, 5);
-    throttles[2] = new Throttle(2, button3, encoder3, 1, 2, 5);
+    throttles[0] = new Throttle(0, button1, encoder1, csClient, logger, 1, 2, 5);
+    throttles[1] = new Throttle(1, button2, encoder2, csClient, logger, 1, 2, 5);
+    throttles[2] = new Throttle(2, button3, encoder3, csClient, logger, 1, 2, 5);
     appOrchestrator = new AppOrchestrator(display, keypad, logger, NUM_THROTTLES, throttles, connectionManager,
-                                          eventManager, menuManager);
+                                          eventManager, menuManager, csClient);
 
     // Initialise
     logger->setOutput(&console);

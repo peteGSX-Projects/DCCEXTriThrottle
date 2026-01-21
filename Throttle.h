@@ -33,17 +33,19 @@ class Throttle {
 public:
   /**
    * @brief Construct a new Throttle object
-   * param index Index of this Throttle instance
+   * @param index Index of this Throttle instance
    * @param confirmer Pointer to a class instance extending the UserConfirmationInterface class
    * @param selector Pointer to a class instance extending the UserSelectionInterface class
+   * @param commandStationClient Pointer to the DCCEXProtocol instance for the application
    * @param throttleStep Number to change the speed by for a normal speed change - UserSelectionAction::Up|Down
    * @param throttleStepFaster Number to change the speed by for a faster speed change -
    * UserSelectionAction::UpFaster|DownFaster
    * @param throttleStepFastest Number to change the speed by for the fastest speed change -
    * UserSelectionAction::UpFastest|DownFastest
    */
-  Throttle(int index, UserConfirmationInterface *confirmer, UserSelectionInterface *selector, uint8_t throttleStep,
-           uint8_t throttleStepFaster, uint8_t throttleStepFastest);
+  Throttle(int index, UserConfirmationInterface *confirmer, UserSelectionInterface *selector,
+           DCCEXProtocol *commandStationClient, Logger *logger, uint8_t throttleStep, uint8_t throttleStepFaster,
+           uint8_t throttleStepFastest);
 
   /**
    * @brief Set the Consist object
@@ -119,12 +121,6 @@ public:
   void update();
 
   /**
-   * @brief Set the Logger object
-   * @param logger Pointer to the logger instance
-   */
-  void setLogger(Logger *logger);
-
-  /**
    * @brief Destroy the Throttle object
    */
   ~Throttle();
@@ -133,6 +129,8 @@ private:
   int _index;
   UserConfirmationInterface *_confirmer;
   UserSelectionInterface *_selector;
+  DCCEXProtocol *_commandStationClient;
+  Logger *_logger;
   uint8_t _throttleStep;
   uint8_t _throttleStepFaster;
   uint8_t _throttleStepFastest;
@@ -142,7 +140,6 @@ private:
   bool _speedChanged;
   Direction _direction;
   bool _directionChanged;
-  Logger *_logger;
   bool _locoChanged;
 
   /**

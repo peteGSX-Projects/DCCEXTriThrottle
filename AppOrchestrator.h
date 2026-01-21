@@ -38,9 +38,21 @@ enum class AppState { Startup, Throttle, ConnectionError, Menu };
  */
 class AppOrchestrator : public EventListener {
 public:
+  /**
+   * @brief Construct a new App Orchestrator object
+   * @param displayInterface Pointer to the physical implementation instance of the DisplayInterface
+   * @param UserInputInterface Pointer to the physical implementation instance of the UserInputInterface (eg. keypad)
+   * @param logger Pointer to the Logger instance for the application
+   * @param numThrottles Number of throttles for the application (at the moment must be 3)
+   * @param throttles Array of pointers to Throttle instances
+   * @param connectionManager Pointer to the ConnectionManager instance for the application
+   * @param eventManager Pointer to the EventManager instance for the application
+   * @param menuManager Pointer to the MenuManager instance for the application
+   * @param commandStationClient Pointer to the DCCEXProtocol instance for the application
+   */
   AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *UserInputInterface, Logger *logger,
                   int numThrottles, Throttle **throttles, ConnectionManager *connectionManager,
-                  EventManager *eventManager, MenuManager *menuManager);
+                  EventManager *eventManager, MenuManager *menuManager, DCCEXProtocol *commandStationClient);
 
   /**
    * @brief Call any associated begin or initialisation methods
@@ -80,6 +92,7 @@ private:
   ConnectionManager *_connectionManager;
   EventManager *_eventManager;
   MenuManager *_menuManager;
+  DCCEXProtocol *_commandStationClient;
 
   // Methods
   /**

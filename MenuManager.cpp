@@ -119,6 +119,7 @@ void MenuManager::createRosterMenu(Loco *roster) {
     return;
 
   for (Loco *loco = roster; loco; loco = loco->getNext()) {
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::createRosterMenu(): add loco %s", loco->getName());
     _rosterMenu->addItem(new LocoMenuItem(loco));
   }
 }

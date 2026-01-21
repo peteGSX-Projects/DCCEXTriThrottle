@@ -21,10 +21,10 @@
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
                                  Logger *logger, int numThrottles, Throttle **throttles,
                                  ConnectionManager *connectionManager, EventManager *eventManager,
-                                 MenuManager *menuManager)
+                                 MenuManager *menuManager, DCCEXProtocol *commandStationClient)
     : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger),
       _numThrottles(numThrottles), _throttles(throttles), _connectionManager(connectionManager),
-      _eventManager(eventManager), _menuManager(menuManager) {
+      _eventManager(eventManager), _menuManager(menuManager), _commandStationClient(commandStationClient) {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
 }
@@ -121,9 +121,10 @@ void AppOrchestrator::onEvent(Event &event) {
     break;
   }
   case EventType::ReceivedRosterList: {
-    DCCEXProtocol *csClient = _connectionManager->getCommandStationClient();
-    Loco *roster = csClient->roster;
-    _menuManager->createRosterMenu(roster);
+    if (_commandStationClient != nullptr) {
+      Loco *roster = _commandStationClient->roster;
+      _menuManager->createRosterMenu(roster);
+    }
     break;
   }
   default: {
