@@ -62,11 +62,17 @@ bool Throttle::isSpeedPending() {
 
 bool Throttle::speedChanged() { return _speedChanged; }
 
+void Throttle::resetSpeedChanged() { _speedChanged = false; }
+
 Direction Throttle::getDirection() { return _direction; }
 
 bool Throttle::directionChanged() { return _directionChanged; }
 
+void Throttle::resetDirectionChanged() { _directionChanged = false; }
+
 bool Throttle::locoChanged() { return _locoChanged; }
+
+void Throttle::resetLocoChanged() { _locoChanged = false; }
 
 void Throttle::HandleUserInputAction(UserInputInterface::UserInputAction action) {}
 
@@ -85,6 +91,38 @@ void Throttle::_handleUserConfirmationAction(UserConfirmationInterface::UserConf
 
   if (action != UserConfirmationInterface::UserConfirmationAction::None) {
     LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserConfirmationAction(): %d", _index, action);
+
+    switch (action) {
+    case UserConfirmationInterface::UserConfirmationAction::SingleClick: {
+      if (_speed > 0) {
+        LOG(LogLevel::LOG_DEBUG, "Throttle(%d) Encoder single click while loco moving, stopping loco", _index);
+        _speed = 0;
+        _speedChanged = true;
+      } else {
+        LOG(LogLevel::LOG_DEBUG, "Throttle(%d) Encoder single click while loco stopped, changing direction", _index);
+        if (_direction == Direction::Forward) {
+          _direction = Direction::Reverse;
+        } else {
+          _direction = Direction::Forward;
+        }
+        _directionChanged = true;
+      }
+      _setThrottle();
+      break;
+    }
+    case UserConfirmationInterface::UserConfirmationAction::LongClick: {
+      LOG(LogLevel::LOG_DEBUG, "Throttle(%d) EStop", _index);
+      if (_speed > 0) {
+        _speed = 1;
+        _speedChanged = true;
+        _setThrottle();
+      }
+      break;
+    }
+    default: {
+      break;
+    }
+    }
   }
 }
 
@@ -146,12 +184,15 @@ void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionA
     if (_speed != (uint8_t)newSpeed) {
       _speed = newSpeed;
       _speedChanged = true;
+      _setThrottle();
     }
+  }
+}
 
-    if (_loco) {
-      _commandStationClient->setThrottle(_loco, _speed, _direction);
-    } else if (_consist) {
-      _commandStationClient->setThrottle(_consist, _speed, _direction);
-    }
+void Throttle::_setThrottle() {
+  if (_loco) {
+    _commandStationClient->setThrottle(_loco, _speed, _direction);
+  } else if (_consist) {
+    _commandStationClient->setThrottle(_consist, _speed, _direction);
   }
 }

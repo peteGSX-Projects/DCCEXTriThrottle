@@ -31,7 +31,9 @@ protected:
   Throttle *throttle;
   Stream csConnection;
   DCCEXProtocol *csClient;
-  Loco *loco;
+  Loco *loco3;
+  Loco *loco100;
+  Consist *consist;
 
   // Optional setup method
   void SetUp() override {
@@ -40,12 +42,16 @@ protected:
     csClient = new DCCEXProtocol;
     csClient->connect(&csConnection);
     throttle = new Throttle(0, button, encoder, csClient, nullptr, 1, 2, 5);
-    loco = new Loco(3, LocoSource::LocoSourceEntry);
+    loco3 = new Loco(3, LocoSource::LocoSourceEntry);
+    loco100 = new Loco(100, LocoSource::LocoSourceEntry);
+    consist = new Consist;
+    consist->addLoco(loco3, Facing::FacingForward);
+    consist->addLoco(loco100, Facing::FacingReversed);
   }
 
   // Optional teardown method
   void TearDown() override {
-    delete loco;
+    delete consist;
     delete csClient;
     delete throttle;
     delete encoder;
@@ -70,7 +76,7 @@ TEST_F(ThrottleTests, TestInitialState) {
  * @brief Test the speed changes by the correct increments
  */
 TEST_F(ThrottleTests, TestSpeedChanges) {
-  throttle->setLoco(loco);
+  throttle->setLoco(loco3);
 
   // Simulate up one normal speed
   encoder->setInputAction(UserSelectionInterface::UserSelectionAction::Up);
@@ -91,5 +97,98 @@ TEST_F(ThrottleTests, TestSpeedChanges) {
   encoder->setInputAction(UserSelectionInterface::UserSelectionAction::UpFastest);
   throttle->update();
   EXPECT_EQ(throttle->getSpeed(), 8);
+  EXPECT_TRUE(throttle->speedChanged());
+}
+
+/**
+ * @brief Test DCC speed limits 0 - 126 are enforced
+ */
+TEST_F(ThrottleTests, TestDCCSpeedLimits) {
+  throttle->setLoco(loco100);
+
+  // Attempt to increase speed beyond 126
+  for (int i = 0; i < 130; i++) {
+    encoder->setInputAction(UserSelectionInterface::UserSelectionAction::Up);
+    throttle->update();
+  }
+
+  // Validate top speed is 126
+  EXPECT_EQ(throttle->getSpeed(), 126);
+
+  // Attempt to decrease below 0
+  for (int i = 0; i < 130; i++) {
+    encoder->setInputAction(UserSelectionInterface::UserSelectionAction::Down);
+    throttle->update();
+  }
+
+  // Validate speed is now 0
+  EXPECT_EQ(throttle->getSpeed(), 0);
+}
+
+/**
+ * @brief When the speed is 0, single button press should change direction
+ */
+TEST_F(ThrottleTests, TestDirectionChange) {
+  // Test startup is forward
+  throttle->setLoco(loco3);
+  EXPECT_EQ(throttle->getDirection(), Direction::Forward);
+
+  // Button click should reverse
+  button->setInputAction(UserConfirmationInterface::UserConfirmationAction::SingleClick);
+  throttle->update();
+  EXPECT_EQ(throttle->getDirection(), Direction::Reverse);
+  EXPECT_TRUE(throttle->directionChanged());
+  throttle->resetDirectionChanged();
+  
+  // Reset button action before speed change
+  button->setInputAction(UserConfirmationInterface::UserConfirmationAction::None);
+
+  // Now increase speed and single click should not change direction
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::UpFastest);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 5);
+  button->setInputAction(UserConfirmationInterface::UserConfirmationAction::SingleClick);
+  throttle->update();
+  EXPECT_EQ(throttle->getDirection(), Direction::Reverse);
+  EXPECT_FALSE(throttle->directionChanged());
+}
+
+/**
+ * @brief Test an encoder single click sets speed to 0
+ */
+TEST_F(ThrottleTests, TestNormalStop) {
+  throttle->setLoco(loco3);
+
+  // Set a speed
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::UpFastest);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 5);
+
+  // Clean encoder input and do single click
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::None);
+  button->setInputAction(UserConfirmationInterface::UserConfirmationAction::SingleClick);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 0);
+  EXPECT_EQ(throttle->getDirection(), Direction::Forward);
+  EXPECT_TRUE(throttle->speedChanged());
+}
+
+/**
+ * @brief Test an encoder long click performs EStop
+ */
+TEST_F(ThrottleTests, TestEStop) {
+  throttle->setLoco(loco100);
+
+  // Set a speed
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::UpFastest);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 5);
+
+  // Clean encoder input and do long click
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::None);
+  button->setInputAction(UserConfirmationInterface::UserConfirmationAction::LongClick);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 1);
+  EXPECT_EQ(throttle->getDirection(), Direction::Forward);
   EXPECT_TRUE(throttle->speedChanged());
 }

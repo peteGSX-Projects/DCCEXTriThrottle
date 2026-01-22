@@ -91,6 +91,11 @@ public:
   bool speedChanged();
 
   /**
+   * @brief Reset the speed changed attribute to false
+   */
+  void resetSpeedChanged();
+
+  /**
    * @brief Get the Direction object
    * @return Direction Get the current direction of this throttle
    */
@@ -103,11 +108,21 @@ public:
   bool directionChanged();
 
   /**
+   * @brief Reset the direction changed attribute to false
+   */
+  void resetDirectionChanged();
+
+  /**
    * @brief Check if the associated loco has changed
    * @return true
    * @return false
    */
   bool locoChanged();
+
+  /**
+   * @brief Reset the loco changed attribute to false
+   */
+  void resetLocoChanged();
 
   /**
    * @brief Handle user input interactions for this Throttle instance
@@ -153,6 +168,11 @@ private:
    * @param action Valid UserSelectionInterface::UserSelectionAction
    */
   void _handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action);
+
+  /**
+   * @brief Helper method to send setThrottle()
+   */
+  void _setThrottle();
 };
 
 #endif // THROTTLE_H
