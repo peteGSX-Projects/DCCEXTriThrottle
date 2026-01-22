@@ -31,6 +31,7 @@ protected:
   Throttle *throttle;
   Stream csConnection;
   DCCEXProtocol *csClient;
+  Loco *loco;
 
   // Optional setup method
   void SetUp() override {
@@ -39,10 +40,12 @@ protected:
     csClient = new DCCEXProtocol;
     csClient->connect(&csConnection);
     throttle = new Throttle(0, button, encoder, csClient, nullptr, 1, 2, 5);
+    loco = new Loco(3, LocoSource::LocoSourceEntry);
   }
 
   // Optional teardown method
   void TearDown() override {
+    delete loco;
     delete csClient;
     delete throttle;
     delete encoder;
@@ -61,4 +64,32 @@ TEST_F(ThrottleTests, TestInitialState) {
   EXPECT_EQ(throttle->getDirection(), Direction::Forward);
   EXPECT_EQ(throttle->directionChanged(), false);
   EXPECT_EQ(throttle->locoChanged(), false);
+}
+
+/**
+ * @brief Test the speed changes by the correct increments
+ */
+TEST_F(ThrottleTests, TestSpeedChanges) {
+  throttle->setLoco(loco);
+
+  // Simulate up one normal speed
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::Up);
+
+  // Validate change
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 1);
+  EXPECT_TRUE(throttle->speedChanged());
+
+  // Up faster
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::UpFaster);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 3);
+  EXPECT_TRUE(throttle->speedChanged());
+
+  // Up fastest
+  // Up faster
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::UpFastest);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 8);
+  EXPECT_TRUE(throttle->speedChanged());
 }

@@ -80,13 +80,78 @@ void Throttle::update() {
 Throttle::~Throttle() {}
 
 void Throttle::_handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action) {
+  if (!_loco && !_consist)
+    return;
+
   if (action != UserConfirmationInterface::UserConfirmationAction::None) {
     LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserConfirmationAction(): %d", _index, action);
   }
 }
 
 void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action) {
+  if (!_loco && !_consist)
+    return;
+
   if (action != UserSelectionInterface::UserSelectionAction::None) {
     LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserSelectionAction(): %d", _index, action);
+    uint8_t step = 0;
+    bool increase = true;
+
+    switch (action) {
+    case UserSelectionInterface::UserSelectionAction::Up: {
+      step = _throttleStep;
+      break;
+    }
+    case UserSelectionInterface::UserSelectionAction::UpFaster: {
+      step = _throttleStepFaster;
+      break;
+    }
+    case UserSelectionInterface::UserSelectionAction::UpFastest: {
+      step = _throttleStepFastest;
+      break;
+    }
+    case UserSelectionInterface::UserSelectionAction::Down: {
+      step = _throttleStep;
+      increase = false;
+      break;
+    }
+    case UserSelectionInterface::UserSelectionAction::DownFaster: {
+      step = _throttleStepFaster;
+      increase = false;
+      break;
+    }
+    case UserSelectionInterface::UserSelectionAction::DownFastest: {
+      step = _throttleStepFastest;
+      increase = false;
+      break;
+    }
+    default: {
+      LOG(LogLevel::LOG_DEBUG, "Unknown UserSelectionAction %d", action);
+      break;
+    }
+    }
+
+    int newSpeed = _speed;
+    if (increase) {
+      newSpeed += step;
+    } else {
+      newSpeed -= step;
+    }
+
+    if (newSpeed > 126)
+      newSpeed = 126;
+    if (newSpeed < 0)
+      newSpeed = 0;
+
+    if (_speed != (uint8_t)newSpeed) {
+      _speed = newSpeed;
+      _speedChanged = true;
+    }
+
+    if (_loco) {
+      _commandStationClient->setThrottle(_loco, _speed, _direction);
+    } else if (_consist) {
+      _commandStationClient->setThrottle(_consist, _speed, _direction);
+    }
   }
 }

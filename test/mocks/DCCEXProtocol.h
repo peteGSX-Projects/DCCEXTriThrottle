@@ -183,6 +183,10 @@ public:
     }
   }
 
+  virtual void setThrottle(Loco *loco, int speed, Direction direction) {}
+
+  virtual void setThrottle(Consist *consist, int speed, Direction direction) {}
+
   /// @brief Linked list of Loco objects to form the roster
   Loco *roster = nullptr;
 
