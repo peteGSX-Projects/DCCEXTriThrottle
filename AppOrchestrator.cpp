@@ -132,6 +132,14 @@ void AppOrchestrator::onEvent(Event &event) {
   case EventType::ReceivedRosterList: {
     break;
   }
+  case EventType::LocoSelected: {
+    if (_throttles) {
+      int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
+      Loco *loco = event.eventData.selectLocoValue.loco;
+      _throttles[throttleIndex]->setLoco(loco);
+      _switchState(AppState::Throttle);
+    }
+  }
   default: {
     LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received");
   }
