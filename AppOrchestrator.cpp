@@ -139,9 +139,10 @@ void AppOrchestrator::onEvent(Event &event) {
       _throttles[throttleIndex]->setLoco(loco);
       _switchState(AppState::Throttle);
     }
+    break;
   }
   default: {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received");
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %s", eventTypeToString(event.eventType));
   }
   }
 }
@@ -174,7 +175,7 @@ void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent ev
     break;
   }
   default: {
-    LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_handleThrottleState() unhandled key pressed: %c", event.key);
+    break;
   }
   }
 }

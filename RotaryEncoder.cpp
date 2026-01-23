@@ -19,11 +19,10 @@
 
 #include "RotaryEncoder.h"
 
-RotaryEncoder::RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode mode, byte inputMode)
-    : _dtPin(dtPin), _clkPin(clkPin), _mode(mode), _inputMode(inputMode), _state(R_START),
+RotaryEncoder::RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode mode, Logger *logger, byte inputMode)
+    : _dtPin(dtPin), _clkPin(clkPin), _mode(mode), _logger(logger), _inputMode(inputMode), _state(R_START),
       _throttleStepFasterThreshold(THROTTLE_STEP_FASTER_THRESHOLD),
       _throttleStepFastestThreshold(THROTTLE_STEP_FASTEST_THRESHOLD), _lastUpThrottleStep(0), _lastDownThrottleStep(0) {
-  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::RotaryEncoder(%d, %d, %d, %d)", _dtPin, _clkPin, _mode, _inputMode);
 }
 
 void RotaryEncoder::begin() {
@@ -61,7 +60,7 @@ UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {
   UserSelectionAction action = UserSelectionAction::None;
   unsigned long currentMillis = millis();
   Direction result = checkDirection();
-  if (result == Direction::CW) {
+  if (result == Direction::CCW) {
     unsigned long timeDifference = currentMillis - _lastDownThrottleStep;
     if (timeDifference < _throttleStepFastestThreshold) {
       action = UserSelectionAction::DownFastest;
@@ -71,7 +70,7 @@ UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {
       action = UserSelectionAction::Down;
     }
     _lastDownThrottleStep = currentMillis;
-  } else if (result == Direction::CCW) {
+  } else if (result == Direction::CW) {
     unsigned long timeDifference = currentMillis - _lastUpThrottleStep;
     if (timeDifference < _throttleStepFastestThreshold) {
       action = UserSelectionAction::UpFastest;

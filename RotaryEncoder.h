@@ -139,9 +139,10 @@ public:
    * @param dtPin Pin to connect to the rotary encoder's DT output
    * @param clkPin Pin to connect to the rotary encoder's CLK output
    * @param mode Operating mode for the rotary encoder, FullStep or HalfStep
+   * @param logger Pointer to the application Logger instance
    * @param inputMode Input mode for the rotary encoder pins (default INPUT_PULLUP)
    */
-  RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode mode, byte inputMode = INPUT_PULLUP);
+  RotaryEncoder(uint8_t dtPin, uint8_t clkPin, RotaryEncoder::Mode mode, Logger *logger, byte inputMode = INPUT_PULLUP);
 
   /**
    * @brief Initialise input pins and set initial state
@@ -170,6 +171,7 @@ private:
   const uint8_t _dtPin;
   const uint8_t _clkPin;
   RotaryEncoder::Mode _mode;
+  Logger *_logger;
   const byte _inputMode;
   uint8_t _state;
   unsigned long _throttleStepFasterThreshold;
