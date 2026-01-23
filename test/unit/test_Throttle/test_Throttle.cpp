@@ -15,6 +15,7 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "Arduino.h"
 #include "Throttle.h"
 #include "test/mocks/DCCEXProtocol.h"
 #include "test/mocks/MockButton.h"
@@ -37,6 +38,7 @@ protected:
 
   // Optional setup method
   void SetUp() override {
+    millis();
     button = new MockButton;
     encoder = new MockRotaryEncoder;
     csClient = new DCCEXProtocol;
@@ -139,7 +141,7 @@ TEST_F(ThrottleTests, TestDirectionChange) {
   EXPECT_EQ(throttle->getDirection(), Direction::Reverse);
   EXPECT_TRUE(throttle->directionChanged());
   throttle->resetDirectionChanged();
-  
+
   // Reset button action before speed change
   button->setInputAction(UserConfirmationInterface::UserConfirmationAction::None);
 
@@ -188,7 +190,53 @@ TEST_F(ThrottleTests, TestEStop) {
   encoder->setInputAction(UserSelectionInterface::UserSelectionAction::None);
   button->setInputAction(UserConfirmationInterface::UserConfirmationAction::LongClick);
   throttle->update();
-  EXPECT_EQ(throttle->getSpeed(), 1);
+  EXPECT_EQ(throttle->getSpeed(), -1);
   EXPECT_EQ(throttle->getDirection(), Direction::Forward);
   EXPECT_TRUE(throttle->speedChanged());
+}
+
+/**
+ * @brief Test the speed pending flag is set/reset correctly by user input vs. loco speed
+ */
+TEST_F(ThrottleTests, TestSpeedPendingLogic) {
+  // Set the initial loco speed to 10
+  loco3->setSpeed(10);
+  throttle->setLoco(loco3);
+  throttle->update();
+
+  // User increases speed
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::Up);
+  throttle->update();
+
+  EXPECT_EQ(throttle->getSpeed(), 11);
+  EXPECT_EQ(loco3->getSpeed(), 10);
+  EXPECT_TRUE(throttle->isSpeedPending());
+
+  // CS now confirms speed
+  loco3->setSpeed(11);
+  EXPECT_FALSE(throttle->isSpeedPending());
+}
+
+/**
+ * @brief Test that external changes to the Loco speed update the Throttle speed
+ */
+TEST_F(ThrottleTests, TestExternalSpeedUpdate) {
+  throttle->setLoco(loco3);
+  loco3->setSpeed(20);
+
+  // Simulate user input
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::Up);
+  throttle->update();
+  encoder->setInputAction(UserSelectionInterface::UserSelectionAction::None);
+
+  // Slight timer increment shouldn't sync speeds yet
+  advanceMillis(100);
+  throttle->update();
+  EXPECT_NE(throttle->getSpeed(), 20);
+
+  // Advance beyond 250ms threshold for sync
+  advanceMillis(200);
+  throttle->update();
+  EXPECT_EQ(throttle->getSpeed(), 20);
+  EXPECT_FALSE(throttle->isSpeedPending());
 }

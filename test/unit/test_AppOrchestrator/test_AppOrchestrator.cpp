@@ -202,3 +202,29 @@ TEST_F(AppOrchestratorTests, TestThrottleToMenu) {
   appOrchestrator->update();
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
 }
+
+/**
+ * @brief Test holding '0' will emergency stop all locos
+ */
+TEST_F(AppOrchestratorTests, TestEStopAllLocos) {
+  // Make sure the buffer is clear first
+  csConnection.clear();
+
+  // Long press of '0' in startup state should not send EStop
+  mockKeypad->setInputEvent({'0', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_FALSE(csConnection.buffer.find("<!>") != std::string::npos);
+  csConnection.clear();
+
+  // Now set connection success to move to Throttle mode and it should work
+  EXPECT_CALL(*connectionManager, getState()).WillOnce(Return(ConnectionState::Connected));
+  appOrchestrator->update();
+
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Long press of '0' should now send EStop
+  mockKeypad->setInputEvent({'0', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_TRUE(csConnection.buffer.find("<!>") != std::string::npos);
+  csConnection.clear();
+}

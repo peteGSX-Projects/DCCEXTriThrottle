@@ -152,8 +152,22 @@ void AppOrchestrator::_handleStartupState() {
 }
 
 void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent event) {
-  if (event.key == '*') {
+  switch (event.key) {
+  case '*': {
     _switchState(AppState::Menu);
+    break;
+  }
+  case '0': {
+    if (event.action == UserInputInterface::UserInputAction::Held) {
+      _commandStationClient->emergencyStop();
+    } else if (event.action == UserInputInterface::UserInputAction::Pressed) {
+      // Track power here
+    }
+    break;
+  }
+  default: {
+    LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_handleThrottleState() unhandled key pressed: %c", event.key);
+  }
   }
 }
 

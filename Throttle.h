@@ -75,7 +75,7 @@ public:
    * @brief Get the Speed object
    * @return uint8_t Get the current speed of this throttle
    */
-  uint8_t getSpeed();
+  int getSpeed();
 
   /**
    * @brief Check if the current user selected speed is different to the Loco object's speed
@@ -151,11 +151,13 @@ private:
   uint8_t _throttleStepFastest;
   Consist *_consist;
   Loco *_loco;
-  uint8_t _speed;
+  int _speed;
   bool _speedChanged;
   Direction _direction;
   bool _directionChanged;
   bool _locoChanged;
+  unsigned long _lastUserInteraction;
+  const unsigned long _SYNC_TIME = 250;
 
   /**
    * @brief Handle user confirmation interactions destined for this Throttle instance
@@ -173,6 +175,11 @@ private:
    * @brief Helper method to send setThrottle()
    */
   void _setThrottle();
+
+  /**
+   * @brief Helper method to deal with syncing user speed changes with Loco/Consist speed
+   */
+  void _syncSpeed(UserSelectionInterface::UserSelectionAction action);
 };
 
 #endif // THROTTLE_H

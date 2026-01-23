@@ -32,31 +32,44 @@ Throttle::Throttle(int index, UserConfirmationInterface *confirmer, UserSelectio
   _direction = Direction::Forward;
   _directionChanged = false;
   _locoChanged = false;
+  _lastUserInteraction = 0;
 }
 
 void Throttle::setConsist(Consist *consist) {
+  if (!consist)
+    return;
+
   _loco = nullptr;
   _consist = consist;
   _locoChanged = true;
+  _speed = _consist->getSpeed();
+  _direction = _consist->getDirection();
+  _lastUserInteraction = 0;
 }
 
 Consist *Throttle::getConsist() { return _consist; }
 
 void Throttle::setLoco(Loco *loco) {
+  if (!loco)
+    return;
+
   _consist = nullptr;
   _loco = loco;
   _locoChanged = true;
+  _speed = _loco->getSpeed();
+  _direction = _loco->getDirection();
+  _lastUserInteraction = 0;
 }
 
 Loco *Throttle::getLoco() { return _loco; }
 
-uint8_t Throttle::getSpeed() { return _speed; }
+int Throttle::getSpeed() { return _speed; }
 
 bool Throttle::isSpeedPending() {
   if (!_loco && !_consist)
     return false;
 
-  uint8_t realSpeed = (_loco != nullptr) ? _loco->getSpeed() : _consist->getSpeed();
+  int realSpeed = (_loco != nullptr) ? _loco->getSpeed() : _consist->getSpeed();
   return _speed != realSpeed;
 }
 
@@ -78,9 +91,17 @@ void Throttle::HandleUserInputAction(UserInputInterface::UserInputAction action)
 
 void Throttle::update() {
   UserConfirmationInterface::UserConfirmationAction confirm = _confirmer->check();
-  _handleUserConfirmationAction(confirm);
   UserSelectionInterface::UserSelectionAction select = _selector->check();
+
+  if (confirm != UserConfirmationInterface::UserConfirmationAction::None ||
+      select != UserSelectionInterface::UserSelectionAction::None) {
+    _lastUserInteraction = millis();
+  }
+
+  _handleUserConfirmationAction(confirm);
   _handleUserSelectionAction(select);
+
+  _syncSpeed(select);
 }
 
 Throttle::~Throttle() {}
@@ -112,11 +133,9 @@ void Throttle::_handleUserConfirmationAction(UserConfirmationInterface::UserConf
     }
     case UserConfirmationInterface::UserConfirmationAction::LongClick: {
       LOG(LogLevel::LOG_DEBUG, "Throttle(%d) EStop", _index);
-      if (_speed > 0) {
-        _speed = 1;
-        _speedChanged = true;
-        _setThrottle();
-      }
+      _speed = -1;
+      _speedChanged = true;
+      _setThrottle();
       break;
     }
     default: {
@@ -132,7 +151,7 @@ void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionA
 
   if (action != UserSelectionInterface::UserSelectionAction::None) {
     LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserSelectionAction(): %d", _index, action);
-    uint8_t step = 0;
+    int step = 0;
     bool increase = true;
 
     switch (action) {
@@ -181,7 +200,7 @@ void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionA
     if (newSpeed < 0)
       newSpeed = 0;
 
-    if (_speed != (uint8_t)newSpeed) {
+    if (_speed != newSpeed) {
       _speed = newSpeed;
       _speedChanged = true;
       _setThrottle();
@@ -194,5 +213,24 @@ void Throttle::_setThrottle() {
     _commandStationClient->setThrottle(_loco, _speed, _direction);
   } else if (_consist) {
     _commandStationClient->setThrottle(_consist, _speed, _direction);
+  }
+}
+
+void Throttle::_syncSpeed(UserSelectionInterface::UserSelectionAction action) {
+  if (!_loco && !_consist)
+    return;
+
+  int realSpeed = 0;
+  if (_loco) {
+    realSpeed = _loco->getSpeed();
+  } else {
+    realSpeed = _consist->getSpeed();
+  }
+
+  if (action == UserSelectionInterface::UserSelectionAction::None && _speed != realSpeed) {
+    if (millis() - _lastUserInteraction > _SYNC_TIME) {
+      _speed = realSpeed;
+      _speedChanged = true;
+    }
   }
 }

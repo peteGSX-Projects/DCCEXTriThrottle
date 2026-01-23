@@ -187,6 +187,12 @@ public:
 
   virtual void setThrottle(Consist *consist, int speed, Direction direction) {}
 
+  virtual void emergencyStop() {
+    if (_stream) {
+      _stream->print("<!>");
+    }
+  }
+
   /// @brief Linked list of Loco objects to form the roster
   Loco *roster = nullptr;
 
