@@ -92,16 +92,19 @@ void setup() {
   // Throttle 0 hardware
   static Button button0(ENCODER1_BUTTON);
   static RotaryEncoder encoder0(ENCODER1_DT, ENCODER1_CLK, encoderMode, &logger);
+  button0.begin();
   encoder0.begin();
 
   // Throttle 1 hardware
   static Button button1(ENCODER2_BUTTON);
   static RotaryEncoder encoder1(ENCODER2_DT, ENCODER2_CLK, encoderMode, &logger);
+  button1.begin();
   encoder1.begin();
 
   // Throttle 2 hardware
   static Button button2(ENCODER3_BUTTON);
   static RotaryEncoder encoder2(ENCODER3_DT, ENCODER3_CLK, encoderMode, &logger);
+  button2.begin();
   encoder2.begin();
 
   // Invert throttle direction if configured

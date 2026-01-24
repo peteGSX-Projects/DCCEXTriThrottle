@@ -25,6 +25,14 @@ Button::Button(byte pin) {
                        BUTTON_DOUBLE_CLICK_PERIOD, BUTTON_DEGLITCH_PERIOD);
 }
 
+void Button::begin() {
+  if (!_button)
+    return;
+
+  _button->poll();
+  this->check();
+}
+
 UserConfirmationInterface::UserConfirmationAction Button::check() {
   UserConfirmationAction action = UserConfirmationAction::None;
   if (!_button)

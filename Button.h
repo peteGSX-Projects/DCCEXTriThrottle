@@ -60,9 +60,9 @@ public:
   Button(byte pin);
 
   /**
-   * @brief Initialise the button pin - doesn't do anything for Switch objects
+   * @brief Initialise the button pin to set initial timers
    */
-  void begin() override {}
+  void begin() override;
 
   /**
    * @brief Call check() frequently to check for button events
