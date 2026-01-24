@@ -32,19 +32,10 @@ AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputIn
 void AppOrchestrator::begin() {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::begin()");
 
-  // Subscribe to events first
-  _eventManager->subscribe(this, EventType::CommandStationConnected);
-  _eventManager->subscribe(this, EventType::ReceivedRosterList);
-  _eventManager->subscribe(this, EventType::LocoSelected);
-  _eventManager->subscribe(this, EventType::ReceivedLocoUpdate);
-  _eventManager->subscribe(this, EventType::ReceivedTrackPower);
-  _eventManager->subscribe(this, EventType::ReceivedReadLoco);
-  _eventManager->subscribe(this, EventType::ToggleTrackPower);
-  _eventManager->subscribe(this, EventType::ReceivedLocoBroadcast);
-  _eventManager->subscribe(this, EventType::ConnectionRetry);
-  _eventManager->subscribe(this, EventType::ReadLocoRetry);
-  _eventManager->subscribe(this, EventType::ExitMenu);
-  _eventManager->subscribe(this, EventType::MenuRefreshRequired);
+  // Auto subscribe to events first
+  for (int i = 0; i < EventType::EVENT_TYPE_COUNT; i++) {
+    _eventManager->subscribe(this, static_cast<EventType>(i));
+  }
 
   if (_displayInterface) {
     _displayInterface->begin();
@@ -137,12 +128,14 @@ void AppOrchestrator::onEvent(Event &event) {
       int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
       Loco *loco = event.eventData.selectLocoValue.loco;
       _throttles[throttleIndex]->setLoco(loco);
+      _menuManager->reset();
       _switchState(AppState::Throttle);
     }
     break;
   }
   default: {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %s", eventTypeToString(event.eventType));
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %s",
+        eventTypeToString(event.eventType));
   }
   }
 }
@@ -209,7 +202,7 @@ void AppOrchestrator::_displayCurrentState() {
     break;
   }
   case AppState::Throttle: {
-    _displayInterface->displayThrottleScreen();
+    _displayInterface->displayThrottleScreen(_throttles);
     break;
   }
   case AppState::ConnectionError: {
@@ -227,14 +220,11 @@ void AppOrchestrator::_displayCurrentState() {
 
 void AppOrchestrator::_updateThrottleDisplay() {
   for (int i = 0; i < _numThrottles; i++) {
-    if (_throttles[i]->speedChanged()) {
+    if (_throttles[i]->speedChanged() || _throttles[i]->directionChanged() || _throttles[i]->locoChanged()) {
       _displayInterface->updateThrottleScreen(i, _throttles[i]);
-    }
-    if (_throttles[i]->directionChanged()) {
-      _displayInterface->updateThrottleScreen(i, _throttles[i]);
-    }
-    if (_throttles[i]->locoChanged()) {
-      _displayInterface->updateThrottleScreen(i, _throttles[i]);
+      _throttles[i]->resetSpeedChanged();
+      _throttles[i]->resetDirectionChanged();
+      _throttles[i]->resetLocoChanged();
     }
   }
 }

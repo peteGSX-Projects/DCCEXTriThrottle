@@ -62,17 +62,31 @@ void U8G2SH1106Display::clear() {
   _oled->sendBuffer();
 }
 
-void U8G2SH1106Display::displayThrottleScreen() {
+void U8G2SH1106Display::displayThrottleScreen(Throttle **throttles) {
   _oled->clear();
   for (int i = 0; i < _numThrottles; i++) {
-    _displayThrottleSpeed(i, 0);
-    _displayThrottleDirection(i, Direction::Forward);
-    _displayThrottleAddress(i, 0, false);
+    updateThrottleScreen(i, throttles[i], true);
   }
   updateThrottleTrackPower(TrackPower::PowerUnknown);
 }
 
-void U8G2SH1106Display::updateThrottleScreen(int throttleIndex, Throttle *throttle) {}
+void U8G2SH1106Display::updateThrottleScreen(int throttleIndex, Throttle *throttle, bool force) {
+  if (throttle->speedChanged() || force) {
+    _displayThrottleSpeed(throttleIndex, throttle->getSpeed());
+  }
+  if (throttle->directionChanged() || force) {
+    _displayThrottleDirection(throttleIndex, throttle->getDirection());
+  }
+  if (throttle->locoChanged() || force) {
+    if (throttle->getLoco()) {
+      _displayThrottleAddress(throttleIndex, throttle->getLoco()->getAddress(), false);
+    } else if (throttle->getConsist()) {
+      _displayThrottleAddress(throttleIndex, throttle->getConsist()->getFirst()->getLoco()->getAddress(), true);
+    } else {
+      _displayThrottleAddress(throttleIndex, 0, false);
+    }
+  }
+}
 
 void U8G2SH1106Display::updateThrottleTrackPower(TrackPower state) {
   _oled->setFont(MENU_FONT);

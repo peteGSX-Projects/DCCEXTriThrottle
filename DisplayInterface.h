@@ -40,15 +40,17 @@ public:
 
   /**
    * @brief Display the throttle screen
+   * @param throttles Array containing pointers to the Throttle instances
    */
-  virtual void displayThrottleScreen() = 0;
+  virtual void displayThrottleScreen(Throttle **throttles) = 0;
 
   /**
    * @brief Update the display for the specified throttle
    * @param throttleIndex Index of the throttle being updated
    * @param throttle Pointer to the Throttle instance
+   * @param force Flag if all items should be updated regardless of changes
    */
-  virtual void updateThrottleScreen(int throttleIndex, Throttle *throttle) = 0;
+  virtual void updateThrottleScreen(int throttleIndex, Throttle *throttle, bool force = false) = 0;
 
   /**
    * @brief Update the state of track power on the throttle screen

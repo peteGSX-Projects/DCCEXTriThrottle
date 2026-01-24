@@ -125,15 +125,17 @@ public:
 
   /**
    * @brief Display the throttle screen
+   * @param throttles Array containing pointers to the Throttle instances
    */
-  void displayThrottleScreen() override;
+  void displayThrottleScreen(Throttle **throttles) override;
 
   /**
    * @brief Update the specified throttle's display
    * @param throttleIndex Index of the throttle to update
    * @param throttle Pointer to the Throttle instance
+   * @param force Flag if all items should be updated regardless of changes
    */
-  void updateThrottleScreen(int throttleIndex, Throttle *throttle) override;
+  void updateThrottleScreen(int throttleIndex, Throttle *throttle, bool force = false) override;
 
   /**
    * @brief Update track power state on the throttle screen

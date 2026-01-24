@@ -45,3 +45,45 @@ TEST_F(IntegrationTestBase, TestThrottleSelectsLoco) {
   // AppOrchestrator should be in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
 }
+
+/**
+ * @brief Test selecting a loco resets the menu back to root
+ */
+TEST_F(IntegrationTestBase, TestMenuResetAfterSelectLoco) {
+  // Create the mock roster
+  csClient->createMockRoster();
+
+  // update() needs to be called 5 times to complete connection
+  for (int i = 0; i < 5; i++) {
+    appOrchestrator->update();
+  }
+
+  // We should be in Throttle state
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Navigate to the menu and first throttle instance
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Ensure the first item is the first loco
+  Menu *roster = menuManager->getCurrentMenu();
+  ASSERT_NE(roster, nullptr);
+  ASSERT_NE(roster->getFirstItem(), nullptr);
+  ASSERT_STRNE(roster->getFirstItem()->getName(), "Loco 1");
+
+  // Select first item which should go back to Throttle state
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  // First update processes event
+  appOrchestrator->update();
+  // Second update changes state
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Navigate back to the menu and ensure it is the Main Menu
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+}

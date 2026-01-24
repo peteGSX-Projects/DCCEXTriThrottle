@@ -36,7 +36,8 @@ enum EventType {
   ConnectionRetry,
   ReadLocoRetry,
   ExitMenu,
-  MenuRefreshRequired
+  MenuRefreshRequired,
+  EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin()
 };
 
 /**

@@ -123,7 +123,7 @@ TEST_F(AppOrchestratorTests, TestTransitionOnConnectionSuccess) {
       .WillOnce(Return(ConnectionState::Connected));
 
   // We expect the Throttle screen to be displayed once
-  EXPECT_CALL(*mockDisplay, displayThrottleScreen()).Times(1);
+  EXPECT_CALL(*mockDisplay, displayThrottleScreen(_)).Times(1);
 
   // First update() should be Startup
   appOrchestrator->update();
