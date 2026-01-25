@@ -98,7 +98,7 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", event.eventType);
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %d", event.eventType);
   EventType eventType = event.eventType;
   switch (eventType) {
   case EventType::CommandStationConnected: {
@@ -147,7 +147,7 @@ void AppOrchestrator::onEvent(Event &event) {
     break;
   }
   default: {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %s", event.eventType);
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %d", event.eventType);
     break;
   }
   }
@@ -337,7 +337,7 @@ void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
     return;
 
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(%s)", newState);
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(%d)", newState);
   _displayInterface->setRedraw(true);
   _currentAppState = newState;
 }

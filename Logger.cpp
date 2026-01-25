@@ -27,49 +27,31 @@ void Logger::setLogLevel(LogLevel logLevel) { _currentLevel = logLevel; }
 LogLevel Logger::getLogLevel() { return _currentLevel; }
 
 void Logger::log(LogLevel logLevel, const char *format, ...) {
-  if (_outputStream == nullptr)
+  if (_outputStream == nullptr || (logLevel > _currentLevel && logLevel != LogLevel::LOG_MESSAGE))
     return;
-  if (logLevel <= _currentLevel) {
-    // Setup the prefix
-    const char *prefix;
-    switch (logLevel) {
-    case LogLevel::LOG_MESSAGE:
-      prefix = "[MSG] ";
-      break;
-    case LogLevel::LOG_ERROR:
-      prefix = "[ERR] ";
-      break;
-    case LogLevel::LOG_WARN:
-      prefix = "[WRN] ";
-      break;
-    case LogLevel::LOG_INFO:
-      prefix = "[INF] ";
-      break;
-    case LogLevel::LOG_DEBUG:
-      prefix = "[DBG] ";
-      break;
-    default:
-      prefix = "";
-      break;
-    }
 
-    // Use fixed size buffer to save Flash
-    char buffer[64];
+  // Static lookup table for prefixes to save Flash
+  static const char *const prefixes[] = {"[MSG] ", "", "[ERR] ", "[WRN] ", "[INF] ", "[DBG] "};
 
-    // Copy prefix first
-    strncpy(buffer, prefix, sizeof(buffer));
-    size_t prefixLen = strlen(prefix);
+  // Assign the prefix pointer from the logLevel
+  const char *prefix = (logLevel >= 0 && logLevel < 6) ? prefixes[logLevel] : "";
 
-    // Format the message directly into the remaining space
-    va_list args;
-    va_start(args, format);
-    // Write into the buffer starting after the prefix
-    vsnprintf(buffer + prefixLen, sizeof(buffer) - prefixLen, format, args);
-    va_end(args);
+  // Use fixed size buffer to save Flash
+  char buffer[64];
 
-    // Output formatted message
-    _outputStream->println(buffer);
-  }
+  // Copy prefix first
+  strcpy(buffer, prefix);
+  size_t prefixLen = strlen(prefix);
+
+  // Format the message directly into the remaining space
+  va_list args;
+  va_start(args, format);
+  // Write into the buffer starting after the prefix
+  vsnprintf(buffer + prefixLen, sizeof(buffer) - prefixLen, format, args);
+  va_end(args);
+
+  // Output formatted message
+  _outputStream->println(buffer);
 }
 
 void Logger::reset() {

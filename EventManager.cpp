@@ -86,7 +86,7 @@ void EventManager::publish(EventType eventType, EventData eventData) {
   for (EventSubscriber *eventSubscriber = _firstEventSubscriber; eventSubscriber;
        eventSubscriber = eventSubscriber->next) {
     if (eventSubscriber->eventType == event.eventType) {
-      LOG(LogLevel::LOG_DEBUG, "EventManager::publish(): EventType::%s", event.eventType);
+      LOG(LogLevel::LOG_DEBUG, "EventManager::publish(): EventType::%d", event.eventType);
       eventSubscriber->eventListener->onEvent(event);
     }
   }
