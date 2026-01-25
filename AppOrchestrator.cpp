@@ -98,58 +98,44 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %d", event.eventType);
-  EventType eventType = event.eventType;
-  switch (eventType) {
-  case EventType::CommandStationConnected: {
-    if (_commandStationClient != nullptr) {
-      Loco *roster = _commandStationClient->roster->getFirst();
-      if (roster->getFirst()) {
-        LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createRosterMenu(%s)", roster->getName());
-        _menuManager->createRosterMenu(roster);
-      } else {
-        LOG(LogLevel::LOG_DEBUG, "Empty roster, cannot create menu");
-      }
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %d", (int)event.eventType);
+
+  /**
+   * @brief Define the function pointer table for all event handlers using the typedef signature
+   * @details Every slot must have a valid pointer, so this must be kept in sync with the EventType enum in
+   * EventStructure.h
+   */
+  static const EventHandler eventHandlers[] = {
+      &AppOrchestrator::_handleCommandStationConnected, // 0
+      &AppOrchestrator::_handleReceivedRosterList,      // 1
+      &AppOrchestrator::_handleLocoSelected,            // 2
+      &AppOrchestrator::_handleReceivedLocoUpdate,      // 3
+      &AppOrchestrator::_handleReceivedTrackPower,      // 4
+      &AppOrchestrator::_handleReceivedReadLoco,        // 5
+      &AppOrchestrator::_handleToggleTrackPower,        // 6
+      &AppOrchestrator::_handleReceivedLocoBroadcast,   // 7
+      &AppOrchestrator::_handleConnectionRetry,         // 8
+      &AppOrchestrator::_handleReadLocoRetry,           // 9
+      &AppOrchestrator::_handleExitMenu,                // 10
+      &AppOrchestrator::_handleMenuRefreshRequired,     // 11
+      &AppOrchestrator::_handleLocoAddressEntered,      // 12
+      &AppOrchestrator::_handleRequestStateChange,      // 13
+  };
+
+  // // Set the type index
+  int typeIndex = (int)event.eventType;
+  // // Calculate table size for the bounds check
+  const int tableSize = sizeof(eventHandlers) / sizeof(EventHandler);
+
+  // // Make sure the event type is within the bounds
+  if (typeIndex >= 0 && typeIndex < tableSize) {
+    // Call the event handler
+    EventHandler handler = eventHandlers[typeIndex];
+    if (handler != nullptr) {
+      (this->*handler)(event);
     }
-    break;
-  }
-  case EventType::ConnectionRetry: {
-    if (_currentAppState == AppState::Startup) {
-      _displayInterface->updateProgressScreen();
-    }
-    break;
-  }
-  case EventType::ExitMenu: {
-    _switchState(AppState::Throttle);
-    break;
-  }
-  case EventType::MenuRefreshRequired: {
-    _displayInterface->setRedraw(true);
-    break;
-  }
-  case EventType::ReceivedRosterList: {
-    break;
-  }
-  case EventType::LocoSelected: {
-    _handleLocoSelected(event);
-    break;
-  }
-  case EventType::LocoAddressEntered: {
-    _handleLocoAddressEntered(event);
-    break;
-  }
-  case EventType::RequestStateChange: {
-    _handleRequestStateChange(event);
-    break;
-  }
-  case EventType::ReceivedLocoBroadcast: {
-    _handleReceivedLocoBroadcast(event);
-    break;
-  }
-  default: {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %d", event.eventType);
-    break;
-  }
+  } else {
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent() unknown event: %d", typeIndex);
   }
 }
 
@@ -255,11 +241,21 @@ void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent
 
 // onEvent() handlers
 
-void AppOrchestrator::_handleCommandStationConnected() {}
+void AppOrchestrator::_handleCommandStationConnected(Event &event) {
+  if (_commandStationClient != nullptr) {
+    Loco *roster = _commandStationClient->roster->getFirst();
+    if (roster->getFirst()) {
+      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createRosterMenu(%s)", roster->getName());
+      _menuManager->createRosterMenu(roster);
+    } else {
+      LOG(LogLevel::LOG_DEBUG, "Empty roster, cannot create menu");
+    }
+  }
+}
 
-void AppOrchestrator::_handleConnectionRetry() {}
+void AppOrchestrator::_handleReceivedRosterList(Event &event) {}
 
-void AppOrchestrator::_handleLocoSelected(Event event) {
+void AppOrchestrator::_handleLocoSelected(Event &event) {
   if (_throttles) {
     int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
     Loco *newLoco = event.eventData.selectLocoValue.loco;
@@ -274,33 +270,15 @@ void AppOrchestrator::_handleLocoSelected(Event event) {
   }
 }
 
-void AppOrchestrator::_handleLocoAddressEntered(Event event) {
-  int address = event.eventData.locoAddressValue.address;
-  int throttleIndex = event.eventData.locoAddressValue.throttleIndex;
+void AppOrchestrator::_handleReceivedLocoUpdate(Event &event) {}
 
-  // Need to validate DCC address first, redirect with an error if invalid
-  if (address < 1 || address > 10239) {
-    LOG(LogLevel::LOG_WARN, "AppOrchestrator:: Invalid DCC address entered: %d", address);
-    _switchState(AppState::EnterLocoAddress);
-    _displayInterface->displayUserEntryScreen("Enter Address", "Invalid address! Retry:");
-  } else {
-    // Otherwise create the new loco with the address as the name and associate it
-    Loco *loco = new Loco(address, LocoSource::LocoSourceEntry);
-    char name[6];
-    snprintf(name, sizeof(name), "%d", address);
-    loco->setName(name);
-    Event selectEvent(EventType::LocoSelected, EventData(loco, throttleIndex));
-    _handleLocoSelected(selectEvent);
-  }
-}
+void AppOrchestrator::_handleReceivedTrackPower(Event &event) {}
 
-void AppOrchestrator::_handleRequestStateChange(Event event) {
-  AppState newState = event.eventData.stateRequestValue.state;
-  _activeContextIndex = event.eventData.stateRequestValue.contextIndex;
-  _switchState(newState);
-}
+void AppOrchestrator::_handleReceivedReadLoco(Event &event) {}
 
-void AppOrchestrator::_handleReceivedLocoBroadcast(Event event) {
+void AppOrchestrator::_handleToggleTrackPower(Event &event) {}
+
+void AppOrchestrator::_handleReceivedLocoBroadcast(Event &event) {
   LocoBroadcast broadcast = event.eventData.locoBroadcastValue;
 
   // Need to iterate through each throttle to find the Loco
@@ -326,6 +304,44 @@ void AppOrchestrator::_handleReceivedLocoBroadcast(Event event) {
       loco->setFunctionStates(broadcast.functionMap);
     }
   }
+}
+
+void AppOrchestrator::_handleConnectionRetry(Event &event) {
+  if (_currentAppState == AppState::Startup) {
+    _displayInterface->updateProgressScreen();
+  }
+}
+
+void AppOrchestrator::_handleReadLocoRetry(Event &event) {}
+
+void AppOrchestrator::_handleExitMenu(Event &event) { _switchState(AppState::Throttle); }
+
+void AppOrchestrator::_handleMenuRefreshRequired(Event &event) { _displayInterface->setRedraw(true); }
+
+void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
+  int address = event.eventData.locoAddressValue.address;
+  int throttleIndex = event.eventData.locoAddressValue.throttleIndex;
+
+  // Need to validate DCC address first, redirect with an error if invalid
+  if (address < 1 || address > 10239) {
+    LOG(LogLevel::LOG_WARN, "AppOrchestrator:: Invalid DCC address entered: %d", address);
+    _switchState(AppState::EnterLocoAddress);
+    _displayInterface->displayUserEntryScreen("Enter Address", "Invalid address! Retry:");
+  } else {
+    // Otherwise create the new loco with the address as the name and associate it
+    Loco *loco = new Loco(address, LocoSource::LocoSourceEntry);
+    char name[6];
+    snprintf(name, sizeof(name), "%d", address);
+    loco->setName(name);
+    Event selectEvent(EventType::LocoSelected, EventData(loco, throttleIndex));
+    _handleLocoSelected(selectEvent);
+  }
+}
+
+void AppOrchestrator::_handleRequestStateChange(Event &event) {
+  AppState newState = event.eventData.stateRequestValue.state;
+  _activeContextIndex = event.eventData.stateRequestValue.contextIndex;
+  _switchState(newState);
 }
 
 // General helper methods

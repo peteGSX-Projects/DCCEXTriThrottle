@@ -35,6 +35,11 @@
 class AppOrchestrator : public EventListener {
 public:
   /**
+   * @brief Define the typedef for the event handler signature which all handlers use
+   */
+  typedef void (AppOrchestrator::*EventHandler)(Event &);
+
+  /**
    * @brief Construct a new App Orchestrator object
    * @param displayInterface Pointer to the physical implementation instance of the DisplayInterface
    * @param UserInputInterface Pointer to the physical implementation instance of the UserInputInterface (eg. keypad)
@@ -144,38 +149,88 @@ private:
   // onEvent() event handlers
 
   /**
-   * @brief
+   * @brief Handle a CommandStationConnected event to setup the various object menus
+   * @param event CommandStationConnected event
    */
-  void _handleCommandStationConnected();
+  void _handleCommandStationConnected(Event &event);
 
   /**
-   * @brief
+   * @brief Handle a ReceivedRosterList event to update the Roster menu
+   * @param event ReceivedRosterList event
    */
-  void _handleConnectionRetry();
+  void _handleReceivedRosterList(Event &event);
 
   /**
    * @brief Handle a LocoSelected event to associate loco with a throttle
    * @param event Event containing SelectLocoData
    */
-  void _handleLocoSelected(Event event);
+  void _handleLocoSelected(Event &event);
 
   /**
-   * @brief Handle a LocoAddressEntered event to validate the address and associate with a throttle
-   * @param event Event containing LocoAddressData
+   * @brief Handle a ReceivedLocoUpdate event to update a roster Loco object
+   * @param event ReceivedLocoUpdate event containing the pointer to the Loco object
    */
-  void _handleLocoAddressEntered(Event event);
+  void _handleReceivedLocoUpdate(Event &event);
 
   /**
-   * @brief Handle a RequestStateChange event typically triggered by an ActionMenuItem
-   * @param event Event containing StateRequestData
+   * @brief Handle a RecievedTrackPower event to update power status
+   * @param event ReceivedTrackPower event containing the track power status
    */
-  void _handleRequestStateChange(Event event);
+  void _handleReceivedTrackPower(Event &event);
+
+  /**
+   * @brief Handle a ReceivedReadLoco event to return the loco on the programming track
+   * @param event ReceivedReadLoco event containing the loco address read (or -1 for failure)
+   */
+  void _handleReceivedReadLoco(Event &event);
+
+  /**
+   * @brief Handle a ToggleTrackPower event to change the track power state
+   * @param event ToggleTrackPower event
+   */
+  void _handleToggleTrackPower(Event &event);
 
   /**
    * @brief Handle a ReceivedLocoBroadcast event to ensure the Loco object is updated
    * @param event Event containing LocoBroadcastData
    */
-  void _handleReceivedLocoBroadcast(Event event);
+  void _handleReceivedLocoBroadcast(Event &event);
+
+  /**
+   * @brief Handle a ConnectionRetry event to update the progress screen
+   * @param event ConnectionRetry event
+   */
+  void _handleConnectionRetry(Event &event);
+
+  /**
+   * @brief Handle a ReadLocoRetry event to update the progress screen
+   * @param event ReadLocoRetry event
+   */
+  void _handleReadLocoRetry(Event &event);
+
+  /**
+   * @brief Handle an ExitMenu event to return to the Throttle screen
+   * @param event ExitMenu event
+   */
+  void _handleExitMenu(Event &event);
+
+  /**
+   * @brief Handle a MenuRefreshRequired event to redraw the current menu screen
+   * @param event MenuRefreshRequired event
+   */
+  void _handleMenuRefreshRequired(Event &event);
+
+  /**
+   * @brief Handle a LocoAddressEntered event to validate the address and associate with a throttle
+   * @param event Event containing LocoAddressData
+   */
+  void _handleLocoAddressEntered(Event &event);
+
+  /**
+   * @brief Handle a RequestStateChange event typically triggered by an ActionMenuItem
+   * @param event Event containing StateRequestData
+   */
+  void _handleRequestStateChange(Event &event);
 
   // General helper methods
 

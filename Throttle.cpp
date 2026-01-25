@@ -107,104 +107,60 @@ void Throttle::update() {
 Throttle::~Throttle() {}
 
 void Throttle::_handleUserConfirmationAction(UserConfirmationInterface::UserConfirmationAction action) {
-  if (!_loco && !_consist)
+  if ((!_loco && !_consist) || action == UserConfirmationInterface::UserConfirmationAction::None)
     return;
 
-  if (action != UserConfirmationInterface::UserConfirmationAction::None) {
-    LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserConfirmationAction(): %d", _index, action);
+  LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserConfirmationAction(): %d", _index, action);
 
-    switch (action) {
-    case UserConfirmationInterface::UserConfirmationAction::SingleClick: {
-      if (_speed > 0) {
-        LOG(LogLevel::LOG_DEBUG, "Throttle(%d) Encoder single click while loco moving, stopping loco", _index);
-        _speed = 0;
-        _speedChanged = true;
-      } else {
-        LOG(LogLevel::LOG_DEBUG, "Throttle(%d) Encoder single click while loco stopped, changing direction", _index);
-        if (_direction == Direction::Forward) {
-          _direction = Direction::Reverse;
-        } else {
-          _direction = Direction::Forward;
-        }
-        _directionChanged = true;
-      }
-      _setThrottle();
-      break;
-    }
-    case UserConfirmationInterface::UserConfirmationAction::LongClick: {
-      LOG(LogLevel::LOG_DEBUG, "Throttle(%d) EStop", _index);
-      _speed = -1;
+  if (action == UserConfirmationInterface::UserConfirmationAction::SingleClick) {
+    if (_speed > 0) {
+      _speed = 0;
       _speedChanged = true;
-      _setThrottle();
-      break;
+    } else {
+      _direction = (_direction == Direction::Forward) ? Direction::Reverse : Direction::Forward;
+      _directionChanged = true;
     }
-    default: {
-      break;
-    }
-    }
+  } else if (action == UserConfirmationInterface::UserConfirmationAction::LongClick) {
+    _speed = -1;
+    _speedChanged = true;
+  }
+
+  if (_speedChanged || _directionChanged) {
+    _setThrottle();
   }
 }
 
 void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionAction action) {
-  if (!_loco && !_consist)
+  if ((!_loco && !_consist) || action == UserSelectionInterface::UserSelectionAction::None)
     return;
 
-  if (action != UserSelectionInterface::UserSelectionAction::None) {
-    LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserSelectionAction(): %d", _index, action);
-    int step = 0;
-    bool increase = true;
+  LOG(LogLevel::LOG_DEBUG, "Throttle(%d)::UserSelectionAction(): %d", _index, action);
 
-    switch (action) {
-    case UserSelectionInterface::UserSelectionAction::Up: {
-      step = _throttleStep;
-      break;
-    }
-    case UserSelectionInterface::UserSelectionAction::UpFaster: {
-      step = _throttleStepFaster;
-      break;
-    }
-    case UserSelectionInterface::UserSelectionAction::UpFastest: {
-      step = _throttleStepFastest;
-      break;
-    }
-    case UserSelectionInterface::UserSelectionAction::Down: {
-      step = _throttleStep;
-      increase = false;
-      break;
-    }
-    case UserSelectionInterface::UserSelectionAction::DownFaster: {
-      step = _throttleStepFaster;
-      increase = false;
-      break;
-    }
-    case UserSelectionInterface::UserSelectionAction::DownFastest: {
-      step = _throttleStepFastest;
-      increase = false;
-      break;
-    }
-    default: {
-      LOG(LogLevel::LOG_DEBUG, "Unknown UserSelectionAction %d", action);
-      break;
-    }
-    }
+  // Use enum mapping to values to save Flash rather than switch/case
+  // Make action 0 indexed so 0 - 2 are up, 3 - 5 are down
+  int actionIndex = (int)action - 1;
+  bool increase = (actionIndex < 3);
 
-    int newSpeed = _speed;
-    if (increase) {
-      newSpeed += step;
-    } else {
-      newSpeed -= step;
-    }
+  // Lookup table for the steps
+  static const uint8_t steps[] = {_throttleStep, _throttleStepFaster, _throttleStepFastest};
 
-    if (newSpeed > 126)
-      newSpeed = 126;
-    if (newSpeed < 0)
-      newSpeed = 0;
+  // Use modulo 3 to pick the correct step size
+  int step = steps[actionIndex % 3];
 
-    if (_speed != newSpeed) {
-      _speed = newSpeed;
-      _speedChanged = true;
-      _setThrottle();
-    }
+  // Calculate speed based on step and if increased
+  int newSpeed = _speed + (increase ? step : -step);
+
+  // Constrain to DCC limits
+  if (newSpeed > 126)
+    newSpeed = 126;
+  if (newSpeed < 0)
+    newSpeed = 0;
+
+  // If changed, set it, flag it, and send the change
+  if (_speed != newSpeed) {
+    _speed = newSpeed;
+    _speedChanged = true;
+    _setThrottle();
   }
 }
 

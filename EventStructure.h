@@ -26,23 +26,26 @@
 /**
  * @brief Enum containing all the event types that subscribers can listen for, and publishers can publish Listeners and
  * publishers must use one of these when creating or listening for a valid Event
+ * @details IT IS CRITICAL that the order of these enums must match the AppOrchestrator event handler function pointer
+ * array in AppOrchestrator::onEvent().
  */
 enum EventType {
-  CommandStationConnected,
-  ReceivedRosterList,
-  LocoSelected,
-  ReceivedLocoUpdate,
-  ReceivedTrackPower,
-  ReceivedReadLoco,
-  ToggleTrackPower,
-  ReceivedLocoBroadcast,
-  ConnectionRetry,
-  ReadLocoRetry,
-  ExitMenu,
-  MenuRefreshRequired,
-  LocoAddressEntered,
-  RequestStateChange,
-  EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin()
+  CommandStationConnected, // 0
+  ReceivedRosterList,      // 1
+  LocoSelected,            // 2
+  ReceivedLocoUpdate,      // 3
+  ReceivedTrackPower,      // 4
+  ReceivedReadLoco,        // 5
+  ToggleTrackPower,        // 6
+  ReceivedLocoBroadcast,   // 7
+  ConnectionRetry,         // 8
+  ReadLocoRetry,           // 9
+  ExitMenu,                // 10
+  MenuRefreshRequired,     // 11
+  LocoAddressEntered,      // 12
+  RequestStateChange,      // 13
+  EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin() and bounds checking,
+                   // MUST BE LAST
 };
 
 /// @brief Structure for data relating to a Loco broadcast that can be contained
@@ -145,35 +148,28 @@ struct EventData {
    * @param loco Pointer to the loco selected
    * @param throttleIndex Index of the throttle that will control this Loco
    */
-  EventData(Loco *loco, int throttleIndex) : dataType(DataType::SelectLocoData) {
-    selectLocoValue.loco = loco;
-    selectLocoValue.throttleIndex = throttleIndex;
-  }
+  EventData(Loco *loco, int throttleIndex) : dataType(DataType::SelectLocoData), selectLocoValue{loco, throttleIndex} {}
 
   /**
    * @brief Construct a new Event Data object for a LocoAddressEntered event
    * @param address DCC address entered by the user
    * @param throttleIndex Index of the throttle that will control this loco
    */
-  EventData(int address, int throttleIndex) : dataType(DataType::LocoAddressData) {
-    locoAddressValue.address = address;
-    locoAddressValue.throttleIndex = throttleIndex;
-  }
+  EventData(int address, int throttleIndex)
+      : dataType(DataType::LocoAddressData), locoAddressValue{address, throttleIndex} {}
 
   /**
    * @brief Construct a new Event Data object for a RequestStateChange event
    * @param state AppState being requested
    * @param contextIndex Contextual index to provide, eg. throttle index
    */
-  EventData(AppState state, int contextIndex) : dataType(DataType::StateRequestData) {
-    stateRequestValue.state = state;
-    stateRequestValue.contextIndex = contextIndex;
-  }
+  EventData(AppState state, int contextIndex)
+      : dataType(DataType::StateRequestData), stateRequestValue{state, contextIndex} {}
 };
 
 /// @brief Structure for each Event that is published
 struct Event {
-  EventType eventType;
+  EventType eventType = EventType::EVENT_TYPE_COUNT;
   EventData eventData;
 
   /// @brief Constructor for each event
