@@ -241,7 +241,8 @@ Menu *MenuManager::_createManagedMenu(const char *name) {
 Menu *MenuManager::_createThrottleMenu(int index) {
   char nameBuffer[25];
   int throttleNumber = index + 1;
-  snprintf(nameBuffer, sizeof(nameBuffer), "Throttle %d", throttleNumber);
+  strcpy(nameBuffer, "Throttle ");
+  itoa(throttleNumber, nameBuffer + 9, 10);
   Menu *throttleMenu = _createManagedMenu(nameBuffer);
   // Add Select Loco as the first item to select from roster
   throttleMenu->addItem(new SubMenuItem(_rosterMenu, "Select Loco"));

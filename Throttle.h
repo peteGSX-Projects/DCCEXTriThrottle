@@ -177,9 +177,9 @@ private:
   void _setThrottle();
 
   /**
-   * @brief Helper method to deal with syncing user speed changes with Loco/Consist speed
+   * @brief Helper method to deal with syncing user changes with Loco/Consist object
    */
-  void _syncSpeed(UserSelectionInterface::UserSelectionAction action);
+  void _sync(UserSelectionInterface::UserSelectionAction action);
 };
 
 #endif // THROTTLE_H

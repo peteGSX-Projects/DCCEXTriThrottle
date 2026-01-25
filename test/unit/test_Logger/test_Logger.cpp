@@ -53,7 +53,7 @@ TEST_F(LoggerTests, LogErrorMessage) {
   Logger::log(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber, errorMessage);
 
   // Construct expected output
-  std::string expectedOutput = "[ERROR] Encountered an error: 2 - Unknown error\r\n";
+  std::string expectedOutput = "[ERR] Encountered an error: 2 - Unknown error\r\n";
 
   // Check the buffer to see if it contains this
   EXPECT_EQ(stream.buffer, expectedOutput);
@@ -74,7 +74,7 @@ TEST_F(LoggerTests, LogLevels) {
   stream.clear();
   Logger::setLogLevel(LogLevel::LOG_DEBUG);
   Logger::log(LogLevel::LOG_DEBUG, debugMessage);
-  EXPECT_EQ(stream.buffer, "[DEBUG] This is a debug message\r\n");
+  EXPECT_EQ(stream.buffer, "[DBG] This is a debug message\r\n");
   stream.clear();
 
   // Should not get the debug message at info, but we should get error
@@ -83,7 +83,7 @@ TEST_F(LoggerTests, LogLevels) {
   EXPECT_EQ(stream.buffer, "");
   stream.clear();
   Logger::log(LogLevel::LOG_ERROR, errorMessage);
-  EXPECT_EQ(stream.buffer, "[ERROR] This is an error\r\n");
+  EXPECT_EQ(stream.buffer, "[ERR] This is an error\r\n");
   stream.clear();
 
   // We should not get an error message with log level none
@@ -94,7 +94,7 @@ TEST_F(LoggerTests, LogLevels) {
 
   // However, we should always get a message even at none
   Logger::log(LogLevel::LOG_MESSAGE, debugMessage);
-  EXPECT_EQ(stream.buffer, "[MESSAGE] This is a debug message\r\n");
+  EXPECT_EQ(stream.buffer, "[MSG] This is a debug message\r\n");
 
   // Verify all expectations were made
   testing::Mock::VerifyAndClearExpectations(&stream);
@@ -111,7 +111,7 @@ TEST_F(LoggerTests, TestMacro) {
   LOG(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber, errorMessage);
 
   // Construct expected output
-  std::string expectedOutput = "[ERROR] Encountered an error: 2 - Unknown error\r\n";
+  std::string expectedOutput = "[ERR] Encountered an error: 2 - Unknown error\r\n";
 
   // Check the buffer to see if it contains this
   EXPECT_EQ(stream.buffer, expectedOutput);

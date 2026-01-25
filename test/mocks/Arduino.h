@@ -72,4 +72,32 @@ inline int analogRead(int pin) { return 0; }
 inline void advanceMicros(unsigned long us) { _currentMicros += us; }
 inline void advanceMillis(unsigned long ms) { _currentMillis += ms; }
 
+// Mock itoa: converts integer to string
+inline char* itoa(int value, char* str, int base) {
+    if (base == 10) {
+        sprintf(str, "%d", value);
+    } else if (base == 16) {
+        sprintf(str, "%x", value);
+    }
+    return str;
+}
+
+// Mock ltoa: converts long integer to string
+inline char* ltoa(long value, char* str, int base) {
+    if (base == 10) {
+        sprintf(str, "%ld", value);
+    } else if (base == 16) {
+        sprintf(str, "%lx", value);
+    }
+    return str;
+}
+
+// Mock utoa: converts unsigned int to string
+inline char* utoa(unsigned int value, char* str, int base) {
+    if (base == 10) {
+        sprintf(str, "%u", value);
+    }
+    return str;
+}
+
 #endif // ARDUINO_H

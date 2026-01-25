@@ -101,7 +101,7 @@ void Throttle::update() {
   _handleUserConfirmationAction(confirm);
   _handleUserSelectionAction(select);
 
-  _syncSpeed(select);
+  _sync(select);
 }
 
 Throttle::~Throttle() {}
@@ -216,19 +216,19 @@ void Throttle::_setThrottle() {
   }
 }
 
-void Throttle::_syncSpeed(UserSelectionInterface::UserSelectionAction action) {
+void Throttle::_sync(UserSelectionInterface::UserSelectionAction action) {
   if (!_loco && !_consist)
     return;
 
-  int realSpeed = 0;
-  if (_loco) {
-    realSpeed = _loco->getSpeed();
-  } else {
-    realSpeed = _consist->getSpeed();
-  }
+  int realSpeed = _loco ? _loco->getSpeed() : _consist->getSpeed();
+  Direction realDirection = _loco ? _loco->getDirection() : _consist->getDirection();
+  if (millis() - _lastUserInteraction > _SYNC_TIME) {
+    if (_direction != realDirection) {
+      _direction = realDirection;
+      _directionChanged = true;
+    }
 
-  if (action == UserSelectionInterface::UserSelectionAction::None && _speed != realSpeed) {
-    if (millis() - _lastUserInteraction > _SYNC_TIME) {
+    if (action == UserSelectionInterface::UserSelectionAction::None && _speed != realSpeed) {
       _speed = realSpeed;
       _speedChanged = true;
     }

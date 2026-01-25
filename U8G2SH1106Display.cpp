@@ -184,7 +184,7 @@ void U8G2SH1106Display::displayUserEntryScreen(const char *title, const char *me
   uint16_t fontWidth = _oled->getMaxCharWidth();
   uint16_t x = fontWidth;
   uint16_t y = _calculateHeaderHeight() + (fontHeight * 3);
-  _oled->drawStr(x, y, "#####");
+  _oled->drawStr(x, y, "_____");
   _oled->sendBuffer();
 }
 

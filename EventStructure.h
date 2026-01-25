@@ -26,7 +26,6 @@
 /**
  * @brief Enum containing all the event types that subscribers can listen for, and publishers can publish Listeners and
  * publishers must use one of these when creating or listening for a valid Event
- * @details Remember to add each new event type to eventTypeToString()
  */
 enum EventType {
   CommandStationConnected,
@@ -45,13 +44,6 @@ enum EventType {
   RequestStateChange,
   EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin()
 };
-
-/**
- * @brief Helper method to return the EventType as a string
- * @param eventType EventType enum value
- * @return const char* Char array string of the enum value
- */
-const char *eventTypeToString(EventType eventType);
 
 /// @brief Structure for data relating to a Loco broadcast that can be contained
 /// within EventData.

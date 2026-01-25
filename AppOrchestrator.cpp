@@ -98,7 +98,7 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", eventTypeToString(event.eventType));
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %s", event.eventType);
   EventType eventType = event.eventType;
   switch (eventType) {
   case EventType::CommandStationConnected: {
@@ -142,9 +142,13 @@ void AppOrchestrator::onEvent(Event &event) {
     _handleRequestStateChange(event);
     break;
   }
+  case EventType::ReceivedLocoBroadcast: {
+    _handleReceivedLocoBroadcast(event);
+    break;
+  }
   default: {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %s",
-        eventTypeToString(event.eventType));
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent(): Unknown Event received: %s", event.eventType);
+    break;
   }
   }
 }
@@ -158,6 +162,8 @@ int AppOrchestrator::getActiveContextIndex() { return _activeContextIndex; }
 void AppOrchestrator::setActiveContextIndex(int index) { _activeContextIndex = index; }
 
 AppOrchestrator::~AppOrchestrator() {}
+
+// update() handlers
 
 void AppOrchestrator::_handleStartupState() {
   ConnectionState state = _connectionManager->getState();
@@ -247,6 +253,8 @@ void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent
   }
 }
 
+// onEvent() handlers
+
 void AppOrchestrator::_handleCommandStationConnected() {}
 
 void AppOrchestrator::_handleConnectionRetry() {}
@@ -292,6 +300,36 @@ void AppOrchestrator::_handleRequestStateChange(Event event) {
   _switchState(newState);
 }
 
+void AppOrchestrator::_handleReceivedLocoBroadcast(Event event) {
+  LocoBroadcast broadcast = event.eventData.locoBroadcastValue;
+
+  // Need to iterate through each throttle to find the Loco
+  for (int i = 0; i < _numThrottles; i++) {
+    Loco *loco;
+    if (_throttles[i]->getLoco() != nullptr) {
+      // If it's a loco, easy
+      loco = _throttles[i]->getLoco();
+    } else if (_throttles[i]->getConsist() != nullptr) {
+      // If it's a consist, we only care about the first one
+      loco = _throttles[i]->getConsist()->getFirst()->getLoco();
+    } else {
+      // Continue to the next throttle if no Loco
+      continue;
+    }
+    // If it's a roster loco, it's already managed
+    if (loco->getSource() == LocoSource::LocoSourceRoster)
+      continue;
+
+    if (loco->getAddress() == broadcast.address) {
+      loco->setSpeed(broadcast.speed);
+      loco->setDirection(broadcast.direction);
+      loco->setFunctionStates(broadcast.functionMap);
+    }
+  }
+}
+
+// General helper methods
+
 void AppOrchestrator::_switchState(AppState newState) {
   if (newState >= AppState::APP_STATE_COUNT)
     return;
@@ -299,7 +337,7 @@ void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
     return;
 
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(%s)", _appStateToString(newState));
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(%s)", newState);
   _displayInterface->setRedraw(true);
   _currentAppState = newState;
 }
@@ -341,24 +379,5 @@ void AppOrchestrator::_updateThrottleDisplay() {
       _throttles[i]->resetDirectionChanged();
       _throttles[i]->resetLocoChanged();
     }
-  }
-}
-
-const char *AppOrchestrator::_appStateToString(AppState appState) {
-  switch (appState) {
-  case AppState::Startup:
-    return "Startup";
-  case AppState::Throttle:
-    return "Throttle";
-  case AppState::ConnectionError:
-    return "ConnectionError";
-  case AppState::Menu:
-    return "Menu";
-  case AppState::UserEntry:
-    return "UserEntry";
-  case AppState::EnterLocoAddress:
-    return "EnterLocoAddress";
-  default:
-    return "UNKNOWN";
   }
 }

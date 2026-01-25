@@ -111,7 +111,7 @@ private:
   int _enterAddressBuffer;
   int _enterAddressBufferCount;
 
-  // update() methods
+  // update() handlers
   /**
    * @brief Display the startup screen while connecting to the CommandStation
    */
@@ -171,6 +171,12 @@ private:
    */
   void _handleRequestStateChange(Event event);
 
+  /**
+   * @brief Handle a ReceivedLocoBroadcast event to ensure the Loco object is updated
+   * @param event Event containing LocoBroadcastData
+   */
+  void _handleReceivedLocoBroadcast(Event event);
+
   // General helper methods
 
   /**
@@ -188,13 +194,6 @@ private:
    * @brief Helper method to update throttle elements only instead of full redraw
    */
   void _updateThrottleDisplay();
-
-  /**
-   * @brief Helper method to return the AppState name rather than int value
-   * @param appState AppState
-   * @return const char* Pointer to the char array string
-   */
-  const char *_appStateToString(AppState appState);
 };
 
 #endif // APPORCHESTRATOR_H

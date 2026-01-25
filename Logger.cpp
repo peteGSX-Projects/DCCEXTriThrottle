@@ -34,57 +34,41 @@ void Logger::log(LogLevel logLevel, const char *format, ...) {
     const char *prefix;
     switch (logLevel) {
     case LogLevel::LOG_MESSAGE:
-      prefix = "[MESSAGE] ";
+      prefix = "[MSG] ";
       break;
     case LogLevel::LOG_ERROR:
-      prefix = "[ERROR] ";
+      prefix = "[ERR] ";
       break;
     case LogLevel::LOG_WARN:
-      prefix = "[WARN] ";
+      prefix = "[WRN] ";
       break;
     case LogLevel::LOG_INFO:
-      prefix = "[INFO] ";
+      prefix = "[INF] ";
       break;
     case LogLevel::LOG_DEBUG:
-      prefix = "[DEBUG] ";
+      prefix = "[DBG] ";
       break;
     default:
       prefix = "";
       break;
     }
 
-    // Calculate buffer size from args + prefix
+    // Use fixed size buffer to save Flash
+    char buffer[64];
+
+    // Copy prefix first
+    strncpy(buffer, prefix, sizeof(buffer));
+    size_t prefixLen = strlen(prefix);
+
+    // Format the message directly into the remaining space
     va_list args;
     va_start(args, format);
-    // Get size of string + null terminator
-    int size = vsnprintf(nullptr, 0, format, args) + 1;
-    // End args processing
-    va_end(args);
-
-    // Allocate buffer including prefix size
-    size_t totalSize = size + strlen(prefix);
-    char *buffer = new char[totalSize];
-
-    if (buffer == nullptr) {
-      _outputStream->println("[ERROR] Logger::log memory allocation failed");
-      return;
-    }
-
-    // Copy prefix to buffer
-    strcpy(buffer, prefix);
-
-    // Start args processing
-    va_start(args, format);
-    // Get the string into the buffer after the prefix
-    vsnprintf(buffer + strlen(prefix), size, format, args);
-    // End args processing
+    // Write into the buffer starting after the prefix
+    vsnprintf(buffer + prefixLen, sizeof(buffer) - prefixLen, format, args);
     va_end(args);
 
     // Output formatted message
     _outputStream->println(buffer);
-
-    // Clean up
-    delete[] buffer;
   }
 }
 

@@ -67,7 +67,8 @@
 
 // Define default fonts in use for U8g2lib
 #ifndef DEFAULT_FONT
-#define DEFAULT_FONT u8g2_font_NokiaSmallPlain_tr
+// #define DEFAULT_FONT u8g2_font_NokiaSmallPlain_tr
+#define DEFAULT_FONT u8g2_font_5x8_mr
 #endif // DEFAULT_FONT
 #ifndef MENU_FONT
 #define MENU_FONT u8g2_font_5x8_mr
@@ -76,13 +77,15 @@
 #define SPEED_FONT u8g2_font_spleen12x24_mn
 #endif // SPEED_FONT
 #ifndef THROTTLE_FONT
-#define THROTTLE_FONT u8g2_font_6x10_mr
+#define THROTTLE_FONT u8g2_font_5x8_mr
 #endif // THROTTLE_FONT
 #ifndef STATUS_FONT
-#define STATUS_FONT u8g2_font_micro_mr
+// #define STATUS_FONT u8g2_font_micro_mr
+#define STATUS_FONT u8g2_font_5x8_mr
 #endif // STATUS_FONT
 #ifndef ESTOP_FONT
-#define ESTOP_FONT u8g2_font_6x12_mr
+// #define ESTOP_FONT u8g2_font_6x12_mr
+#define ESTOP_FONT u8g2_font_5x8_mr
 #endif // ESTOP_FONT
 
 /**

@@ -21,7 +21,6 @@
 
 /**
  * @brief Enumeration of valid state machine states
- * @details Remember to add to AppOrchestrator::_appStateToString() when adding new states
  */
 enum class AppState {
   Startup,

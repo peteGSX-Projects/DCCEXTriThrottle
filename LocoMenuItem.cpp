@@ -23,15 +23,12 @@ LocoMenuItem::LocoMenuItem(Loco *loco) : BaseMenuItem(loco->getName(), MenuItemT
     if (_name != nullptr) {
       delete[] _name;
     }
-    // Get the address
-    int address = loco->getAddress();
-    // Use log10 to get the number of digits, or 1 if it is 0
-    int digits = (address == 0) ? 1 : (int)log10(abs(address)) + 1;
-    // Add null terminator
-    int charSize = digits + 1;
-    // Now create the new char array and allocate to _name
-    _name = new char[charSize];
-    snprintf(_name, charSize, "%d", address);
+
+    char buffer[6];
+    itoa(loco->getAddress(), buffer, 10);
+    int len = strlen(buffer);
+    _name = new char[len + 1];
+    strcpy(_name, buffer);
   }
 }
 
