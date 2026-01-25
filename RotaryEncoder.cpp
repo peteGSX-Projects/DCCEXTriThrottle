@@ -43,17 +43,15 @@ RotaryEncoder::Direction RotaryEncoder::checkDirection() {
 
   const uint8_t direction = result & 0x30; // Check direction bits
 
-  // Return direction based on the state bits
-  switch (direction) {
-  case DIR_CW:
+  // Return the direction based on the state bits
+  if (direction == DIR_CW) {
     LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returning CW");
     return RotaryEncoder::Direction::CW;
-  case DIR_CCW:
+  } else if (direction == DIR_CCW) {
     LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returning CCW");
     return RotaryEncoder::Direction::CCW;
-  default:
-    return RotaryEncoder::Direction::None;
   }
+  return RotaryEncoder::Direction::None;
 }
 
 UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {

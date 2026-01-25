@@ -198,32 +198,19 @@ void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent
   if (event.action != UserInputInterface::UserInputAction::Pressed)
     return;
 
-  switch (event.key) {
-  case '*': {
+  char key = event.key;
+
+  if (key >= '0' && key <= '9') {
+    if (_enterAddressBufferCount < 5) {
+      _enterAddressBuffer = (_enterAddressBuffer * 10) + (key - '0');
+      _enterAddressBufferCount++;
+      _displayInterface->displayUserEntryKey(key, _enterAddressBufferCount);
+    }
+  } else if (key == '*') {
     _enterAddressBuffer = 0;
     _enterAddressBufferCount = 0;
     _switchState(AppState::Menu);
-    break;
-  }
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9': {
-    if (_enterAddressBufferCount < 5) {
-      int digit = event.key - '0';
-      _enterAddressBuffer = (_enterAddressBuffer * 10) + digit;
-      _enterAddressBufferCount++;
-      _displayInterface->displayUserEntryKey(event.key, _enterAddressBufferCount);
-    }
-    break;
-  }
-  case '#': {
+  } else if (key == '#') {
     if (_enterAddressBufferCount > 0) {
       EventData eventData(_enterAddressBuffer, _activeContextIndex);
       Event event(EventType::LocoAddressEntered, eventData);
@@ -231,11 +218,6 @@ void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent
       _enterAddressBufferCount = 0;
       _handleLocoAddressEntered(event);
     }
-    break;
-  }
-  default: {
-    break;
-  }
   }
 }
 

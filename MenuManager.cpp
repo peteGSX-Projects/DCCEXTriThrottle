@@ -52,39 +52,18 @@ void MenuManager::initialise() {
 }
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
-  if (!_currentMenu)
+  if (!_currentMenu || inputEvent.key == '\0')
     return;
 
-  if (inputEvent.key != '\0') {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: %c", inputEvent.key);
-  }
+  char key = inputEvent.key;
+  LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: %c", key);
 
-  switch (inputEvent.key) {
-  case '*': {
+  if (key >= '0' && key <= '9') {
+    _handleSelection(key - '0');
+  } else if (key == '*') {
     _handleBack();
-    break;
-  }
-  case '#': {
+  } else if (key == '#') {
     _handleNextPage();
-    break;
-  }
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9': {
-    int digit = inputEvent.key - '0';
-    _handleSelection(digit);
-    break;
-  }
-  default: {
-    break;
-  }
   }
 }
 

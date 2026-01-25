@@ -22,7 +22,7 @@
 
 /// @brief Class to extend for all other classes that need to respond to events
 /// For example: Class <MyClass> : public EventListener () {}
-/// The recommended approach is to implement a switch/case in the onEvent() implementation to handle valid event types
+/// Implement an onEvent(Event &event) event handler method in the extending class to handle these
 class EventListener {
 public:
   /// @brief Virtual method to implement in the inheriting class to respond to events
