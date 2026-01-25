@@ -19,6 +19,7 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include "ActionMenuItem.h"
 #include "BaseMenuItem.h"
 #include "LocoMenuItem.h"
 #include "SubMenuItem.h"

@@ -352,7 +352,12 @@ TEST_F(MenuManagerTests, TestThrottleMenuStructure) {
 
   // Index item 0 should be Select Loco which is the roster menu
   BaseMenuItem *item0 = menuManager->getCurrentMenu()->getItemByPageIndex(0);
+  ASSERT_NE(item0, nullptr);
   EXPECT_STREQ(item0->getName(), "Select Loco");
+  // Index item 1 should be Enter Address
+  BaseMenuItem *item1 = menuManager->getCurrentMenu()->getItemByPageIndex(1);
+  ASSERT_NE(item1, nullptr);
+  EXPECT_STREQ(item1->getName(), "Enter Address");
 
   // First item should be the roster
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});

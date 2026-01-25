@@ -19,6 +19,7 @@
 #define APPORCHESTRATOR_H
 
 // Includes required for the orchestrator
+#include "AppStates.h"
 #include "ConnectionManager.h"
 #include "DisplayInterface.h"
 #include "EventListener.h"
@@ -26,11 +27,6 @@
 #include "MenuManager.h"
 #include "Throttle.h"
 #include "UserInputInterface.h"
-
-/**
- * @brief Enumeration of valid state machine states
- */
-enum class AppState { Startup, Throttle, ConnectionError, Menu };
 
 /**
  * @brief The AppOrchestrator coordinates all application activity using a state machine and responding to
@@ -71,10 +67,28 @@ public:
   void onEvent(Event &event);
 
   /**
-   * @brief Get the Current State object
-   * @return AppState
+   * @brief Get the Current AppState of the orchestrator
+   * @return AppState Current AppState value
    */
   AppState getCurrentAppState();
+
+  /**
+   * @brief Set the Current App State for testing
+   * @param state Valid AppState type
+   */
+  void setCurrentAppState(AppState state);
+
+  /**
+   * @brief Get the Active Context Index of the orchestrator
+   * @return int Current contextual index
+   */
+  int getActiveContextIndex();
+
+  /**
+   * @brief Set the Active Context Index of the orchestrator
+   * @param index Current contextual index
+   */
+  void setActiveContextIndex(int index);
 
   /**
    * @brief Destroy the App Orchestrator object
@@ -93,8 +107,11 @@ private:
   EventManager *_eventManager;
   MenuManager *_menuManager;
   DCCEXProtocol *_commandStationClient;
+  int _activeContextIndex;
+  int _enterAddressBuffer;
+  int _enterAddressBufferCount;
 
-  // Methods
+  // update() methods
   /**
    * @brief Display the startup screen while connecting to the CommandStation
    */
@@ -117,6 +134,44 @@ private:
    * @param event UserInputInterface::UserInputEvent
    */
   void _handleMenuState(UserInputInterface::UserInputEvent event);
+
+  /**
+   * @brief Display the user entry screen to enable entering a Loco address
+   * @param event
+   */
+  void _handleEnterLocoAddress(UserInputInterface::UserInputEvent event);
+
+  // onEvent() event handlers
+
+  /**
+   * @brief
+   */
+  void _handleCommandStationConnected();
+
+  /**
+   * @brief
+   */
+  void _handleConnectionRetry();
+
+  /**
+   * @brief Handle a LocoSelected event to associate loco with a throttle
+   * @param event Event containing SelectLocoData
+   */
+  void _handleLocoSelected(Event event);
+
+  /**
+   * @brief Handle a LocoAddressEntered event to validate the address and associate with a throttle
+   * @param event Event containing LocoAddressData
+   */
+  void _handleLocoAddressEntered(Event event);
+
+  /**
+   * @brief Handle a RequestStateChange event typically triggered by an ActionMenuItem
+   * @param event Event containing StateRequestData
+   */
+  void _handleRequestStateChange(Event event);
+
+  // General helper methods
 
   /**
    * @brief Switch AppState to the new state and flag a display redraw

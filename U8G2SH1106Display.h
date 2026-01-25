@@ -166,6 +166,20 @@ public:
    */
   void updateProgressScreen();
 
+    /**
+   * @brief Display a screen for user entry from the keypad, eg. entering a DCC address
+   * @param title Title to display on the screen
+   * @param message Instruction message for what to do
+   */
+  void displayUserEntryScreen(const char *title, const char *message) override;
+
+  /**
+   * @brief Display the specified key on the user entry screen at the correct position
+   * @param key The character to display
+   * @param count Current number of digits to assist placement
+   */
+  void displayUserEntryKey(char key, int count) override;
+
   /**
    * @brief Destroy the U8G2SH1106Display object
    */

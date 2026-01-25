@@ -228,3 +228,153 @@ TEST_F(AppOrchestratorTests, TestEStopAllLocos) {
   EXPECT_TRUE(csConnection.buffer.find("<!>") != std::string::npos);
   csConnection.clear();
 }
+
+/**
+ * @brief Test requesting an invalid state doesn't change states
+ */
+TEST_F(AppOrchestratorTests, TestInvalidateStateRequest) {
+  // Set initial state to Menu
+  appOrchestrator->setCurrentAppState(AppState::Menu);
+
+  // Now set up the event with a non-existant AppState value
+  int context = 1;
+  EventData eventData((AppState)200, context);
+  Event event(EventType::RequestStateChange, eventData);
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+
+  // Validate the state hasn't changed
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
+}
+
+/**
+ * @brief Test EnterLocoAddress state can be requested and displays correctly
+ */
+TEST_F(AppOrchestratorTests, TestRequestStateChangeToEnterAddress) {
+  // Set up the event
+  int throttleIndex = 1;
+  EventData eventData(AppState::EnterLocoAddress, throttleIndex);
+  Event event(EventType::RequestStateChange, eventData);
+
+  // Set up expectation - throttle index 1 is throttle 2
+  EXPECT_CALL(*mockDisplay, displayUserEntryScreen(StrEq("Throttle 2 Address"), StrEq("Enter DCC address:"))).Times(1);
+
+  // Handle the event and call update to process the state
+  appOrchestrator->onEvent(event);
+  appOrchestrator->update();
+
+  // Validate the outcome
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::EnterLocoAddress);
+}
+
+/**
+ * @brief Test manual entry of a loco address validates address and adds to throttle
+ */
+TEST_F(AppOrchestratorTests, TestManualLocoAddressEntry) {
+  // Start in Menu state and set values
+  appOrchestrator->setCurrentAppState(AppState::Menu);
+  int throttleIndex = 1;
+  int locoAddress = 1234;
+
+  // Simulate the LocoAddressEntered event and handle it
+  EventData eventData(locoAddress, throttleIndex);
+  Event event(EventType::LocoAddressEntered, eventData);
+  appOrchestrator->onEvent(event);
+
+  // Validate the outcome
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+  ASSERT_NE(throttles[throttleIndex]->getLoco(), nullptr);
+  EXPECT_EQ(throttles[throttleIndex]->getLoco()->getAddress(), 1234);
+  EXPECT_STREQ(throttles[throttleIndex]->getLoco()->getName(), "1234");
+  EXPECT_EQ(throttles[throttleIndex]->getLoco()->getSource(), LocoSource::LocoSourceEntry);
+
+  delete throttles[throttleIndex]->getLoco();
+}
+
+/**
+ * @brief Test entering invalid loco addresses does not create a Loco
+ */
+TEST_F(AppOrchestratorTests, TestInvalidLocoAddressEntry) {
+  // Start in Menu state and set values
+  appOrchestrator->setCurrentAppState(AppState::Menu);
+  int throttleIndex = 1;
+
+  // Simulate the LocoAddressEntered event with an invalid address
+  EventData eventData0(0, throttleIndex);
+  Event event0(EventType::LocoAddressEntered, eventData0);
+  appOrchestrator->onEvent(event0);
+
+  // Validate the outcome
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::EnterLocoAddress);
+  EXPECT_EQ(throttles[throttleIndex]->getLoco(), nullptr);
+
+  // Repeat with a too high address
+  EventData eventData10240(10240, throttleIndex);
+  Event event10240(EventType::LocoAddressEntered, eventData10240);
+  appOrchestrator->onEvent(event10240);
+
+  // Validate the outcome
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::EnterLocoAddress);
+  EXPECT_EQ(throttles[throttleIndex]->getLoco(), nullptr);
+}
+
+/**
+ * @brief Test entering an invalid address displays the entry screen again with the error
+ */
+TEST_F(AppOrchestratorTests, TestInvalidAddressDisplay) {
+  appOrchestrator->setCurrentAppState(AppState::EnterLocoAddress);
+
+  // Set up the expectation
+  EXPECT_CALL(*mockDisplay, displayUserEntryScreen(StrEq("Enter Address"), StrEq("Invalid address! Retry:"))).Times(1);
+
+  // Handle the event
+  EventData data(0, 1);
+  Event event(EventType::LocoAddressEntered, data);
+  appOrchestrator->onEvent(event);
+}
+
+/**
+ * @brief Test user can only enter 1 to 5 digits
+ */
+TEST_F(AppOrchestratorTests, TestUserEntryDigitCount) {
+  // Set state and context first
+  appOrchestrator->setCurrentAppState(AppState::EnterLocoAddress);
+  appOrchestrator->setActiveContextIndex(0);
+
+  // Before any digits are entered, '#' should do nothing
+  mockKeypad->setInputEvent({'#', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::EnterLocoAddress);
+
+  // Enter 5 digits and expect 5 calls to displayUserEntryKey()
+  EXPECT_CALL(*mockDisplay, displayUserEntryKey(_, _)).Times(5);
+  for (int i = 0; i < 5; i++) {
+    mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+    appOrchestrator->update();
+  }
+
+  // Entering a 6th digit should not work and should not call displayUserEntryKey()
+  EXPECT_CALL(*mockDisplay, displayUserEntryKey(_, _)).Times(0);
+  mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+}
+
+/**
+ * @brief Test entering digits correctly builds the address buffer
+ */
+TEST_F(AppOrchestratorTests, TestEnterAddressBufferBuilding) {
+  // Set state and context first
+  appOrchestrator->setCurrentAppState(AppState::EnterLocoAddress);
+  appOrchestrator->setActiveContextIndex(0);
+
+  // Expect the display be called with '1' and count 1
+  EXPECT_CALL(*mockDisplay, displayUserEntryKey('1', 1)).Times(1);
+  mockKeypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Expect the display be called with '5' and count 2
+  EXPECT_CALL(*mockDisplay, displayUserEntryKey('5', 2)).Times(1);
+  mockKeypad->setInputEvent({'5', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+}

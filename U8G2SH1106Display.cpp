@@ -176,6 +176,29 @@ void U8G2SH1106Display::updateProgressScreen() {
   _progressCounter++;
 }
 
+void U8G2SH1106Display::displayUserEntryScreen(const char *title, const char *message) {
+  _oled->clear();
+  _displayHeader(title);
+  _displayProgressMessage(message);
+  uint16_t fontHeight = _oled->getMaxCharHeight();
+  uint16_t fontWidth = _oled->getMaxCharWidth();
+  uint16_t x = fontWidth;
+  uint16_t y = _calculateHeaderHeight() + (fontHeight * 3);
+  _oled->drawStr(x, y, "#####");
+  _oled->sendBuffer();
+}
+
+void U8G2SH1106Display::displayUserEntryKey(char key, int count) {
+  _oled->setDrawColor(1);
+  _oled->setFont(_menuFont);
+  uint16_t fontHeight = _oled->getMaxCharHeight();
+  uint16_t fontWidth = _oled->getMaxCharWidth();
+  uint16_t x = fontWidth * count;
+  uint16_t y = _calculateHeaderHeight() + (fontHeight * 3);
+  _oled->drawGlyph(x, y, key);
+  _oled->sendBuffer();
+}
+
 U8G2SH1106Display::~U8G2SH1106Display() {
   if (_throttleCoordinates != nullptr) {
     delete[] _throttleCoordinates;

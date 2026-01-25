@@ -16,6 +16,7 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ActionMenuItem.h"
 #include "LocoMenuItem.h"
 #include "Menu.h"
 #include "SubMenuItem.h"
@@ -126,4 +127,20 @@ TEST_F(MenuItemTests, ThrottleMenuItemNameOverride) {
   delete namedItem;
   delete item;
   delete menu;
+}
+
+/**
+ * @brief Test an ActionMenuItem contains the correct attributes
+ */
+TEST_F(MenuItemTests, TestActionMenuItem) {
+  // Dummy data
+  int throttleIndex = 1;
+  EventData data(throttleIndex);
+
+  // Create the new item
+  ActionMenuItem item("Enter address", EventType::LocoAddressEntered, data);
+
+  // Verify attributes
+  EXPECT_EQ(item.getEventType(), EventType::LocoAddressEntered);
+  EXPECT_EQ(item.getEventData().intValue, throttleIndex);
 }

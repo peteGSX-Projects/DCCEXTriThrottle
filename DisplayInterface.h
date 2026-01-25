@@ -82,6 +82,20 @@ public:
   virtual void updateProgressScreen() = 0;
 
   /**
+   * @brief Display a screen for user entry from the keypad, eg. entering a DCC address
+   * @param title Title to display on the screen
+   * @param message Instruction message for what to do
+   */
+  virtual void displayUserEntryScreen(const char *title, const char *message) = 0;
+
+  /**
+   * @brief Display the specified key on the user entry screen at the correct position
+   * @param key The character to display
+   * @param count Current number of digits to assist placement
+   */
+  virtual void displayUserEntryKey(char key, int count) = 0;
+
+  /**
    * @brief Set the redraw flag for the display
    * @param redraw True if redraw is needed, false if not
    */

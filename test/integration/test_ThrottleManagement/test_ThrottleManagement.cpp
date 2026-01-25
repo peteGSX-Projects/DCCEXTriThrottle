@@ -23,7 +23,7 @@
 TEST_F(IntegrationTestBase, TestThrottleSelectsLoco) {
   // Create the mock roster
   csClient->createMockRoster();
-  
+
   // We'll use Throttle 2 (index 1)
   int throttleIndex = 1;
 
@@ -86,4 +86,67 @@ TEST_F(IntegrationTestBase, TestMenuResetAfterSelectLoco) {
   appOrchestrator->update();
 
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
+}
+
+/**
+ * @brief Test selecting Enter Address from the menu changes state to EnterLocoAddress
+ */
+TEST_F(IntegrationTestBase, TestSelectEnterAddressChangesState) {
+  // update() needs to be called 5 times to complete connection
+  for (int i = 0; i < 5; i++) {
+    appOrchestrator->update();
+  }
+
+  // We should be in Throttle state
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Navigate to the menu, first throttle instance, and item 1 should be Enter Address
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  ASSERT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(1)->getName(), "Enter Address");
+
+  // Press 1 to select
+  keypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Validate outcome
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::EnterLocoAddress);
+  EXPECT_EQ(appOrchestrator->getActiveContextIndex(), 0);
+}
+
+/**
+ * @brief Test manually entering a loco address sets the loco for Throttle 1
+ */
+TEST_F(IntegrationTestBase, TestManualAddressEntry) {
+  // update() needs to be called 5 times to complete connection
+  for (int i = 0; i < 5; i++) {
+    appOrchestrator->update();
+  }
+
+  // We should be in Throttle state
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Navigate to the menu, first throttle instance, and Enter Address
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  keypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Enter loco address and press '#' to confirm
+  keypad->setInputEvent({'3', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  keypad->setInputEvent({'#', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Validate outcome
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+  ASSERT_NE(throttles[0]->getLoco(), nullptr);
+  EXPECT_EQ(throttles[0]->getLoco()->getAddress(), 3);
+
+  delete throttles[0]->getLoco();
 }

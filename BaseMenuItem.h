@@ -23,7 +23,7 @@
 #include <Arduino.h>
 
 /// @brief Types of menu items - used to determine how to deal with these items
-enum MenuItemType { LocoType, SubMenuType, ThrottleMenuType };
+enum MenuItemType { LocoType, SubMenuType, ThrottleMenuType, ActionMenuType };
 
 /**
  * @brief BaseMenuItem is designed to be extended by other menu item classes as

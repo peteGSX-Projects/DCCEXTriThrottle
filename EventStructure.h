@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -18,12 +19,15 @@
 #ifndef EVENTSTRUCTURE_H
 #define EVENTSTRUCTURE_H
 
+#include "AppStates.h"
 #include <Arduino.h>
 #include <DCCEXProtocol.h>
 
-/// @brief Enum containing all the event types that subscribers can listen for,
-/// and publishers can publish Listeners and publishers must use one of these
-/// when creating or listening for a valid Event
+/**
+ * @brief Enum containing all the event types that subscribers can listen for, and publishers can publish Listeners and
+ * publishers must use one of these when creating or listening for a valid Event
+ * @details Remember to add each new event type to eventTypeToString()
+ */
 enum EventType {
   CommandStationConnected,
   ReceivedRosterList,
@@ -37,6 +41,8 @@ enum EventType {
   ReadLocoRetry,
   ExitMenu,
   MenuRefreshRequired,
+  LocoAddressEntered,
+  RequestStateChange,
   EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin()
 };
 
@@ -68,6 +74,22 @@ struct SelectLoco {
   int throttleIndex;
 };
 
+/**
+ * @brief Structure for receiving LocoAddressEntered event data that contains the loco DCC address and throttle index
+ */
+struct LocoAddress {
+  int address;
+  int throttleIndex;
+};
+
+/**
+ * @brief Structure for receiving a RequestStateChange event
+ */
+struct StateRequest {
+  AppState state;   // AppOrchestrator AppState requested
+  int contextIndex; // eg. Throttle index
+};
+
 /// @brief Structure to enable supporting EventData that has various different
 /// types ByteData - caters for 8 bit unsigned integer data (uint8_t x)
 /// IntegerData - caters for signed integer data (int y)
@@ -80,7 +102,17 @@ struct SelectLoco {
 /// - Add the type to the union
 /// - Add a new constructor for EventData
 struct EventData {
-  enum class DataType { ByteData, IntegerData, LocoData, NoneData, TrackPowerData, LocoBroadcastData, SelectLocoData };
+  enum class DataType {
+    ByteData,
+    IntegerData,
+    LocoData,
+    NoneData,
+    TrackPowerData,
+    LocoBroadcastData,
+    SelectLocoData,
+    LocoAddressData,
+    StateRequestData
+  };
   DataType dataType;
 
   union {
@@ -90,6 +122,8 @@ struct EventData {
     TrackPower trackPowerValue;
     LocoBroadcast locoBroadcastValue;
     SelectLoco selectLocoValue;
+    LocoAddress locoAddressValue;
+    StateRequest stateRequestValue;
   };
 
   /// @brief Constructor for events with a uint8_t parameter
@@ -122,6 +156,26 @@ struct EventData {
   EventData(Loco *loco, int throttleIndex) : dataType(DataType::SelectLocoData) {
     selectLocoValue.loco = loco;
     selectLocoValue.throttleIndex = throttleIndex;
+  }
+
+  /**
+   * @brief Construct a new Event Data object for a LocoAddressEntered event
+   * @param address DCC address entered by the user
+   * @param throttleIndex Index of the throttle that will control this loco
+   */
+  EventData(int address, int throttleIndex) : dataType(DataType::LocoAddressData) {
+    locoAddressValue.address = address;
+    locoAddressValue.throttleIndex = throttleIndex;
+  }
+
+  /**
+   * @brief Construct a new Event Data object for a RequestStateChange event
+   * @param state AppState being requested
+   * @param contextIndex Contextual index to provide, eg. throttle index
+   */
+  EventData(AppState state, int contextIndex) : dataType(DataType::StateRequestData) {
+    stateRequestValue.state = state;
+    stateRequestValue.contextIndex = contextIndex;
   }
 };
 

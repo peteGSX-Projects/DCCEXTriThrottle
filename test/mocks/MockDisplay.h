@@ -57,6 +57,10 @@ public:
 
   MOCK_METHOD(void, updateProgressScreen, (), (override));
 
+  MOCK_METHOD(void, displayUserEntryScreen, (const char *title, const char *message), (override));
+
+  MOCK_METHOD(void, displayUserEntryKey, (char key, int count), (override));
+
   MOCK_METHOD(void, setRedraw, (bool redraw), (override));
 
   MOCK_METHOD(bool, needsRedraw, (), (override));

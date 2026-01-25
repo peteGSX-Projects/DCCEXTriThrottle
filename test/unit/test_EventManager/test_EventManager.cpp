@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -200,12 +201,68 @@ TEST_F(EventManagerTests, TestSelectLocoData) {
                                                                  Field(&SelectLoco::throttleIndex, targetThrottle)))))))
       .Times(1);
 
-  // Publish and event
+  // Publish the event
   EventData eventData(loco, targetThrottle);
   eventManager->publish(EventType::LocoSelected, eventData);
 
   // Clean up
   delete loco;
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
+}
+
+/**
+ * @brief Test a LocoAddressEntered event can be published and received by a listener
+ */
+TEST_F(EventManagerTests, TestEnterLocoAddressData) {
+  // Subscribe the listener
+  eventManager->subscribe(listener, EventType::LocoAddressEntered);
+
+  // Set the parameters
+  int address = 1234;
+  int throttleIndex = 1;
+
+  // Set the expectation
+  EXPECT_CALL(*listener,
+              onEvent(AllOf(Field(&Event::eventType, EventType::LocoAddressEntered),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoAddressData)),
+                            Field(&Event::eventData, Field(&EventData::locoAddressValue,
+                                                           AllOf(Field(&LocoAddress::address, address),
+                                                                 Field(&LocoAddress::throttleIndex, throttleIndex)))))))
+      .Times(1);
+
+  // Publish the event
+  EventData eventData(address, throttleIndex);
+  eventManager->publish(EventType::LocoAddressEntered, eventData);
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
+}
+
+/**
+ * @brief Test a RequestStateChange event can be published and received by the listener
+ */
+TEST_F(EventManagerTests, TestRequestStateChange) {
+  // Subscribe the listener
+  eventManager->subscribe(listener, EventType::RequestStateChange);
+
+  // Set the context
+  AppState state = AppState::EnterLocoAddress;
+  int throttleIndex = 1;
+
+  // Expectation
+  EXPECT_CALL(*listener,
+              onEvent(AllOf(Field(&Event::eventType, EventType::RequestStateChange),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::StateRequestData)),
+                            Field(&Event::eventData, Field(&EventData::stateRequestValue,
+                                                           AllOf(Field(&StateRequest::state, state),
+                                                                 Field(&StateRequest::contextIndex, throttleIndex)))))))
+      .Times(1);
+
+  // Publish the event
+  EventData eventData(AppState::EnterLocoAddress, throttleIndex);
+  eventManager->publish(EventType::RequestStateChange, eventData);
 
   // Verify and clear expectations
   Mock::VerifyAndClearExpectations(listener);

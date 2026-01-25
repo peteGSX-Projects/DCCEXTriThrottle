@@ -26,6 +26,10 @@ const char *eventTypeToString(EventType eventType) {
     return "ExitMenu";
   case MenuRefreshRequired:
     return "MenuRefreshRequired";
+  case LocoAddressEntered:
+    return "LocoAddressEntered";
+  case RequestStateChange:
+    return "RequestStateChange";
   default:
     return "UNKNOWN_EVENT";
   }

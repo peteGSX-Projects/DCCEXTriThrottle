@@ -27,6 +27,9 @@ AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputIn
       _eventManager(eventManager), _menuManager(menuManager), _commandStationClient(commandStationClient) {
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
+  _activeContextIndex = -1;
+  _enterAddressBuffer = 0;
+  _enterAddressBufferCount = 0;
 }
 
 void AppOrchestrator::begin() {
@@ -74,6 +77,10 @@ void AppOrchestrator::update() {
   }
   case AppState::Menu: {
     _handleMenuState(inputEvent);
+    break;
+  }
+  case AppState::EnterLocoAddress: {
+    _handleEnterLocoAddress(inputEvent);
     break;
   }
   default: {
@@ -124,13 +131,15 @@ void AppOrchestrator::onEvent(Event &event) {
     break;
   }
   case EventType::LocoSelected: {
-    if (_throttles) {
-      int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
-      Loco *loco = event.eventData.selectLocoValue.loco;
-      _throttles[throttleIndex]->setLoco(loco);
-      _menuManager->reset();
-      _switchState(AppState::Throttle);
-    }
+    _handleLocoSelected(event);
+    break;
+  }
+  case EventType::LocoAddressEntered: {
+    _handleLocoAddressEntered(event);
+    break;
+  }
+  case EventType::RequestStateChange: {
+    _handleRequestStateChange(event);
     break;
   }
   default: {
@@ -141,6 +150,12 @@ void AppOrchestrator::onEvent(Event &event) {
 }
 
 AppState AppOrchestrator::getCurrentAppState() { return _currentAppState; }
+
+void AppOrchestrator::setCurrentAppState(AppState state) { _currentAppState = state; }
+
+int AppOrchestrator::getActiveContextIndex() { return _activeContextIndex; }
+
+void AppOrchestrator::setActiveContextIndex(int index) { _activeContextIndex = index; }
 
 AppOrchestrator::~AppOrchestrator() {}
 
@@ -187,9 +202,103 @@ void AppOrchestrator::_handleMenuState(UserInputInterface::UserInputEvent event)
   _menuManager->handleUserInput(event);
 }
 
+void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent event) {
+  if (event.action != UserInputInterface::UserInputAction::Pressed)
+    return;
+
+  switch (event.key) {
+  case '*': {
+    _enterAddressBuffer = 0;
+    _enterAddressBufferCount = 0;
+    _switchState(AppState::Menu);
+    break;
+  }
+  case '0':
+  case '1':
+  case '2':
+  case '3':
+  case '4':
+  case '5':
+  case '6':
+  case '7':
+  case '8':
+  case '9': {
+    if (_enterAddressBufferCount < 5) {
+      int digit = event.key - '0';
+      _enterAddressBuffer = (_enterAddressBuffer * 10) + digit;
+      _enterAddressBufferCount++;
+      _displayInterface->displayUserEntryKey(event.key, _enterAddressBufferCount);
+    }
+    break;
+  }
+  case '#': {
+    if (_enterAddressBufferCount > 0) {
+      EventData eventData(_enterAddressBuffer, _activeContextIndex);
+      Event event(EventType::LocoAddressEntered, eventData);
+      _enterAddressBuffer = 0;
+      _enterAddressBufferCount = 0;
+      _handleLocoAddressEntered(event);
+    }
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+}
+
+void AppOrchestrator::_handleCommandStationConnected() {}
+
+void AppOrchestrator::_handleConnectionRetry() {}
+
+void AppOrchestrator::_handleLocoSelected(Event event) {
+  if (_throttles) {
+    int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
+    Loco *newLoco = event.eventData.selectLocoValue.loco;
+    // If the current loco is entered manually, delete it first
+    Loco *currentLoco = _throttles[throttleIndex]->getLoco();
+    if (currentLoco != nullptr && currentLoco->getSource() == LocoSource::LocoSourceEntry) {
+      delete currentLoco;
+    }
+    _throttles[throttleIndex]->setLoco(newLoco);
+    _menuManager->reset();
+    _switchState(AppState::Throttle);
+  }
+}
+
+void AppOrchestrator::_handleLocoAddressEntered(Event event) {
+  int address = event.eventData.locoAddressValue.address;
+  int throttleIndex = event.eventData.locoAddressValue.throttleIndex;
+
+  // Need to validate DCC address first, redirect with an error if invalid
+  if (address < 1 || address > 10239) {
+    LOG(LogLevel::LOG_WARN, "AppOrchestrator:: Invalid DCC address entered: %d", address);
+    _switchState(AppState::EnterLocoAddress);
+    _displayInterface->displayUserEntryScreen("Enter Address", "Invalid address! Retry:");
+  } else {
+    // Otherwise create the new loco with the address as the name and associate it
+    Loco *loco = new Loco(address, LocoSource::LocoSourceEntry);
+    char name[6];
+    snprintf(name, sizeof(name), "%d", address);
+    loco->setName(name);
+    Event selectEvent(EventType::LocoSelected, EventData(loco, throttleIndex));
+    _handleLocoSelected(selectEvent);
+  }
+}
+
+void AppOrchestrator::_handleRequestStateChange(Event event) {
+  AppState newState = event.eventData.stateRequestValue.state;
+  _activeContextIndex = event.eventData.stateRequestValue.contextIndex;
+  _switchState(newState);
+}
+
 void AppOrchestrator::_switchState(AppState newState) {
+  if (newState >= AppState::APP_STATE_COUNT)
+    return;
+
   if (_currentAppState == newState)
     return;
+
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(%s)", _appStateToString(newState));
   _displayInterface->setRedraw(true);
   _currentAppState = newState;
@@ -211,6 +320,12 @@ void AppOrchestrator::_displayCurrentState() {
   }
   case AppState::Menu: {
     _displayInterface->displayMenuScreen(_menuManager->getCurrentMenu());
+    break;
+  }
+  case AppState::EnterLocoAddress: {
+    char title[32];
+    snprintf(title, sizeof(title), "Throttle %d Address", _activeContextIndex + 1);
+    _displayInterface->displayUserEntryScreen(title, "Enter DCC address:");
     break;
   }
   default:
@@ -239,6 +354,10 @@ const char *AppOrchestrator::_appStateToString(AppState appState) {
     return "ConnectionError";
   case AppState::Menu:
     return "Menu";
+  case AppState::UserEntry:
+    return "UserEntry";
+  case AppState::EnterLocoAddress:
+    return "EnterLocoAddress";
   default:
     return "UNKNOWN";
   }

@@ -198,6 +198,15 @@ void MenuManager::_handleSelection(int digit) {
     }
     break;
   }
+  case MenuItemType::ActionMenuType: {
+    ActionMenuItem *actionItem = static_cast<ActionMenuItem *>(item);
+
+    EventType eventType = actionItem->getEventType();
+    EventData eventData = actionItem->getEventData();
+
+    _eventManager->publish(eventType, eventData);
+    break;
+  }
   default: {
     LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d): Unhandled MenuItemType %d", digit,
         item->getItemType());
@@ -234,6 +243,10 @@ Menu *MenuManager::_createThrottleMenu(int index) {
   int throttleNumber = index + 1;
   snprintf(nameBuffer, sizeof(nameBuffer), "Throttle %d", throttleNumber);
   Menu *throttleMenu = _createManagedMenu(nameBuffer);
+  // Add Select Loco as the first item to select from roster
   throttleMenu->addItem(new SubMenuItem(_rosterMenu, "Select Loco"));
+  // Add Enter Address as an action item to show the user entry screen
+  throttleMenu->addItem(
+      new ActionMenuItem("Enter Address", EventType::RequestStateChange, EventData(AppState::EnterLocoAddress, index)));
   return throttleMenu;
 }
