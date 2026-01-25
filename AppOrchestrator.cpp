@@ -377,8 +377,8 @@ void AppOrchestrator::_displayCurrentState() {
     break;
   }
   case AppState::EnterLocoAddress: {
-    char title[32];
-    snprintf(title, sizeof(title), "Throttle %d Address", _activeContextIndex + 1);
+    char title[] = "Throttle X Address";              // X placeholder
+    title[9] = (char)(_activeContextIndex + 1 + '0'); // Overwrite placeholder with throttle number char
     _displayInterface->displayUserEntryScreen(title, "Enter DCC address:");
     break;
   }
