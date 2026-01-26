@@ -33,12 +33,39 @@ public:
     buffer += string.c_str(); // Append to buffer
   }
 
+  /**
+   * @brief Other print overloads
+   * @param n
+   */
+  void print(int n) { buffer += std::to_string(n); }
+  void print(long n) { buffer += std::to_string(n); }
+  void print(char c) { buffer += c; }
+
   /// @brief Println method
   /// @param string String to print
   void println(const std::string &string) {
     buffer += string.c_str(); // Append to buffer
     buffer += "\r\n";         // Add newline
   }
+
+  /**
+   * @brief Other println overloads
+   * @param n
+   */
+  void println(int n) {
+    print(n);
+    println();
+  }
+  void println(long n) {
+    print(n);
+    println();
+  }
+  void println(char c) {
+    print(c);
+    println();
+  }
+
+  void println() { buffer += "\r\n"; }
 
   /// @brief Check number of characters available in the buffer
   /// @return Number of characters
