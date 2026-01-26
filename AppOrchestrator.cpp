@@ -98,7 +98,7 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): %d", (int)event.eventType);
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): ", (int)event.eventType);
 
   /**
    * @brief Define the function pointer table for all event handlers using the typedef signature
@@ -135,7 +135,7 @@ void AppOrchestrator::onEvent(Event &event) {
       (this->*handler)(event);
     }
   } else {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent() unknown event: %d", typeIndex);
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::onEvent() unknown event: ", typeIndex);
   }
 }
 
@@ -227,7 +227,7 @@ void AppOrchestrator::_handleCommandStationConnected(Event &event) {
   if (_commandStationClient != nullptr) {
     Loco *roster = _commandStationClient->roster->getFirst();
     if (roster->getFirst()) {
-      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createRosterMenu(%s)", roster->getName());
+      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createRosterMenu(): ", roster->getName());
       _menuManager->createRosterMenu(roster);
     } else {
       LOG(LogLevel::LOG_DEBUG, "Empty roster, cannot create menu");
@@ -306,14 +306,14 @@ void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
 
   // Need to validate DCC address first, redirect with an error if invalid
   if (address < 1 || address > 10239) {
-    LOG(LogLevel::LOG_WARN, "AppOrchestrator:: Invalid DCC address entered: %d", address);
+    LOG(LogLevel::LOG_WARN, "AppOrchestrator:: Invalid DCC address entered: ", address);
     _switchState(AppState::EnterLocoAddress);
     _displayInterface->displayUserEntryScreen("Enter Address", "Invalid address! Retry:");
   } else {
     // Otherwise create the new loco with the address as the name and associate it
     Loco *loco = new Loco(address, LocoSource::LocoSourceEntry);
     char name[6];
-    snprintf(name, sizeof(name), "%d", address);
+    itoa(address, name, 10);
     loco->setName(name);
     Event selectEvent(EventType::LocoSelected, EventData(loco, throttleIndex));
     _handleLocoSelected(selectEvent);
@@ -335,7 +335,7 @@ void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
     return;
 
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(%d)", newState);
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(): ", (int)newState);
   _displayInterface->setRedraw(true);
   _currentAppState = newState;
 }

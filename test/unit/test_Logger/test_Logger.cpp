@@ -48,12 +48,11 @@ TEST_F(LoggerTests, SetLogLevel) {
 TEST_F(LoggerTests, LogErrorMessage) {
   // Setup a dummy error code and message
   const char *errorMessage = "Unknown error";
-  int errorNumber = 2;
   // Log this as an error
-  Logger::log(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber, errorMessage);
+  Logger::log(LogLevel::LOG_ERROR, "Encountered an error: ", errorMessage);
 
   // Construct expected output
-  std::string expectedOutput = "[ERR] Encountered an error: 2 - Unknown error\r\n";
+  std::string expectedOutput = "[ERR] Encountered an error: Unknown error\r\n";
 
   // Check the buffer to see if it contains this
   EXPECT_EQ(stream.buffer, expectedOutput);
@@ -103,22 +102,21 @@ TEST_F(LoggerTests, LogLevels) {
 TEST_F(LoggerTests, TestMacro) {
   // Setup a dummy error code and message
   const char *errorMessage = "Unknown error";
-  int errorNumber = 2;
 
   EXPECT_EQ(Logger::getLogLevel(), LogLevel::LOG_WARN);
 
   // Log this as an error
-  LOG(LogLevel::LOG_ERROR, "Encountered an error: %d - %s", errorNumber, errorMessage);
+  LOG(LogLevel::LOG_ERROR, "Encountered an error: ", errorMessage);
 
   // Construct expected output
-  std::string expectedOutput = "[ERR] Encountered an error: 2 - Unknown error\r\n";
+  std::string expectedOutput = "[ERR] Encountered an error: Unknown error\r\n";
 
   // Check the buffer to see if it contains this
   EXPECT_EQ(stream.buffer, expectedOutput);
   stream.clear();
 
   // Now log as info, which shouldn't log
-  LOG(LogLevel::LOG_INFO, "Encountered an error: %d - %s", errorNumber, errorMessage);
+  LOG(LogLevel::LOG_INFO, "Encountered an error: ", errorMessage);
   EXPECT_EQ(stream.buffer, "");
 
   // Verify all expectations were made

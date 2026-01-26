@@ -32,7 +32,7 @@ void CommandStationListener::receivedRosterList() {
 void CommandStationListener::receivedLocoUpdate(Loco *loco) {
   if (_eventManager) {
     EventData eventData(loco);
-    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoUpdate(): published event for loco %s",
+    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoUpdate(): published event for loco: ",
         loco->getName());
     _eventManager->publish(EventType::ReceivedLocoUpdate, eventData);
   }
@@ -42,7 +42,7 @@ void CommandStationListener::receivedLocoBroadcast(int address, int speed, Direc
   if (_eventManager) {
     LocoBroadcast broadcast = {address, speed, direction, functionMap};
     EventData eventData(broadcast);
-    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address %d",
+    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address: ",
         address);
     _eventManager->publish(EventType::ReceivedLocoBroadcast, eventData);
   }

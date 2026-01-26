@@ -29,7 +29,7 @@ void RotaryEncoder::begin() {
   pinMode(_clkPin, _inputMode);
   pinMode(_dtPin, _inputMode);
   _state = R_START;
-  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::begin() - clkPin|dtPin: %d|%d", _clkPin, _dtPin);
+  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::begin()");
 }
 
 RotaryEncoder::Direction RotaryEncoder::checkDirection() {
@@ -80,14 +80,14 @@ UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {
     _lastUpThrottleStep = currentMillis;
   }
   if (action != UserSelectionAction::None)
-    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::check() returning %d", static_cast<int>(action));
+    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::check() returning: ", static_cast<int>(action));
   return action;
 }
 
 void RotaryEncoder::setMode(RotaryEncoder::Mode mode) {
   _mode = mode;
   _state = R_START; // Reset to R_START
-  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::setMode(%d)", static_cast<int>(_mode));
+  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::setMode(): ", static_cast<int>(_mode));
 }
 
 #endif // NATIVE_TESTING

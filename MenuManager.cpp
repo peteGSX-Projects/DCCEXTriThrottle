@@ -56,7 +56,7 @@ void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent)
     return;
 
   char key = inputEvent.key;
-  LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: %c", key);
+  LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: ", key);
 
   if (key >= '0' && key <= '9') {
     _handleSelection(key - '0');
@@ -138,10 +138,10 @@ void MenuManager::_handleSelection(int digit) {
   BaseMenuItem *item = _currentMenu->getItemByPageIndex(digit);
 
   if (item == nullptr) {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d): No item at this index", digit);
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): No item at this index: ", digit);
     return;
   }
-  LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d) select %s", digit, item->getName());
+  LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection() select: ", item->getName());
 
   switch (item->getItemType()) {
   case MenuItemType::ThrottleMenuType: {
@@ -187,8 +187,7 @@ void MenuManager::_handleSelection(int digit) {
     break;
   }
   default: {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(%d): Unhandled MenuItemType %d", digit,
-        item->getItemType());
+    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Unhandled MenuItemType: ", (int)item->getItemType());
   }
   }
 }

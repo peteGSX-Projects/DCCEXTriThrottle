@@ -26,35 +26,23 @@ void Logger::setLogLevel(LogLevel logLevel) { _currentLevel = logLevel; }
 
 LogLevel Logger::getLogLevel() { return _currentLevel; }
 
-void Logger::log(LogLevel logLevel, const char *format, ...) {
+void Logger::log(LogLevel logLevel, const char *message) {
   if (_outputStream == nullptr || (logLevel > _currentLevel && logLevel != LogLevel::LOG_MESSAGE))
     return;
 
-  // Static lookup table for prefixes to save Flash
-  static const char *const prefixes[] = {"[MSG] ", "", "[ERR] ", "[WRN] ", "[INF] ", "[DBG] "};
-
-  // Assign the prefix pointer from the logLevel
-  const char *prefix = (logLevel >= 0 && logLevel < 6) ? prefixes[logLevel] : "";
-
-  // Use fixed size buffer to save Flash
-  char buffer[64];
-
-  // Copy prefix first
-  strcpy(buffer, prefix);
-  size_t prefixLen = strlen(prefix);
-
-  // Format the message directly into the remaining space
-  va_list args;
-  va_start(args, format);
-  // Write into the buffer starting after the prefix
-  vsnprintf(buffer + prefixLen, sizeof(buffer) - prefixLen, format, args);
-  va_end(args);
-
-  // Output formatted message
-  _outputStream->println(buffer);
+  _printPrefix(logLevel, _outputStream);
+  _outputStream->println(message);
 }
 
 void Logger::reset() {
   _outputStream = nullptr;
   _currentLevel = LogLevel::LOG_WARN;
+}
+
+void Logger::_printPrefix(LogLevel logLevel, Stream *outputStream) {
+  // Static lookup table for prefixes to save Flash
+  static const char *const prefixes[] = {"[MSG] ", "", "[ERR] ", "[WRN] ", "[INF] ", "[DBG] "};
+  // Assign the prefix pointer from the logLevel
+  const char *prefix = (logLevel >= 0 && logLevel < 6) ? prefixes[logLevel] : "";
+  outputStream->print(prefix);
 }

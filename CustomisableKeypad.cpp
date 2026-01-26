@@ -40,8 +40,8 @@ void CustomisableKeypad::begin() {
   for (int column = 0; column < _numColumns; column++) {
     pinMode(_columnPins[column], INPUT_PULLUP); // Columns in input mode with pullups
   }
-  LOG(LogLevel::LOG_DEBUG, "CustomisableKeypad::begin(): initialise with %d rows and %d columns", _numRows,
-      _numColumns);
+  LOG(LogLevel::LOG_DEBUG, "CustomisableKeypad::begin(): initialise with rows: ", _numRows);
+  LOG(LogLevel::LOG_DEBUG, "CustomisableKeypad::begin(): initialise with columns: ", _numColumns);
 }
 
 UserInputInterface::UserInputEvent CustomisableKeypad::check() {
@@ -68,7 +68,7 @@ UserInputInterface::UserInputEvent CustomisableKeypad::check() {
   if (_isPressed && _activeKey == _lastStableKey) {
     if (!_heldReported && (currentTime - _pressStartTime) > _heldThreshold) {
       _heldReported = true;
-      LOG(LogLevel::LOG_DEBUG, "Key Held: %c", _lastStableKey);
+      LOG(LogLevel::LOG_DEBUG, "Key Held: ", _lastStableKey);
       return {_lastStableKey, UserInputAction::Held};
     }
   }
@@ -81,11 +81,11 @@ UserInputInterface::UserInputEvent CustomisableKeypad::check() {
 
     if (_heldReported) {
       // It was Held, therefore this must be a Release
-      LOG(LogLevel::LOG_DEBUG, "Key Released: %c", releasedKey);
+      LOG(LogLevel::LOG_DEBUG, "Key Released: ", releasedKey);
       return {releasedKey, UserInputAction::Released};
     } else {
       // Otherwise it is Pressed
-      LOG(LogLevel::LOG_DEBUG, "Key Pressed: %c", releasedKey);
+      LOG(LogLevel::LOG_DEBUG, "Key Pressed: ", releasedKey);
       return {releasedKey, UserInputAction::Pressed};
     }
   }

@@ -46,10 +46,28 @@ public:
   /// @return LogLevel
   static LogLevel getLogLevel();
 
-  /// @brief Log a message for the specified log level
-  /// @param logLevel Valid LogLevel
-  /// @param format Format to apply to the message
-  static void log(LogLevel logLevel, const char *format, ...);
+  /**
+   * @brief Log a simple message
+   * @param logLevel LogLevel the message is targeted for
+   * @param message Null terminated char array
+   */
+  static void log(LogLevel logLevel, const char *message);
+
+  /**
+   * @brief Templated log message
+   * @tparam T Value type to substitute in the template
+   * @param logLevel LogLevel the message is targeted for
+   * @param message Null terminated char array
+   * @param value Value to append to the log message
+   */
+  template <typename T> static void log(LogLevel logLevel, const char *message, T value) {
+    if (_outputStream == nullptr || (logLevel > _currentLevel && logLevel != LogLevel::LOG_MESSAGE))
+      return;
+
+    _printPrefix(logLevel, _outputStream);
+    _outputStream->print(message);
+    _outputStream->println(value);
+  }
 
   /**
    * @brief Reset Logger to default attributes - no output, and LogLevel::LOG_WARN
@@ -59,6 +77,13 @@ public:
 private:
   static Stream *_outputStream;
   static LogLevel _currentLevel;
+
+  /**
+   * @brief
+   * @param logLevel
+   * @param outputStream
+   */
+  static void _printPrefix(LogLevel logLevel, Stream *outputStream);
 };
 
 #endif // LOGGER_H
