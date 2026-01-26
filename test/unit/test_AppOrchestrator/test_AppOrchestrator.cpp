@@ -419,3 +419,101 @@ TEST_F(AppOrchestratorTests, TestLocoBroadcastUpdatesThrottle) {
 
   delete loco;
 }
+
+/**
+ * @brief Test receiving a ReceivedTrackPower event updates the power status on the Throttle screen
+ */
+TEST_F(AppOrchestratorTests, TestReceivedTrackPowerUpdatesThrottleScreen) {
+  // Set up
+  TrackPower state = TrackPower::PowerOn;
+  EventData eventData(state);
+  Event event(EventType::ReceivedTrackPower, eventData);
+  appOrchestrator->setCurrentAppState(AppState::Throttle);
+
+  // Set the expectation
+  EXPECT_CALL(*mockDisplay, updateThrottleTrackPower(state)).Times(1);
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+}
+
+/**
+ * @brief Test receiving a ReceivedTrackPower event does not update when not in Throttle AppState
+ */
+TEST_F(AppOrchestratorTests, TestReceivedTrackPowerDoesNotUpdateOtherStates) {
+  // Set up
+  TrackPower state = TrackPower::PowerOn;
+  EventData eventData(state);
+  Event event(EventType::ReceivedTrackPower, eventData);
+  appOrchestrator->setCurrentAppState(AppState::Menu);
+
+  // Set the expectation
+  EXPECT_CALL(*mockDisplay, updateThrottleTrackPower(state)).Times(0);
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+}
+
+/**
+ * @brief Test toggling the power state from Unknown turns power on
+ */
+TEST_F(AppOrchestratorTests, TestTogglePowerUnknownSendsOn) {
+  // Validate initial state is unknown to start
+  ASSERT_EQ(appOrchestrator->getTrackPowerState(), TrackPower::PowerUnknown);
+
+  // Set up the toggle event
+  Event event(EventType::ToggleTrackPower, EventData());
+
+  // Handle event
+  appOrchestrator->onEvent(event);
+
+  // Validate outcome
+  EXPECT_EQ(csClient->getTrackPower(), TrackPower::PowerOn);
+
+  // Should be back in Throttle state
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}
+
+/**
+ * @brief Test toggling the power state from on turns power off
+ */
+TEST_F(AppOrchestratorTests, TestTogglePowerOnSendsOff) {
+  // Set power on from event and validate
+  Event powerOnEvent(EventType::ReceivedTrackPower, EventData(TrackPower::PowerOn));
+  appOrchestrator->onEvent(powerOnEvent);
+  ASSERT_EQ(appOrchestrator->getTrackPowerState(), TrackPower::PowerOn);
+
+  // Set up the toggle event
+  Event toggleEvent(EventType::ToggleTrackPower, EventData());
+
+  // Handle event
+  appOrchestrator->onEvent(toggleEvent);
+
+  // Validate outcome
+  EXPECT_EQ(csClient->getTrackPower(), TrackPower::PowerOff);
+
+  // Should be back in Throttle state
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}
+
+/**
+ * @brief Test toggling the power state from off turns power on
+ */
+TEST_F(AppOrchestratorTests, TestTogglePowerOffSendsOn) {
+  // Set power on from event and validate
+  Event powerOffEvent(EventType::ReceivedTrackPower, EventData(TrackPower::PowerOff));
+  appOrchestrator->onEvent(powerOffEvent);
+  ASSERT_EQ(appOrchestrator->getTrackPowerState(), TrackPower::PowerOff);
+
+  // Set up the toggle event
+  Event toggleEvent(EventType::ToggleTrackPower, EventData());
+
+  // Handle event
+  appOrchestrator->onEvent(toggleEvent);
+
+  // Validate outcome
+  EXPECT_EQ(csClient->getTrackPower(), TrackPower::PowerOn);
+
+  // Should be back in Throttle state
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}

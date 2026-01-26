@@ -398,3 +398,33 @@ TEST_F(MenuManagerTests, TestCreateRosterMenu) {
   // Clean up
   delete client;
 }
+
+/**
+ * @brief Test selecting toggle track power from the menu publishes the event
+ */
+TEST_F(MenuManagerTests, TestToggleTrackPowerPublishesEvent) {
+  // Setup a mock listener and subscribe to ToggleTrackPower
+  MockEventListener *orchestrator = new MockEventListener();
+  eventManager->subscribe(orchestrator, EventType::ToggleTrackPower);
+
+  // Initialise menus
+  menuManager->initialise();
+
+  // Assert/navigate to tracks menu and assert that first item is Toggle Power
+  menuManager->handleUserInput({'7', UserInputInterface::UserInputAction::Pressed});
+  ASSERT_STREQ(menuManager->getCurrentMenu()->getName(), "Tracks");
+  ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(0), nullptr);
+  ASSERT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Toggle Power");
+
+  // Setup expectation of the event with no data
+  EXPECT_CALL(*orchestrator,
+              onEvent(AllOf(Field(&Event::eventType, EventType::ToggleTrackPower),
+                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::NoneData)))))
+      .Times(1);
+
+  // Select item 0
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+
+  // Clean up
+  delete orchestrator;
+}

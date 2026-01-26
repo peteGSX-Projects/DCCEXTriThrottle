@@ -193,6 +193,12 @@ public:
     }
   }
 
+  virtual void powerOn() { _trackPower = TrackPower::PowerOn; }
+
+  virtual void powerOff() { _trackPower = TrackPower::PowerOff; }
+
+  TrackPower getTrackPower() { return _trackPower; }
+
   /// @brief Linked list of Loco objects to form the roster
   Loco *roster = nullptr;
 
@@ -268,6 +274,7 @@ private:
   bool _turntableListRequested = false;
   bool _receivedTurntableList = false;
   bool _disconnected = false;
+  TrackPower _trackPower = TrackPower::PowerUnknown;
 };
 
 #endif // DCCEXPROTOCOL_H

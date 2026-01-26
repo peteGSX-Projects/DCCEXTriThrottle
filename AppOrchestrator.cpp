@@ -30,6 +30,7 @@ AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputIn
   _activeContextIndex = -1;
   _enterAddressBuffer = 0;
   _enterAddressBufferCount = 0;
+  _powerState = TrackPower::PowerUnknown;
 }
 
 void AppOrchestrator::begin() {
@@ -147,6 +148,8 @@ int AppOrchestrator::getActiveContextIndex() { return _activeContextIndex; }
 
 void AppOrchestrator::setActiveContextIndex(int index) { _activeContextIndex = index; }
 
+TrackPower AppOrchestrator::getTrackPowerState() { return _powerState; }
+
 AppOrchestrator::~AppOrchestrator() {}
 
 // update() handlers
@@ -254,11 +257,29 @@ void AppOrchestrator::_handleLocoSelected(Event &event) {
 
 void AppOrchestrator::_handleReceivedLocoUpdate(Event &event) {}
 
-void AppOrchestrator::_handleReceivedTrackPower(Event &event) {}
+void AppOrchestrator::_handleReceivedTrackPower(Event &event) {
+  // Always keep track power state current
+  TrackPower powerState = event.eventData.trackPowerValue;
+  _powerState = powerState;
+
+  if (_currentAppState != AppState::Throttle)
+    return;
+  // Only update display if in Throttle state
+  _displayInterface->updateThrottleTrackPower(powerState);
+}
 
 void AppOrchestrator::_handleReceivedReadLoco(Event &event) {}
 
-void AppOrchestrator::_handleToggleTrackPower(Event &event) {}
+void AppOrchestrator::_handleToggleTrackPower(Event &event) {
+  if (_powerState == TrackPower::PowerOn) {
+    _commandStationClient->powerOff();
+  } else {
+    _commandStationClient->powerOn();
+  }
+  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_handleToggleTrackPower to: ", (int)_powerState);
+  _menuManager->reset();
+  _switchState(AppState::Throttle);
+}
 
 void AppOrchestrator::_handleReceivedLocoBroadcast(Event &event) {
   LocoBroadcast broadcast = event.eventData.locoBroadcastValue;

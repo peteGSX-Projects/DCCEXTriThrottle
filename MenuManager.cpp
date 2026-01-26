@@ -39,16 +39,19 @@ void MenuManager::initialise() {
   Menu *throttle1Menu = _createThrottleMenu(1);
   Menu *throttle2Menu = _createThrottleMenu(2);
 
+  // Setup sub menus
+  _setupTracksMenu(tracksMenu);
+
   // Setup main menu items
-  _rootMenu->addItem(new ThrottleMenuItem(throttle0Menu, 0));
-  _rootMenu->addItem(new ThrottleMenuItem(throttle1Menu, 1));
-  _rootMenu->addItem(new ThrottleMenuItem(throttle2Menu, 2));
-  _rootMenu->addItem(new SubMenuItem(_turnoutMenu));
-  _rootMenu->addItem(new SubMenuItem(_turntableMenu));
-  _rootMenu->addItem(new SubMenuItem(_routeMenu));
-  _rootMenu->addItem(new SubMenuItem(_rosterMenu));
-  _rootMenu->addItem(new SubMenuItem(tracksMenu));
-  _rootMenu->addItem(new SubMenuItem(systemMenu));
+  _rootMenu->addItem(new ThrottleMenuItem(throttle0Menu, 0)); // 0
+  _rootMenu->addItem(new ThrottleMenuItem(throttle1Menu, 1)); // 1
+  _rootMenu->addItem(new ThrottleMenuItem(throttle2Menu, 2)); // 2
+  _rootMenu->addItem(new SubMenuItem(_turnoutMenu));          // 3
+  _rootMenu->addItem(new SubMenuItem(_turntableMenu));        // 4
+  _rootMenu->addItem(new SubMenuItem(_routeMenu));            // 5
+  _rootMenu->addItem(new SubMenuItem(_rosterMenu));           // 6
+  _rootMenu->addItem(new SubMenuItem(tracksMenu));            // 7
+  _rootMenu->addItem(new SubMenuItem(systemMenu));            // 8
 }
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
@@ -228,4 +231,8 @@ Menu *MenuManager::_createThrottleMenu(int index) {
   throttleMenu->addItem(
       new ActionMenuItem("Enter Address", EventType::RequestStateChange, EventData(AppState::EnterLocoAddress, index)));
   return throttleMenu;
+}
+
+void MenuManager::_setupTracksMenu(Menu *tracksMenu) {
+  tracksMenu->addItem(new ActionMenuItem("Toggle Power", EventType::ToggleTrackPower, EventData())); // 0
 }

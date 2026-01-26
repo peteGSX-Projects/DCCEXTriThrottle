@@ -96,6 +96,12 @@ public:
   void setActiveContextIndex(int index);
 
   /**
+   * @brief Get the Track Power State
+   * @return TrackPower TrackPower state
+   */
+  TrackPower getTrackPowerState();
+
+  /**
    * @brief Destroy the App Orchestrator object
    */
   ~AppOrchestrator();
@@ -115,6 +121,7 @@ private:
   int _activeContextIndex;
   int _enterAddressBuffer;
   int _enterAddressBufferCount;
+  TrackPower _powerState;
 
   // update() handlers
   /**

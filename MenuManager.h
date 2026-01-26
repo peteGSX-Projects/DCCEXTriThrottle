@@ -166,6 +166,12 @@ private:
    * @param index Index this throttle is associated with, will be incremented for the name
    */
   Menu *_createThrottleMenu(int index);
+
+  /**
+   * @brief Sets up items in the Tracks menu
+   * @param tracksMenu Pointer to the Tracks menu instance
+   */
+  void _setupTracksMenu(Menu *tracksMenu);
 };
 
 #endif // MENUMANAGER_H
