@@ -276,7 +276,6 @@ void AppOrchestrator::_handleToggleTrackPower(Event &event) {
   } else {
     _commandStationClient->powerOn();
   }
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_handleToggleTrackPower to: ", (int)_powerState);
   _menuManager->reset();
   _switchState(AppState::Throttle);
 }
