@@ -40,11 +40,6 @@ public:
   void receivedServerVersion(int major, int minor, int patch) override;
 
   /**
-   * @brief Publish the received roster event
-   */
-  void receivedRosterList() override;
-
-  /**
    * @brief Publish a Loco update event
    * @param loco Pointer to the Loco object
    */

@@ -193,6 +193,18 @@ public:
     }
   }
 
+  virtual void toggleTurnout(int turnoutId) {
+    if (!_delegate)
+      return;
+
+    for (Turnout *t = turnouts->getFirst(); t; t = t->getNext()) {
+      if (t->getId() == turnoutId) {
+        bool thrown = t->getThrown() ? 0 : 1;
+        t->setThrown(thrown);
+      }
+    }
+  }
+
   virtual void powerOn() { _trackPower = TrackPower::PowerOn; }
 
   virtual void powerOff() { _trackPower = TrackPower::PowerOff; }
@@ -233,11 +245,42 @@ public:
     roster = Loco::getFirst();
   }
 
-  void createMockTurnoutList() {}
+  void createMockTurnoutList() {
+    Turnout *turnout1 = new Turnout(1, false);
+    turnout1->setName("Turnout 1");
+    Turnout *turnout2 = new Turnout(2, false);
+    turnout2->setName("Turnout 2");
+    Turnout *turnout3 = new Turnout(3, false);
+    turnout3->setName("Turnout 3");
+    Turnout *turnout4 = new Turnout(4, false);
+    turnout4->setName("Turnout 4");
+    Turnout *turnout5 = new Turnout(5, false);
+    turnout5->setName("Turnout 5");
+    turnouts = Turnout::getFirst();
+  }
 
   void createMockTurntableList() {}
 
-  void createMockRouteList() {}
+  void createMockRouteList() {
+    Route *route1 = new Route(1);
+    route1->setName("Route 1");
+    route1->setType(RouteType::RouteTypeRoute);
+    Route *route2 = new Route(2);
+    route2->setName("Route 2");
+    route2->setType(RouteType::RouteTypeRoute);
+    Route *route3 = new Route(3);
+    route3->setName("Route 3");
+    route3->setType(RouteType::RouteTypeRoute);
+    Route *route4 = new Route(4);
+    route4->setName("Automation 4");
+    route4->setType(RouteType::RouteTypeAutomation);
+    Route *route5 = new Route(5);
+    route5->setName("Automation 5");
+    route5->setType(RouteType::RouteTypeAutomation);
+    Route *route6 = new Route(6);
+    route6->setName("Automation 6");
+    route6->setType(RouteType::RouteTypeAutomation);
+  }
 
   void setDisconnected(bool disconnected) { _disconnected = disconnected; }
 

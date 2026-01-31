@@ -108,7 +108,7 @@ void AppOrchestrator::onEvent(Event &event) {
    */
   static const EventHandler eventHandlers[] = {
       &AppOrchestrator::_handleCommandStationConnected, // 0
-      &AppOrchestrator::_handleReceivedRosterList,      // 1
+      &AppOrchestrator::_handleToggleTurnout,           // 1
       &AppOrchestrator::_handleLocoSelected,            // 2
       &AppOrchestrator::_handleReceivedLocoUpdate,      // 3
       &AppOrchestrator::_handleReceivedTrackPower,      // 4
@@ -229,16 +229,22 @@ void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent
 void AppOrchestrator::_handleCommandStationConnected(Event &event) {
   if (_commandStationClient != nullptr) {
     Loco *roster = _commandStationClient->roster->getFirst();
-    if (roster->getFirst()) {
+    if (roster != nullptr) {
       LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createRosterMenu(): ", roster->getName());
       _menuManager->createRosterMenu(roster);
-    } else {
-      LOG(LogLevel::LOG_DEBUG, "Empty roster, cannot create menu");
+    }
+    Turnout *turnout = _commandStationClient->turnouts->getFirst();
+    if (turnout != nullptr) {
+      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createTurnoutMenu(): ", turnout->getName());
+      _menuManager->createTurnoutMenu(turnout);
     }
   }
 }
 
-void AppOrchestrator::_handleReceivedRosterList(Event &event) {}
+void AppOrchestrator::_handleToggleTurnout(Event &event) {
+  int turnoutId = event.eventData.intValue;
+  _commandStationClient->toggleTurnout(turnoutId);
+}
 
 void AppOrchestrator::_handleLocoSelected(Event &event) {
   if (_throttles) {

@@ -31,7 +31,7 @@
  */
 enum EventType {
   CommandStationConnected, // 0
-  ReceivedRosterList,      // 1
+  ToggleTurnout,           // 1
   LocoSelected,            // 2
   ReceivedLocoUpdate,      // 3
   ReceivedTrackPower,      // 4

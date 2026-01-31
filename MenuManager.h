@@ -97,6 +97,12 @@ public:
   void createRosterMenu(Loco *roster);
 
   /**
+   * @brief Create the Turnout Menu from the DCC-EX turnout list
+   * @param firstTurnout Pointer to the first Turnout in the list
+   */
+  void createTurnoutMenu(Turnout *firstTurnout);
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();

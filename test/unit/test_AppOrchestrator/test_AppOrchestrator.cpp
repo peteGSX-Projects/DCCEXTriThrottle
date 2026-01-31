@@ -16,6 +16,7 @@
  */
 
 #include "AppOrchestrator.h"
+#include "CommandStationListener.h"
 #include "EventManager.h"
 #include "Throttle.h"
 #include "Version.h"
@@ -48,6 +49,7 @@ protected:
   EventManager *eventManager;
   MenuManager *menuManager;
   Stream csConnection;
+  CommandStationListener *csListener;
   DCCEXProtocol *csClient;
 
   void SetUp() override {
@@ -62,6 +64,8 @@ protected:
     encoder2 = new MockRotaryEncoder;
     encoder3 = new MockRotaryEncoder;
     csClient = new DCCEXProtocol;
+    csListener = new CommandStationListener(eventManager, logger);
+    csClient->setDelegate(csListener);
     csClient->connect(&csConnection);
     throttles[0] = new Throttle(0, button1, encoder1, csClient, logger, 1, 2, 5);
     throttles[1] = new Throttle(1, button2, encoder2, csClient, logger, 1, 2, 5);
@@ -84,6 +88,7 @@ protected:
     }
 
     delete csClient;
+    delete csListener;
     delete encoder3;
     delete encoder2;
     delete encoder1;
@@ -516,4 +521,25 @@ TEST_F(AppOrchestratorTests, TestTogglePowerOffSendsOn) {
 
   // Should be back in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}
+
+TEST_F(AppOrchestratorTests, TestToggleTurnout) {
+  // Create a dummy turnout
+  Turnout *turnout = new Turnout(1, false);
+
+  // Set up the toggle event
+  Event toggleEvent(EventType::ToggleTurnout, EventData(turnout->getId()));
+
+  // Handle the event
+  appOrchestrator->onEvent(toggleEvent);
+
+  // Turnout should now be thrown
+  EXPECT_TRUE(turnout->getThrown());
+
+  // Repeat handler and should not be thrown
+  appOrchestrator->onEvent(toggleEvent);
+  EXPECT_FALSE(turnout->getThrown());
+
+  // Clean up
+  delete turnout;
 }

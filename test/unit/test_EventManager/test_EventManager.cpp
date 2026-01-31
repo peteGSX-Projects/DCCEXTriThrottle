@@ -113,19 +113,19 @@ TEST_F(EventManagerTests, TestLocoData) {
 /// @brief Test an event with NoneData can be published and received by a
 /// Listener
 TEST_F(EventManagerTests, TestNoneData) {
-  // Subscribe to ReceivedRosterList which is a notification only with no data
-  eventManager->subscribe(listener, EventType::ReceivedRosterList);
+  // Subscribe to ExitMenu which is a notification only with no data
+  eventManager->subscribe(listener, EventType::ExitMenu);
 
   // Expect empty data
-  Event expectedEvent(EventType::ReceivedRosterList, EventData());
+  Event expectedEvent(EventType::ExitMenu, EventData());
   EXPECT_CALL(*listener,
-              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedRosterList),
+              onEvent(AllOf(Field(&Event::eventType, EventType::ExitMenu),
                             Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::NoneData)))))
       .Times(1);
 
   // Publish a ReceivedRosterList event with empty data
   EventData data;
-  eventManager->publish(EventType::ReceivedRosterList, data);
+  eventManager->publish(EventType::ExitMenu, data);
 
   // Verify and clear expectations
   Mock::VerifyAndClearExpectations(listener);

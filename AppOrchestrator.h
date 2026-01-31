@@ -162,10 +162,10 @@ private:
   void _handleCommandStationConnected(Event &event);
 
   /**
-   * @brief Handle a ReceivedRosterList event to update the Roster menu
-   * @param event ReceivedRosterList event
+   * @brief Handle a Toggle Turnout event to close/throw a turnout
+   * @param event ToggleTurnout event
    */
-  void _handleReceivedRosterList(Event &event);
+  void _handleToggleTurnout(Event &event);
 
   /**
    * @brief Handle a LocoSelected event to associate loco with a throttle

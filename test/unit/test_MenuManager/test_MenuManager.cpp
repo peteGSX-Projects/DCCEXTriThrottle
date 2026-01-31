@@ -428,3 +428,29 @@ TEST_F(MenuManagerTests, TestToggleTrackPowerPublishesEvent) {
   // Clean up
   delete orchestrator;
 }
+
+/**
+ * @brief Test createTurnoutMenu() creates the turnout menu from the protocol turnout list
+ */
+TEST_F(MenuManagerTests, TestCreateTurnoutMenu) {
+  // Initialise menus
+  menuManager->initialise();
+
+  // Create a DCCEXProtocol instance and create the dummy turnout list
+  DCCEXProtocol *client = new DCCEXProtocol;
+  client->createMockTurnoutList();
+
+  // Call createRosterMenu() with the first entry
+  Turnout *turnout = Turnout::getFirst();
+  menuManager->createTurnoutMenu(turnout);
+
+  // Ensure turnout menu is accessible via main menu, '3'
+  menuManager->handleUserInput({'3', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turnouts");
+  ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(0), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turnout 1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Turnout 5");
+
+  // Clean up
+  delete client;
+}

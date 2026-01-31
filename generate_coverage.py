@@ -10,6 +10,9 @@ if os.path.exists(build_dir):
         "gcovr -r . "
         ".pio/build/native_test/src/ "
         "--exclude test/ "
+        "--exclude src/ "
+        "--exclude .pio/ "
+        "--exclude avdweb_Switch.cpp "
         "--lcov lcov.info "
         "--html-details -o coverage.html"
     )

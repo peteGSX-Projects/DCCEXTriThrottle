@@ -22,13 +22,6 @@ CommandStationListener::CommandStationListener(EventManager *eventManager, Logge
 
 void CommandStationListener::receivedServerVersion(int major, int minor, int patch) {}
 
-void CommandStationListener::receivedRosterList() {
-  if (_eventManager) {
-    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedRosterList(): published event");
-    _eventManager->publish(EventType::ReceivedRosterList, EventData());
-  }
-}
-
 void CommandStationListener::receivedLocoUpdate(Loco *loco) {
   if (_eventManager) {
     EventData eventData(loco);

@@ -106,6 +106,23 @@ void MenuManager::createRosterMenu(Loco *roster) {
   }
 }
 
+void MenuManager::createTurnoutMenu(Turnout *firstTurnout) {
+  if (_turnoutMenu == nullptr)
+    return;
+
+  // Make sure menu is clear first
+  _turnoutMenu->clearItems();
+
+  if (firstTurnout == nullptr)
+    return;
+
+  for (Turnout *turnout = firstTurnout; turnout; turnout = turnout->getNext()) {
+    EventType type = EventType::ToggleTurnout;
+    EventData data(turnout->getId());
+    _turnoutMenu->addItem(new ActionMenuItem(turnout->getName(), type, data));
+  }
+}
+
 MenuManager::~MenuManager() {
   for (int i = 0; i < _menuCount; i++) {
     delete _allManagedMenus[i];
