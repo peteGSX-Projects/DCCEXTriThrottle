@@ -1,10 +1,22 @@
 """
 Generate lcov.info to enable Coverage Gutters VSCode extension to display code test coverage.
+Also generate HTML coverage in test_coverage/coverage.html
 """
 
 import os
 
 build_dir = os.path.join(".pio", "build", "native_test", "src")
+html_dir = os.path.join("test_coverage")
+html_file = os.path.join(html_dir, "coverage.html")
+
+if not os.path.exists(html_dir):
+    try:
+        os.makedirs(html_dir, exist_ok=True)
+        print(f"Created coverage directory {html_dir}")
+    except Exception as error:
+        print(f"Could not create coverage directory: {str(error)}")
+        exit()
+
 if os.path.exists(build_dir):
     cmd = (
         "gcovr -r . "
@@ -14,8 +26,9 @@ if os.path.exists(build_dir):
         "--exclude .pio/ "
         "--exclude avdweb_Switch.cpp "
         "--lcov lcov.info "
-        "--html-details -o coverage.html"
+        f"--html-details -o {html_file}"
     )
+    print(f"Running command: {cmd}")
     os.system(cmd)
 
 else:
