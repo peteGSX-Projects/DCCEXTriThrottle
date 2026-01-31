@@ -191,6 +191,7 @@ void MenuManager::_handleSelection(int digit) {
   }
   default: {
     LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Unhandled MenuItemType: ", (int)item->getItemType());
+    break;
   }
   }
 }

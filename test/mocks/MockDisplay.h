@@ -43,7 +43,7 @@ public:
 
   MOCK_METHOD(void, clear, (), (override));
 
-  MOCK_METHOD(void, displayThrottleScreen, (Throttle * *throttles), (override));
+  MOCK_METHOD(void, displayThrottleScreen, (Throttle * *throttles, TrackPower state), (override));
 
   MOCK_METHOD(void, updateThrottleScreen, (int throttleIndex, Throttle *throttles, bool force), (override));
 

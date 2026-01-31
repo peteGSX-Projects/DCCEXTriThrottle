@@ -29,7 +29,7 @@ protected:
     // Initialise any test resources
     Logger::reset();
     Logger::setOutput(&stream);
-    stream.clear();
+    stream.clearOutput();
   }
 
   // Optional teardown method
@@ -55,7 +55,7 @@ TEST_F(LoggerTests, LogErrorMessage) {
   std::string expectedOutput = "[ERR] Encountered an error: Unknown error\r\n";
 
   // Check the buffer to see if it contains this
-  EXPECT_EQ(stream.buffer, expectedOutput);
+  EXPECT_EQ(stream.getOutput(), expectedOutput);
 
   // Verify all expectations were made
   testing::Mock::VerifyAndClearExpectations(&stream);
@@ -69,31 +69,31 @@ TEST_F(LoggerTests, LogLevels) {
   // Expect no output for a debug message with default warning, then output at
   // debug level
   Logger::log(LogLevel::LOG_DEBUG, debugMessage);
-  EXPECT_EQ(stream.buffer, "");
-  stream.clear();
+  EXPECT_EQ(stream.getOutput(), "");
+  stream.clearOutput();
   Logger::setLogLevel(LogLevel::LOG_DEBUG);
   Logger::log(LogLevel::LOG_DEBUG, debugMessage);
-  EXPECT_EQ(stream.buffer, "[DBG] This is a debug message\r\n");
-  stream.clear();
+  EXPECT_EQ(stream.getOutput(), "[DBG] This is a debug message\r\n");
+  stream.clearOutput();
 
   // Should not get the debug message at info, but we should get error
   Logger::setLogLevel(LogLevel::LOG_INFO);
   Logger::log(LogLevel::LOG_DEBUG, debugMessage);
-  EXPECT_EQ(stream.buffer, "");
-  stream.clear();
+  EXPECT_EQ(stream.getOutput(), "");
+  stream.clearOutput();
   Logger::log(LogLevel::LOG_ERROR, errorMessage);
-  EXPECT_EQ(stream.buffer, "[ERR] This is an error\r\n");
-  stream.clear();
+  EXPECT_EQ(stream.getOutput(), "[ERR] This is an error\r\n");
+  stream.clearOutput();
 
   // We should not get an error message with log level none
   Logger::setLogLevel(LogLevel::LOG_NONE);
   Logger::log(LogLevel::LOG_ERROR, errorMessage);
-  EXPECT_EQ(stream.buffer, "");
-  stream.clear();
+  EXPECT_EQ(stream.getOutput(), "");
+  stream.clearOutput();
 
   // However, we should always get a message even at none
   Logger::log(LogLevel::LOG_MESSAGE, debugMessage);
-  EXPECT_EQ(stream.buffer, "[MSG] This is a debug message\r\n");
+  EXPECT_EQ(stream.getOutput(), "[MSG] This is a debug message\r\n");
 
   // Verify all expectations were made
   testing::Mock::VerifyAndClearExpectations(&stream);
@@ -112,12 +112,12 @@ TEST_F(LoggerTests, TestMacro) {
   std::string expectedOutput = "[ERR] Encountered an error: Unknown error\r\n";
 
   // Check the buffer to see if it contains this
-  EXPECT_EQ(stream.buffer, expectedOutput);
-  stream.clear();
+  EXPECT_EQ(stream.getOutput(), expectedOutput);
+  stream.clearOutput();
 
   // Now log as info, which shouldn't log
   LOG(LogLevel::LOG_INFO, "Encountered an error: ", errorMessage);
-  EXPECT_EQ(stream.buffer, "");
+  EXPECT_EQ(stream.getOutput(), "");
 
   // Verify all expectations were made
   testing::Mock::VerifyAndClearExpectations(&stream);

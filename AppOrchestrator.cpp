@@ -367,7 +367,7 @@ void AppOrchestrator::_displayCurrentState() {
     break;
   }
   case AppState::Throttle: {
-    _displayInterface->displayThrottleScreen(_throttles);
+    _displayInterface->displayThrottleScreen(_throttles, _powerState);
     break;
   }
   case AppState::ConnectionError: {

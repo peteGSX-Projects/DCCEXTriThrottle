@@ -2,3 +2,7 @@
 .vscode
 _build
 myConfig.h
+venv/
+# Coverage info file
+lcov.info
+coverage.*

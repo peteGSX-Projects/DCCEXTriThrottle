@@ -129,8 +129,9 @@ public:
   /**
    * @brief Display the throttle screen
    * @param throttles Array containing pointers to the Throttle instances
+   * @param state TrackPower
    */
-  void displayThrottleScreen(Throttle **throttles) override;
+  void displayThrottleScreen(Throttle **throttles, TrackPower state) override;
 
   /**
    * @brief Update the specified throttle's display

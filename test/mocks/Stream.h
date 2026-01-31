@@ -1,5 +1,5 @@
 /*
- *  © 2025 Peter Cole
+ *  © 2026 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,72 +18,73 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include <gmock/gmock.h>
-#include <string>
+#include "Print.h"
 
-/// @brief Class to mock the basic Stream function equivalent of the Arduino framework
-class Stream {
+/**
+ * @brief Mock Stream class to simulate Arduino Stream objects eg. Serial.
+ * @details Utilises a separate input and output buffer to cater for bi-directional comms.
+ */
+class Stream : public Print {
 public:
-  // Output buffer
-  std::string buffer;
-
-  /// @brief Print method
-  /// @param string String to print
-  void print(const std::string &string) {
-    buffer += string.c_str(); // Append to buffer
-  }
+  /**
+   * @brief Determines if there are more characters in the buffer
+   * @return int Length of the buffer
+   */
+  int available() const { return _inputBuffer.length(); }
 
   /**
-   * @brief Other print overloads
-   * @param n
+   * @brief Read a char from the buffer
+   * @return int Char
    */
-  void print(int n) { buffer += std::to_string(n); }
-  void print(long n) { buffer += std::to_string(n); }
-  void print(char c) { buffer += c; }
-
-  /// @brief Println method
-  /// @param string String to print
-  void println(const std::string &string) {
-    buffer += string.c_str(); // Append to buffer
-    buffer += "\r\n";         // Add newline
-  }
-
-  /**
-   * @brief Other println overloads
-   * @param n
-   */
-  void println(int n) {
-    print(n);
-    println();
-  }
-  void println(long n) {
-    print(n);
-    println();
-  }
-  void println(char c) {
-    print(c);
-    println();
-  }
-
-  void println() { buffer += "\r\n"; }
-
-  /// @brief Check number of characters available in the buffer
-  /// @return Number of characters
-  int available() const { return buffer.length(); }
-
-  /// @brief Read a character from the buffer
-  /// @return The next char in the buffer, -1 for empty
   int read() {
-    if (buffer.empty()) {
-      return -1; // Returns -1 if none available
-    }
-    char c = buffer[0];
-    buffer.erase(0, 1);         // Get first char and remove it from the buffer
-    return static_cast<int>(c); // Return as int for Arduino Stream compatibility
+    if (_inputBuffer.empty())
+      return -1;
+    char c = _inputBuffer[0];
+    _inputBuffer.erase(0, 1);
+    return c;
   }
 
-  /// @brief Clear the buffer
-  void clear() { buffer.clear(); }
+  /**
+   * @brief Write to the output buffer
+   * @param c Char to write
+   * @return size_t
+   */
+  virtual size_t write(uint8_t c) override {
+    _outputBuffer += (char)c;
+    return 1;
+  }
+
+  /**
+   * @brief Helper to write data to the buffer using <<
+   * @tparam T
+   * @param data
+   * @return Stream&
+   */
+  template <typename T> Stream &operator<<(const T &data) {
+    // We bypass write() and put this straight into input
+    _inputBuffer += data;
+    return *this;
+  }
+
+  /**
+   * @brief Helper to view the output buffer contents
+   * @return std::string
+   */
+  std::string getOutput() { return _outputBuffer; }
+
+  /**
+   * @brief Clear the output buffer
+   */
+  void clearOutput() { _outputBuffer.clear(); }
+
+  /**
+   * @brief Clear the input buffer
+   */
+  void clearInput() { _inputBuffer.clear(); }
+
+private:
+  std::string _inputBuffer;  // Data for read()
+  std::string _outputBuffer; // Data from write()/print()
 };
 
-#endif // STREAM_H
+#endif

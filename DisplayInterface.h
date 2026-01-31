@@ -41,8 +41,9 @@ public:
   /**
    * @brief Display the throttle screen
    * @param throttles Array containing pointers to the Throttle instances
+   * @param state TrackPower
    */
-  virtual void displayThrottleScreen(Throttle **throttles) = 0;
+  virtual void displayThrottleScreen(Throttle **throttles, TrackPower state) = 0;
 
   /**
    * @brief Update the display for the specified throttle

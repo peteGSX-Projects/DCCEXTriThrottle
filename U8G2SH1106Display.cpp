@@ -62,12 +62,12 @@ void U8G2SH1106Display::clear() {
   _oled->sendBuffer();
 }
 
-void U8G2SH1106Display::displayThrottleScreen(Throttle **throttles) {
+void U8G2SH1106Display::displayThrottleScreen(Throttle **throttles, TrackPower state) {
   _oled->clear();
   for (int i = 0; i < _numThrottles; i++) {
     updateThrottleScreen(i, throttles[i], true);
   }
-  updateThrottleTrackPower(TrackPower::PowerUnknown);
+  updateThrottleTrackPower(state);
 }
 
 void U8G2SH1106Display::updateThrottleScreen(int throttleIndex, Throttle *throttle, bool force) {

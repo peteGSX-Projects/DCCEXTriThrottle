@@ -124,7 +124,7 @@ TEST_F(AppOrchestratorTests, TestTransitionOnConnectionSuccess) {
       .WillOnce(Return(ConnectionState::Connected));
 
   // We expect the Throttle screen to be displayed once
-  EXPECT_CALL(*mockDisplay, displayThrottleScreen(_)).Times(1);
+  EXPECT_CALL(*mockDisplay, displayThrottleScreen(_, _)).Times(1);
 
   // First update() should be Startup
   appOrchestrator->update();
@@ -209,13 +209,13 @@ TEST_F(AppOrchestratorTests, TestThrottleToMenu) {
  */
 TEST_F(AppOrchestratorTests, TestEStopAllLocos) {
   // Make sure the buffer is clear first
-  csConnection.clear();
+  csConnection.clearOutput();
 
   // Long press of '0' in startup state should not send EStop
   mockKeypad->setInputEvent({'0', UserInputInterface::UserInputAction::Held});
   appOrchestrator->update();
-  EXPECT_FALSE(csConnection.buffer.find("<!>") != std::string::npos);
-  csConnection.clear();
+  EXPECT_FALSE(csConnection.getOutput().find("<!>") != std::string::npos);
+  csConnection.clearOutput();
 
   // Now set connection success to move to Throttle mode and it should work
   EXPECT_CALL(*connectionManager, getState()).WillOnce(Return(ConnectionState::Connected));
@@ -226,8 +226,8 @@ TEST_F(AppOrchestratorTests, TestEStopAllLocos) {
   // Long press of '0' should now send EStop
   mockKeypad->setInputEvent({'0', UserInputInterface::UserInputAction::Held});
   appOrchestrator->update();
-  EXPECT_TRUE(csConnection.buffer.find("<!>") != std::string::npos);
-  csConnection.clear();
+  EXPECT_TRUE(csConnection.getOutput().find("<!>") != std::string::npos);
+  csConnection.clearOutput();
 }
 
 /**
