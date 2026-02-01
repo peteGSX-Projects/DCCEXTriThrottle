@@ -28,7 +28,8 @@ public:
   /// @brief Constructor for this SubMenuItem
   /// @param menu Pointer to the Menu instance associated with this item
   /// @param name Optional name override for the menu, otherwise use Menu name
-  SubMenuItem(Menu *menu, const char *name = nullptr);
+  /// @param isProgmem Whether the name pointer references PROGMEM data
+  SubMenuItem(Menu *menu, const char *name = nullptr, bool isProgmem = false);
 
   /// @brief Get the Menu instance associated with this item
   /// @return Pointer to the Menu instance

@@ -27,8 +27,9 @@ public:
    * @param menu Pointer to the Menu instance associated with this item
    * @param throttleIndex Index of the throttle this menu manages
    * @param name Optional name override for the menu, otherwise use Menu name
+   * @param isProgmem Whether the name pointer references PROGMEM data
    */
-  ThrottleMenuItem(Menu *menu, int throttleIndex, const char *name = nullptr);
+  ThrottleMenuItem(Menu *menu, int throttleIndex, const char *name = nullptr, bool isProgmem = false);
 
   /**
    * @brief Get the Throttle Index

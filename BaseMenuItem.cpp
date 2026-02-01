@@ -17,22 +17,18 @@
 
 #include "BaseMenuItem.h"
 
-BaseMenuItem::BaseMenuItem(const char *name, MenuItemType itemType) : _index(-1), _next(nullptr), _itemType(itemType) {
-  // Ensure memory safety and copy name
-  if (name != nullptr) {
-    int nameLength = strlen(name);
-    _name = new char[nameLength + 1];
-    strcpy(_name, name);
-  } else {
-    _name = nullptr;
-  }
-}
+BaseMenuItem::BaseMenuItem(const char *name, MenuItemType itemType, bool isProgmem) 
+    : _name(name), _index(-1), _next(nullptr), _itemType(itemType), _isProgmem(isProgmem) {}
 
 void BaseMenuItem::setIndex(int index) { _index = index; }
 
 int BaseMenuItem::getIndex() { return _index; }
 
-const char *BaseMenuItem::getName() { return _name; }
+const char *BaseMenuItem::getName() { 
+  // If name is in PROGMEM, return the pointer (caller must use PROGMEM macros)
+  // If name is in SRAM, return directly
+  return _name;
+}
 
 void BaseMenuItem::setNext(BaseMenuItem *next) { _next = next; }
 
@@ -41,9 +37,7 @@ BaseMenuItem *BaseMenuItem::getNext() { return _next; }
 MenuItemType BaseMenuItem::getItemType() { return _itemType; }
 
 BaseMenuItem::~BaseMenuItem() {
-  if (_name != nullptr) {
-    delete[] _name;
-    _name = nullptr;
-  }
   _next = nullptr;
+  // Don't delete _name - it's either PROGMEM (shouldn't delete) or owned elsewhere
 }
+

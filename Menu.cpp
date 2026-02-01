@@ -18,11 +18,18 @@
 
 #include "Menu.h"
 
-Menu::Menu(const char *name, int itemsPerPage) : _firstItem(nullptr), _nextItemIndex(0), _currentPage(0) {
+Menu::Menu(const char *name, int itemsPerPage, bool isProgmem) : _name(nullptr), _isProgmem(isProgmem), _firstItem(nullptr), _nextItemIndex(0), _currentPage(0), _itemsPerPage(itemsPerPage) {
   if (name != nullptr) {
-    int nameLength = strlen(name);
-    _name = new char[nameLength + 1];
-    strcpy(_name, name);
+    if (isProgmem) {
+      // Just store the PROGMEM pointer, don't copy
+      _name = name;
+    } else {
+      // For non-PROGMEM strings, copy to SRAM as before
+      int nameLength = strlen(name);
+      char *newName = new char[nameLength + 1];
+      strcpy(newName, name);
+      _name = newName;
+    }
   } else {
     _name = nullptr;
   }
@@ -111,8 +118,8 @@ void Menu::clearItems() {
 }
 
 Menu::~Menu() {
-  if (_name != nullptr) {
-    delete[] _name;
+  if (_name != nullptr && !_isProgmem) {
+    delete[] (char *)_name;
     _name = nullptr;
   }
 

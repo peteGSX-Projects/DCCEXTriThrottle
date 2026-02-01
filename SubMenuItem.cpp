@@ -18,8 +18,8 @@
 #include "SubMenuItem.h"
 #include "Menu.h"
 
-SubMenuItem::SubMenuItem(Menu *menu, const char *name)
-    : BaseMenuItem(name == nullptr ? (menu ? menu->getName() : "Unknown") : name, MenuItemType::SubMenuType),
+SubMenuItem::SubMenuItem(Menu *menu, const char *name, bool isProgmem)
+    : BaseMenuItem(name == nullptr ? (menu ? menu->getName() : "Unknown") : name, MenuItemType::SubMenuType, isProgmem),
       _menu(menu) {}
 
 Menu *SubMenuItem::getMenu() { return _menu; }

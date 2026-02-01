@@ -17,24 +17,30 @@
 
 #include "LocoMenuItem.h"
 
-LocoMenuItem::LocoMenuItem(Loco *loco) : BaseMenuItem(loco->getName(), MenuItemType::LocoType), _loco(loco) {
-  // If there's no name for this loco, set the address as the name
+LocoMenuItem::LocoMenuItem(Loco *loco) : BaseMenuItem(loco->getName(), MenuItemType::LocoType, false), _loco(loco) {
+  // If there's no name for this loco, create one from the address
   if (loco->getName() == nullptr) {
-    if (_name != nullptr) {
-      delete[] _name;
-    }
-
     char buffer[6];
     itoa(loco->getAddress(), buffer, 10);
     int len = strlen(buffer);
-    _name = new char[len + 1];
-    strcpy(_name, buffer);
+    char *nameCopy = new char[len + 1];
+    strcpy(nameCopy, buffer);
+    _name = nameCopy;
+    // This allocated name will be deleted in destructor
+    _isProgmem = false;
   }
 }
 
 Loco *LocoMenuItem::getLoco() { return _loco; }
 
 LocoMenuItem::~LocoMenuItem() {
+  // Clean up dynamically allocated name if it was created from address
+  if (_name != nullptr && !_isProgmem) {
+    // Only delete if it's a SRAM-allocated copy (created from address above)
+    if (_loco != nullptr && _name != _loco->getName()) {
+      delete[] const_cast<char*>(_name);
+    }
+  }
   if (_loco != nullptr) {
     _loco = nullptr;
   }

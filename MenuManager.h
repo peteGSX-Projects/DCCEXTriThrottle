@@ -18,6 +18,7 @@
 #ifndef MENUMANAGER_H
 #define MENUMANAGER_H
 
+#include "DynamicMenu.h"
 #include "EventManager.h"
 #include "Menu.h"
 #include "UserInputInterface.h"
@@ -130,11 +131,11 @@ private:
   Menu *_allManagedMenus[_MAX_MANAGED_MENUS];
   int _historyIndex;
   Menu *_rootMenu;
-  Menu *_rosterMenu;
-  Menu *_turnoutMenu;
+  DynamicMenu *_rosterMenu;
+  DynamicMenu *_turnoutMenu;
   Menu *_turntableMenu;
-  Menu *_routeMenu;
-  Menu *_automationMenu;
+  DynamicMenu *_routeMenu;
+  DynamicMenu *_automationMenu;
   int _menuCount;
 
   /**

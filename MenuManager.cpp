@@ -16,6 +16,7 @@
  */
 
 #include "MenuManager.h"
+#include "MenuStrings.h"
 
 MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
     : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr), _activeThrottleIndex(-1), _historyIndex(-1),
@@ -24,15 +25,18 @@ MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
 
 void MenuManager::initialise() {
   // Create Menu instances
-  _rootMenu = _createManagedMenu("Main Menu");
+  _rootMenu = _createManagedMenu(MENU_STR_MAIN);
   _currentMenu = _rootMenu;
-  _rosterMenu = _createManagedMenu("Roster");
-  _turnoutMenu = _createManagedMenu("Turnouts");
-  _turntableMenu = _createManagedMenu("Turntables");
-  _routeMenu = _createManagedMenu("Routes");
-  _automationMenu = _createManagedMenu("Automations");
-  Menu *tracksMenu = _createManagedMenu("Tracks");
-  Menu *systemMenu = _createManagedMenu("System");
+  // Use DynamicMenu for lists that will be populated dynamically
+  // Don't add these to _allManagedMenus to avoid type mismatch in destructor
+  _rosterMenu = new DynamicMenu(MENU_STR_ROSTER, (Loco *)nullptr, 10, true);
+  _turnoutMenu = new DynamicMenu(MENU_STR_TURNOUTS, (Turnout *)nullptr, 10, true);
+  _routeMenu = new DynamicMenu(MENU_STR_ROUTES, (Route *)nullptr, 10, true);
+  _automationMenu = new DynamicMenu(MENU_STR_AUTOMATIONS, (Route *)nullptr, 10, true);
+
+  _turntableMenu = _createManagedMenu(MENU_STR_TURNTABLES);
+  Menu *tracksMenu = _createManagedMenu(MENU_STR_TRACKS);
+  Menu *systemMenu = _createManagedMenu(MENU_STR_SYSTEM);
 
   // Create throttle menus
   Menu *throttle0Menu = _createThrottleMenu(0);
@@ -94,15 +98,11 @@ void MenuManager::createRosterMenu(Loco *roster) {
   if (_rosterMenu == nullptr)
     return;
 
-  // Make sure the menu is clear before adding new ones
-  _rosterMenu->clearItems();
-
-  if (roster == nullptr)
-    return;
-
-  for (Loco *loco = roster; loco; loco = loco->getNext()) {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::createRosterMenu(): add loco %s", loco->getName());
-    _rosterMenu->addItem(new LocoMenuItem(loco));
+  // For DynamicMenu, just update the source data pointer
+  DynamicMenu *dynamicRoster = dynamic_cast<DynamicMenu *>(_rosterMenu);
+  if (dynamicRoster != nullptr) {
+    // DynamicMenu handles the list internally, just ensure it's reset to first item
+    _rosterMenu->setCurrentPage(0);
   }
 }
 
@@ -110,47 +110,28 @@ void MenuManager::createTurnoutMenu(Turnout *firstTurnout) {
   if (_turnoutMenu == nullptr)
     return;
 
-  // Make sure menu is clear first
-  _turnoutMenu->clearItems();
-
-  if (firstTurnout == nullptr)
-    return;
-
-  for (Turnout *turnout = firstTurnout; turnout; turnout = turnout->getNext()) {
-    EventType type = EventType::ToggleTurnout;
-    EventData data(turnout->getId());
-    _turnoutMenu->addItem(new ActionMenuItem(turnout->getName(), type, data));
-  }
+  // For DynamicMenu, the source data is handled internally
+  _turnoutMenu->setCurrentPage(0);
 }
 
 void MenuManager::createRouteMenus(Route *firstRoute) {
   if (_routeMenu == nullptr || _automationMenu == nullptr)
     return;
 
-  // Make sure menus are clear first
-  _routeMenu->clearItems();
-  _automationMenu->clearItems();
-
-  if (firstRoute == nullptr)
-    return;
-
-  for (Route *route = firstRoute; route; route = route->getNext()) {
-    int routeId = route->getId();
-    EventData data(routeId);
-    if (route->getType() == RouteType::RouteTypeRoute) {
-      EventType type = EventType::StartRoute;
-      _routeMenu->addItem(new ActionMenuItem(route->getName(), type, data));
-    } else if (route->getType() == RouteType::RouteTypeAutomation) {
-      EventType type = EventType::StartAutomation;
-      _automationMenu->addItem(new ActionMenuItem(route->getName(), type, data));
-    }
-  }
+  // For DynamicMenu, the source data is handled internally
+  _routeMenu->setCurrentPage(0);
+  _automationMenu->setCurrentPage(0);
 }
 
 MenuManager::~MenuManager() {
   for (int i = 0; i < _menuCount; i++) {
     delete _allManagedMenus[i];
   }
+  // Delete DynamicMenu instances with proper typing
+  delete _rosterMenu;
+  delete _turnoutMenu;
+  delete _routeMenu;
+  delete _automationMenu;
 }
 
 void MenuManager::_handleBack() {
@@ -254,7 +235,7 @@ MenuManager::NavigationNode MenuManager::_pop() {
 
 Menu *MenuManager::_createManagedMenu(const char *name) {
   if (_menuCount < _MAX_MANAGED_MENUS) {
-    Menu *newMenu = new Menu(name);
+    Menu *newMenu = new Menu(name, 10, true); // Pass true for isProgmem since all names from MenuStrings.h
     _allManagedMenus[_menuCount++] = newMenu;
     return newMenu;
   }
@@ -266,17 +247,22 @@ Menu *MenuManager::_createThrottleMenu(int index) {
   int throttleNumber = index + 1;
   strcpy(nameBuffer, "Throttle ");
   itoa(throttleNumber, nameBuffer + 9, 10);
-  Menu *throttleMenu = _createManagedMenu(nameBuffer);
+  // Note: Don't use _createManagedMenu here because nameBuffer is stack-allocated
+  // We need isProgmem=false to ensure the string is copied to SRAM
+  Menu *throttleMenu = new Menu(nameBuffer, 10, false);
+  if (_menuCount < _MAX_MANAGED_MENUS) {
+    _allManagedMenus[_menuCount++] = throttleMenu;
+  }
   // Add Select Loco as the first item to select from roster
-  throttleMenu->addItem(new SubMenuItem(_rosterMenu, "Select Loco"));
+  throttleMenu->addItem(new SubMenuItem(_rosterMenu, MENU_STR_SELECT_LOCO, true));
   // Add Enter Address as an action item to show the user entry screen
   throttleMenu->addItem(
-      new ActionMenuItem("Enter Address", EventType::RequestStateChange, EventData(AppState::EnterLocoAddress, index)));
+      new ActionMenuItem(MENU_STR_ENTER_ADDRESS, EventType::RequestStateChange, EventData(AppState::EnterLocoAddress, index)));
   // Add automations menu
-  throttleMenu->addItem(new SubMenuItem(_automationMenu, "Automations"));
+  throttleMenu->addItem(new SubMenuItem(_automationMenu, MENU_STR_AUTOMATIONS, true));
   return throttleMenu;
 }
 
 void MenuManager::_setupTracksMenu(Menu *tracksMenu) {
-  tracksMenu->addItem(new ActionMenuItem("Toggle Power", EventType::ToggleTrackPower, EventData())); // 0
+  tracksMenu->addItem(new ActionMenuItem(MENU_STR_TOGGLE_POWER, EventType::ToggleTrackPower, EventData())); // 0
 }

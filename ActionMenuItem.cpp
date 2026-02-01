@@ -18,7 +18,7 @@
 #include "ActionMenuItem.h"
 
 ActionMenuItem::ActionMenuItem(const char *name, EventType eventType, EventData eventData)
-    : BaseMenuItem(name, MenuItemType::ActionMenuType), _eventType(eventType), _eventData(eventData) {}
+    : BaseMenuItem(name, MenuItemType::ActionMenuType, false), _eventType(eventType), _eventData(eventData) {}
 
 EventType ActionMenuItem::getEventType() { return _eventType; }
 

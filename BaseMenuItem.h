@@ -32,9 +32,10 @@ enum MenuItemType { LocoType, SubMenuType, ThrottleMenuType, ActionMenuType };
 class BaseMenuItem {
 public:
   /// @brief Constructor for this BaseMenuItem
-  /// @param name Name or label for this item
+  /// @param name Name or label for this item (can be PROGMEM or SRAM pointer)
   /// @param itemType The MenuItemType of this item
-  BaseMenuItem(const char *name, MenuItemType itemType);
+  /// @param isProgmem True if name is stored in PROGMEM, false if SRAM
+  BaseMenuItem(const char *name, MenuItemType itemType, bool isProgmem = false);
 
   /// @brief Set the index of this item
   /// @param index Index
@@ -45,6 +46,7 @@ public:
   int getIndex();
 
   /// @brief Get the name or label for this item
+  /// @note If name is in PROGMEM, reads from flash. If SRAM, returns directly.
   /// @return Name or label
   const char *getName();
 
@@ -64,10 +66,11 @@ public:
   virtual ~BaseMenuItem();
 
 protected:
-  char *_name;            /** The name or label of this menu item */
+  const char *_name;      /** The name or label of this menu item (may be PROGMEM) */
   int _index;             /** The index of this item */
   BaseMenuItem *_next;    /** The next item in the linked list */
   MenuItemType _itemType; /** The MenuItemType for this item */
+  bool _isProgmem;        /** True if _name points to PROGMEM, false if SRAM */
 };
 
 #endif // BASEMENUITEM_H

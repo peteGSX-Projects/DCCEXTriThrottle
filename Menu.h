@@ -34,8 +34,9 @@ public:
    * @brief Construct a new Menu object
    * @param name Name or label for this menu
    * @param itemsPerPage Override the items per page default of 10 if necessary
+   * @param isProgmem Whether the name pointer references PROGMEM data
    */
-  Menu(const char *name, int itemsPerPage = 10);
+  Menu(const char *name, int itemsPerPage = 10, bool isProgmem = false);
 
   /**
    * @brief Get the Name of this menu
@@ -71,7 +72,7 @@ public:
    * @brief Get the Total Pages
    * @return int Count of pages of items
    */
-  int getTotalPages();
+  virtual int getTotalPages();
 
   /**
    * @brief Advance to the next page, wraps to first page from the last
@@ -82,7 +83,7 @@ public:
    * @brief Get the Item Count
    * @return int Total number of items in this Menu
    */
-  int getItemCount();
+  virtual int getItemCount();
 
   /**
    * @brief Get the Items Per Page
@@ -95,7 +96,7 @@ public:
    * @param index Index of the item selected by the user
    * @return BaseMenuItem* Pointer to the selected item
    */
-  BaseMenuItem *getItemByPageIndex(int index);
+  virtual BaseMenuItem *getItemByPageIndex(int index);
 
   /**
    * @brief Clears all related menu items and resets menu state
@@ -108,7 +109,8 @@ public:
   ~Menu();
 
 private:
-  char *_name;              /** Name or label of this menu */
+  const char *_name;        /** Name or label of this menu */
+  bool _isProgmem;          /** Whether _name points to PROGMEM data */
   BaseMenuItem *_firstItem; /** Pointer to the first menu item in the list */
   int _nextItemIndex;       /** Auto increment index of next item added */
   int _currentPage;         /** Index of the current selected page */
