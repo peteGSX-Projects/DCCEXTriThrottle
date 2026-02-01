@@ -55,13 +55,13 @@ public:
     csConnection << "<jT 5 0 \"Turnout5\">";
 
     // Routes
-    csConnection << "<jA1 2 3 4 5 6>";
+    csConnection << "<jA 1 2 3 4 5 6>";
     csConnection << "<jA 1 R \"Route1\">";
     csConnection << "<jA 2 R \"Route2\">";
     csConnection << "<jA 3 R \"Route3\">";
-    csConnection << "<jA 4 A \"Automation4\">";
-    csConnection << "<jA 5 A \"Automation5\">";
-    csConnection << "<jA 6 A \"Automation6\">";
+    csConnection << "<jA 4 A \"Automation1\">";
+    csConnection << "<jA 5 A \"Automation2\">";
+    csConnection << "<jA 6 A \"Automation3\">";
 
     // Turntables no index names due to memory leak in the way these are handled
     csConnection << "<jO>";
@@ -77,29 +77,29 @@ public:
 
   static void createMockRoster(DCCEXProtocol *csClient) {
     Loco *rosterLoco1 = new Loco(1, LocoSource::LocoSourceRoster);
-    rosterLoco1->setName("Loco 1");
+    rosterLoco1->setName("Loco1");
     Loco *rosterLoco2 = new Loco(2, LocoSource::LocoSourceRoster);
-    rosterLoco2->setName("Loco 2");
+    rosterLoco2->setName("Loco2");
     Loco *rosterLoco3 = new Loco(3, LocoSource::LocoSourceRoster);
-    rosterLoco3->setName("Loco 3");
+    rosterLoco3->setName("Loco3");
     Loco *rosterLoco4 = new Loco(4, LocoSource::LocoSourceRoster);
-    rosterLoco4->setName("Loco 4");
+    rosterLoco4->setName("Loco4");
     Loco *rosterLoco5 = new Loco(5, LocoSource::LocoSourceRoster);
-    rosterLoco5->setName("Loco 5");
+    rosterLoco5->setName("Loco5");
     csClient->roster = rosterLoco1;
   }
 
   static void createMockTurnoutList(DCCEXProtocol *csClient) {
     Turnout *turnout1 = new Turnout(1, false);
-    turnout1->setName("Turnout 1");
+    turnout1->setName("Turnout1");
     Turnout *turnout2 = new Turnout(2, false);
-    turnout2->setName("Turnout 2");
+    turnout2->setName("Turnout2");
     Turnout *turnout3 = new Turnout(3, false);
-    turnout3->setName("Turnout 3");
+    turnout3->setName("Turnout3");
     Turnout *turnout4 = new Turnout(4, false);
-    turnout4->setName("Turnout 4");
+    turnout4->setName("Turnout4");
     Turnout *turnout5 = new Turnout(5, false);
-    turnout5->setName("Turnout 5");
+    turnout5->setName("Turnout5");
     csClient->turnouts = turnout1;
   }
 
@@ -107,22 +107,22 @@ public:
 
   static void createMockRouteList(DCCEXProtocol *csClient) {
     Route *route1 = new Route(1);
-    route1->setName("Route 1");
+    route1->setName("Route1");
     route1->setType(RouteType::RouteTypeRoute);
     Route *route2 = new Route(2);
-    route2->setName("Route 2");
+    route2->setName("Route2");
     route2->setType(RouteType::RouteTypeRoute);
     Route *route3 = new Route(3);
-    route3->setName("Route 3");
+    route3->setName("Route3");
     route3->setType(RouteType::RouteTypeRoute);
     Route *route4 = new Route(4);
-    route4->setName("Automation 4");
+    route4->setName("Automation1");
     route4->setType(RouteType::RouteTypeAutomation);
     Route *route5 = new Route(5);
-    route5->setName("Automation 5");
+    route5->setName("Automation2");
     route5->setType(RouteType::RouteTypeAutomation);
     Route *route6 = new Route(6);
-    route6->setName("Automation 6");
+    route6->setName("Automation3");
     route6->setType(RouteType::RouteTypeAutomation);
     csClient->routes = route1;
   }

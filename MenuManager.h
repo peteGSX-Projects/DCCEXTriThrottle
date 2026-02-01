@@ -103,6 +103,12 @@ public:
   void createTurnoutMenu(Turnout *firstTurnout);
 
   /**
+   * @brief Create the Route and Automation menus from the DCC-EX route list
+   * @param firstRoute Pointer to the first Route in the list
+   */
+  void createRouteMenus(Route *firstRoute);
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();

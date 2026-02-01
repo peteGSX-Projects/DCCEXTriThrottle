@@ -473,7 +473,7 @@ TEST_F(AppOrchestratorTests, TestTogglePowerUnknownSendsOn) {
   appOrchestrator->onEvent(event);
 
   // Validate outcome
-  // EXPECT_EQ(csClient->getTrackPower(), TrackPower::PowerOn);
+  EXPECT_EQ(csConnection.getOutput(), "<1>\r\n");
 
   // Should be back in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -495,7 +495,7 @@ TEST_F(AppOrchestratorTests, TestTogglePowerOnSendsOff) {
   appOrchestrator->onEvent(toggleEvent);
 
   // Validate outcome
-  // EXPECT_EQ(csClient->getTrackPower(), TrackPower::PowerOff);
+  EXPECT_EQ(csConnection.getOutput(), "<0>\r\n");
 
   // Should be back in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -517,7 +517,7 @@ TEST_F(AppOrchestratorTests, TestTogglePowerOffSendsOn) {
   appOrchestrator->onEvent(toggleEvent);
 
   // Validate outcome
-  // EXPECT_EQ(csClient->getTrackPower(), TrackPower::PowerOn);
+  EXPECT_EQ(csConnection.getOutput(), "<1>\r\n");
 
   // Should be back in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -547,10 +547,57 @@ TEST_F(AppOrchestratorTests, TestToggleTurnout) {
   // Simulate CS response and call update()
   csConnection << "<H 1 0>";
   csClient->check();
-  
+
   // Check again
   EXPECT_FALSE(turnout->getThrown());
 
   // Clean up
   delete turnout;
+}
+
+/**
+ * @brief Test receiving a StartRoute event starts it
+ */
+TEST_F(AppOrchestratorTests, TestStartRoute) {
+  // Set up event
+  Event routeEvent(EventType::StartRoute, EventData(1));
+
+  // Handle the event
+  appOrchestrator->onEvent(routeEvent);
+
+  // Check the outbound buffer for the correct string
+  EXPECT_EQ(csConnection.getOutput(), "</ START 1>\r\n");
+}
+
+/**
+ * @brief Test receiving a StartAutomation event starts it with the correct loco address
+ */
+TEST_F(AppOrchestratorTests, TestStartAutomation) {
+  // Set up a dummy loco on throttle index 0
+  Loco *loco = new Loco(1234, LocoSource::LocoSourceEntry);
+  throttles[0]->setLoco(loco);
+
+  // Setup a dummy automation as the CS validates the correct type
+  Route *automation = new Route(4);
+  automation->setType(RouteType::RouteTypeAutomation);
+  csClient->routes = automation;
+
+  // MenuManager must have the right throttle index
+  menuManager->setActiveThrottleIndex(0);
+
+  // Set up event
+  Event automationEvent(EventType::StartAutomation, EventData(4));
+
+  // Handle the event
+  appOrchestrator->onEvent(automationEvent);
+
+  // Check the outbound buffer for the correct string
+  EXPECT_EQ(csConnection.getOutput(), "</ START 1234 4>\r\n");
+
+  // AppOrchestrator should also return to Throttle state when starting an automation
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Clean up
+  delete automation;
+  delete loco;
 }

@@ -121,6 +121,8 @@ void AppOrchestrator::onEvent(Event &event) {
       &AppOrchestrator::_handleMenuRefreshRequired,     // 11
       &AppOrchestrator::_handleLocoAddressEntered,      // 12
       &AppOrchestrator::_handleRequestStateChange,      // 13
+      &AppOrchestrator::_handleStartRoute,              // 14
+      &AppOrchestrator::_handleStartAutomation          // 15
   };
 
   // // Set the type index
@@ -228,15 +230,25 @@ void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent
 
 void AppOrchestrator::_handleCommandStationConnected(Event &event) {
   if (_commandStationClient != nullptr) {
+    // On connection, explicitly request server version to update power state and set version variables
+    _commandStationClient->requestServerVersion();
+    // Setup the roster menu
     Loco *roster = _commandStationClient->roster->getFirst();
     if (roster != nullptr) {
-      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createRosterMenu(): ", roster->getName());
+      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRosterMenu(): ", roster->getName());
       _menuManager->createRosterMenu(roster);
     }
+    // Setup the turnout menu
     Turnout *turnout = _commandStationClient->turnouts->getFirst();
     if (turnout != nullptr) {
-      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _connectionManager->createTurnoutMenu(): ", turnout->getName());
+      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurnoutMenu(): ", turnout->getName());
       _menuManager->createTurnoutMenu(turnout);
+    }
+    // Setup the route and automation menus
+    Route *route = _commandStationClient->routes->getFirst();
+    if (route != nullptr) {
+      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRouteMenus(): ", route->getName());
+      _menuManager->createRouteMenus(route);
     }
   }
 }
@@ -256,7 +268,6 @@ void AppOrchestrator::_handleLocoSelected(Event &event) {
       delete currentLoco;
     }
     _throttles[throttleIndex]->setLoco(newLoco);
-    _menuManager->reset();
     _switchState(AppState::Throttle);
   }
 }
@@ -352,6 +363,24 @@ void AppOrchestrator::_handleRequestStateChange(Event &event) {
   _switchState(newState);
 }
 
+void AppOrchestrator::_handleStartRoute(Event &event) {
+  int routeId = event.eventData.intValue;
+  _commandStationClient->startRoute(routeId);
+}
+
+void AppOrchestrator::_handleStartAutomation(Event &event) {
+  int automationId = event.eventData.locoAddressValue.address;
+  int throttleIndex = _menuManager->getActiveThrottleIndex();
+  if (_throttles) {
+    // Must have a Loco, and also never send a Consist
+    if (_throttles[throttleIndex]->getLoco() != nullptr) {
+      int address = _throttles[throttleIndex]->getLoco()->getAddress();
+      _commandStationClient->handOffLoco(address, automationId);
+      _switchState(AppState::Throttle);
+    }
+  }
+}
+
 // General helper methods
 
 void AppOrchestrator::_switchState(AppState newState) {
@@ -362,6 +391,9 @@ void AppOrchestrator::_switchState(AppState newState) {
     return;
 
   LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(): ", (int)newState);
+  if (newState == AppState::Throttle) {
+    _menuManager->reset();
+  }
   _displayInterface->setRedraw(true);
   _currentAppState = newState;
 }

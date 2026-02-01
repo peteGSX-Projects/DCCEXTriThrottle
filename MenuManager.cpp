@@ -123,6 +123,30 @@ void MenuManager::createTurnoutMenu(Turnout *firstTurnout) {
   }
 }
 
+void MenuManager::createRouteMenus(Route *firstRoute) {
+  if (_routeMenu == nullptr || _automationMenu == nullptr)
+    return;
+
+  // Make sure menus are clear first
+  _routeMenu->clearItems();
+  _automationMenu->clearItems();
+
+  if (firstRoute == nullptr)
+    return;
+
+  for (Route *route = firstRoute; route; route = route->getNext()) {
+    int routeId = route->getId();
+    EventData data(routeId);
+    if (route->getType() == RouteType::RouteTypeRoute) {
+      EventType type = EventType::StartRoute;
+      _routeMenu->addItem(new ActionMenuItem(route->getName(), type, data));
+    } else if (route->getType() == RouteType::RouteTypeAutomation) {
+      EventType type = EventType::StartAutomation;
+      _automationMenu->addItem(new ActionMenuItem(route->getName(), type, data));
+    }
+  }
+}
+
 MenuManager::~MenuManager() {
   for (int i = 0; i < _menuCount; i++) {
     delete _allManagedMenus[i];
@@ -248,6 +272,8 @@ Menu *MenuManager::_createThrottleMenu(int index) {
   // Add Enter Address as an action item to show the user entry screen
   throttleMenu->addItem(
       new ActionMenuItem("Enter Address", EventType::RequestStateChange, EventData(AppState::EnterLocoAddress, index)));
+  // Add automations menu
+  throttleMenu->addItem(new SubMenuItem(_automationMenu, "Automations"));
   return throttleMenu;
 }
 

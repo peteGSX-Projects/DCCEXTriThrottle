@@ -129,6 +129,8 @@ void setup() {
   appOrchestrator.begin();
 
   LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle initialised, version %s", VERSION);
+
+  LOG(LogLevel::LOG_DEBUG, "Free bytes: ", (int)hardwareManager.getFreeMemory());
 }
 
 void loop() { orchestrator->update(); }

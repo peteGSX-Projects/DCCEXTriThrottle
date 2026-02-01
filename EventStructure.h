@@ -44,6 +44,8 @@ enum EventType {
   MenuRefreshRequired,     // 11
   LocoAddressEntered,      // 12
   RequestStateChange,      // 13
+  StartRoute,              // 14
+  StartAutomation,         // 15
   EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin() and bounds checking,
                    // MUST BE LAST
 };

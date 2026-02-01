@@ -21,8 +21,7 @@
  * @brief Test that the roster list populates the roster menu on CS connection
  */
 TEST_F(IntegrationTestBase, TestRosterListPopulatesMenu) {
-  // Create the mock roster
-  // DCCEXTestHelpers::createMockRoster(csClient);
+  // Create the mock lists
   DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
 
   // update() needs to be called 5 times to complete connection
@@ -56,7 +55,7 @@ TEST_F(IntegrationTestBase, TestRosterListPopulatesMenu) {
  * @brief Test that the turnout list populates the Turnout menu on CS connection
  */
 TEST_F(IntegrationTestBase, TestTurnoutListPopulatesMenu) {
-  // Create the mock turnout list
+  // Create the mock lists
   DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
 
   // update() needs to be called 5 times to complete connection
@@ -84,4 +83,56 @@ TEST_F(IntegrationTestBase, TestTurnoutListPopulatesMenu) {
 
   // First item should be Loco 1
   EXPECT_STREQ(turnouts->getFirstItem()->getName(), "Turnout1");
+}
+
+/**
+ * @brief Test that the route list populates the Route and Automation menus on CS connection
+ */
+TEST_F(IntegrationTestBase, TestRouteListPopulatesMenus) {
+  // Create the mock lists
+  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
+
+  // update() needs to be called 5 times to complete connection
+  for (int i = 0; i < 5; i++) {
+    appOrchestrator->update();
+  }
+
+  // We should be in Throttle state
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Navigate to the menu
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Navigate to the turnout menu
+  keypad->setInputEvent({'5', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Ensure the list is populated
+  Menu *routeMenu = menuManager->getCurrentMenu();
+  ASSERT_NE(routeMenu, nullptr);
+
+  // The first item should not be a nullptr
+  ASSERT_NE(routeMenu->getFirstItem(), nullptr);
+
+  // First item should be Loco 1
+  EXPECT_STREQ(routeMenu->getFirstItem()->getName(), "Route1");
+
+  // // Back to the main menu, select throttle 1, and item 3 should be Automations
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // // Validate the menu is present
+  Menu *throttleMenu = menuManager->getCurrentMenu();
+  ASSERT_NE(throttleMenu->getItemByPageIndex(2), nullptr);
+  EXPECT_STREQ(throttleMenu->getItemByPageIndex(2)->getName(), "Automations");
+
+  // // Select menu and make sure first item is present
+  keypad->setInputEvent({'2', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  Menu *automationMenu = menuManager->getCurrentMenu();
+  ASSERT_NE(automationMenu->getFirstItem(), nullptr);
+  EXPECT_STREQ(automationMenu->getFirstItem()->getName(), "Automation1");
 }

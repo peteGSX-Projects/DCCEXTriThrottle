@@ -383,16 +383,16 @@ TEST_F(MenuManagerTests, TestCreateRosterMenu) {
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
   ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(0), nullptr);
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco 1");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco 5");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco5");
 
   // Ensure roster is accessible via main menu, '*' back to main then '6'
   menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
   menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
   menuManager->handleUserInput({'6', UserInputInterface::UserInputAction::Pressed});
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco 1");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco 5");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco5");
 
   // Clean up
   delete client;
@@ -446,8 +446,47 @@ TEST_F(MenuManagerTests, TestCreateTurnoutMenu) {
   menuManager->handleUserInput({'3', UserInputInterface::UserInputAction::Pressed});
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turnouts");
   ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(0), nullptr);
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turnout 1");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Turnout 5");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turnout1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Turnout5");
+
+  // Clean up
+  delete client;
+}
+
+/**
+ * @brief Test createRouteMenus() creates both the Routes and Automation menus from the route list
+ */
+TEST_F(MenuManagerTests, TestCreateRouteAutomationMenus) {
+  // Initialise menus
+  menuManager->initialise();
+
+  // Create a protocol instance and the dummy route list
+  DCCEXProtocol *client = new DCCEXProtocol;
+  DCCEXTestHelpers::createMockRouteList(client);
+
+  // Call createRouteMenus() with the first entry
+  menuManager->createRouteMenus(client->routes);
+
+  // Ensure route menu is accessible via main menu, '5'
+  menuManager->handleUserInput({'5', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Routes");
+  ASSERT_NE(menuManager->getCurrentMenu()->getFirstItem(), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getFirstItem()->getName(), "Route1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(2)->getName(), "Route3");
+
+  // Ensure automations are accessible via a throttle, '*' back to main then '0' and '2'
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+
+  // Item 2 should be Automations
+  ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(2), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(2)->getName(), "Automations");
+
+  // Select and make sure they're there
+  menuManager->handleUserInput({'2', UserInputInterface::UserInputAction::Pressed});
+  ASSERT_NE(menuManager->getCurrentMenu()->getFirstItem(), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getFirstItem()->getName(), "Automation1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(2)->getName(), "Automation3");
 
   // Clean up
   delete client;

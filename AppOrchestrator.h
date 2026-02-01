@@ -239,6 +239,18 @@ private:
    */
   void _handleRequestStateChange(Event &event);
 
+  /**
+   * @brief Handle a StartRoute event
+   * @param event Event containing the route ID to start
+   */
+  void _handleStartRoute(Event &event);
+
+  /**
+   * @brief Handle a StartAutomation event
+   * @param event Event containing the automation ID and throttle index it was selected from
+   */
+  void _handleStartAutomation(Event &event);
+
   // General helper methods
 
   /**
