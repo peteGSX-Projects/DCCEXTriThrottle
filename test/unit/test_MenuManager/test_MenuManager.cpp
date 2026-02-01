@@ -16,6 +16,7 @@
  */
 
 #include "MenuManager.h"
+#include "test/mocks/DCCEXTestHelpers.h"
 #include "test/mocks/MockEventListener.h"
 #include <gtest/gtest.h>
 
@@ -374,16 +375,14 @@ TEST_F(MenuManagerTests, TestCreateRosterMenu) {
 
   // Create a DCCEXProtocol instance and create the dummy roster
   DCCEXProtocol *client = new DCCEXProtocol;
-  client->createMockRoster();
-
-  // Call createRosterMenu() with the first entry
-  Loco *roster = Loco::getFirst();
-  menuManager->createRosterMenu(roster);
+  DCCEXTestHelpers::createMockRoster(client);
+  menuManager->createRosterMenu(client->roster);
 
   // Ensure roster is accessible via Throttle 1 via two '0' presses
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
+  ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(0), nullptr);
   EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco 1");
   EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco 5");
 
@@ -438,11 +437,10 @@ TEST_F(MenuManagerTests, TestCreateTurnoutMenu) {
 
   // Create a DCCEXProtocol instance and create the dummy turnout list
   DCCEXProtocol *client = new DCCEXProtocol;
-  client->createMockTurnoutList();
+  DCCEXTestHelpers::createMockTurnoutList(client);
 
   // Call createRosterMenu() with the first entry
-  Turnout *turnout = Turnout::getFirst();
-  menuManager->createTurnoutMenu(turnout);
+  menuManager->createTurnoutMenu(client->turnouts);
 
   // Ensure turnout menu is accessible via main menu, '3'
   menuManager->handleUserInput({'3', UserInputInterface::UserInputAction::Pressed});

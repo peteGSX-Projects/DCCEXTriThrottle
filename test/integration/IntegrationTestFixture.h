@@ -20,6 +20,7 @@
 
 #include "AppOrchestrator.h"
 #include "CommandStationListener.h"
+#include "test/mocks/DCCEXTestHelpers.h"
 #include "test/mocks/MockButton.h"
 #include "test/mocks/MockDisplay.h"
 #include "test/mocks/MockKeypad.h"

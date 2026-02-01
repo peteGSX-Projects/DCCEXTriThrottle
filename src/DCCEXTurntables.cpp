@@ -26,11 +26,6 @@
  *
  */
 
-/**
- * @brief This file is only used in native testing
- */
-#ifdef NATIVE_TESTING
-
 #include "DCCEXTurntables.h"
 #include <Arduino.h>
 
@@ -236,5 +231,3 @@ void Turntable::_removeFromList(Turntable *turntable) {
     }
   }
 }
-
-#endif // NATIVE_TESTING

@@ -26,11 +26,6 @@
  *
  */
 
-/**
- * @brief This file is only used in native testing
- */
-#ifdef NATIVE_TESTING
-
 #include "DCCEXRoutes.h"
 #include <Arduino.h>
 
@@ -145,5 +140,3 @@ void Route::_removeFromList(Route *route) {
     }
   }
 }
-
-#endif // NATIVE_TESTING

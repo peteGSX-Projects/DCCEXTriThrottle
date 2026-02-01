@@ -27,12 +27,6 @@
  *
  */
 
-/**
- * @brief This file is only used in native testing
- */
-
-#ifdef NATIVE_TESTING
-
 #include "DCCEXLoco.h"
 #include <Arduino.h>
 
@@ -462,5 +456,3 @@ void Consist::_addLocoToConsist(ConsistLoco *conLoco) {
   }
   _locoCount++;
 }
-
-#endif // NATIVE_TESTING

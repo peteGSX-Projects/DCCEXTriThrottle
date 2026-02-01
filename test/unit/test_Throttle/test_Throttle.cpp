@@ -17,10 +17,10 @@
 
 #include "Arduino.h"
 #include "Throttle.h"
-#include "test/mocks/DCCEXProtocol.h"
 #include "test/mocks/MockButton.h"
 #include "test/mocks/MockRotaryEncoder.h"
 #include "test/mocks/Stream.h"
+#include <DCCEXProtocol.h>
 #include <gtest/gtest.h>
 
 using namespace testing;

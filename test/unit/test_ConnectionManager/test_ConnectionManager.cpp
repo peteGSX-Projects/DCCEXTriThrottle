@@ -18,8 +18,9 @@
 #include "Arduino.h"
 #include "ConnectionManager.h"
 #include "EventManager.h"
-#include "test/mocks/DCCEXProtocol.h"
+#include "test/mocks/DCCEXTestHelpers.h"
 #include "test/mocks/Stream.h"
+#include <DCCEXProtocol.h>
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -77,6 +78,9 @@ TEST_F(ConnectionManagerTests, TestConnectionSuccessTransition) {
   // Should start in Connecting state
   ASSERT_EQ(connectionManager->getState(), ConnectionState::Connecting);
 
+  // Set success handshake
+  DCCEXTestHelpers::injectSuccessHandshakeFullLists(mockStream);
+
   // Should take at least 8 updates() to complete getting lists and complete
   for (int i = 0; i < 9; i++) {
     connectionManager->update();
@@ -94,9 +98,6 @@ TEST_F(ConnectionManagerTests, TestConnectionSuccessTransition) {
 TEST_F(ConnectionManagerTests, TestConnectionRetryTransition) {
   // Start with begin()
   connectionManager->begin();
-
-  // Set mock's disconnected flag to simulate no connection
-  mockClient->setDisconnected(true);
 
   // Call update while advancing time according to retry delay and retries
   for (int i = 0; i < CONNECT_RETRIES; i++) {

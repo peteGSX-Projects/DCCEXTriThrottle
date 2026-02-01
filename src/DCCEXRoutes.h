@@ -26,11 +26,6 @@
  *
  */
 
-/**
- * @brief This file is only used in native testing
- */
-#ifdef NATIVE_TESTING
-
 #ifndef DCCEXROUTES_H
 #define DCCEXROUTES_H
 
@@ -103,5 +98,3 @@ private:
 };
 
 #endif
-
-#endif // NATIVE_TESTING

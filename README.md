@@ -44,3 +44,11 @@ A serial throttle using three rotary encoders, an OLED, and a 4 x 3 keypad desig
 - PIN5 - PB7
 - PIN6 - PB8
 - PIN7-  PB9
+
+## Testing notes
+
+Testing is performed with PlatformIO, and native testing cannot directly use the DCCEXProtocol library.
+
+However, copying the library source to /src does enable this testing, so each time there is a library version update, copy all library src files into /src.
+
+This does mean tests requiring a simulated response from the command station will require injecting the correct streams into the input buffer of the mock Stream object.

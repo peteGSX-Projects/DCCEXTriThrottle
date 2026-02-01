@@ -22,18 +22,19 @@
  */
 TEST_F(IntegrationTestBase, TestSelectTurnoutTogglesTurnout) {
   // Create the mock turnout list
-  csClient->createMockTurnoutList();
+  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
+
+  // update() needs to be called 5 times to complete connection
+  for (int i = 0; i < 5; i++) {
+    appOrchestrator->update();
+  }
+
   // Get the first turnout for testing
   Turnout *turnout = csClient->turnouts->getFirst();
   ASSERT_NE(turnout, nullptr);
 
   // First turnout should be closed to start
   EXPECT_FALSE(turnout->getThrown());
-
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -49,10 +50,14 @@ TEST_F(IntegrationTestBase, TestSelectTurnoutTogglesTurnout) {
 
   // Should be in throttle menu, first item should be "Turnout 1"
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turnouts");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turnout 1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turnout1");
 
   // Press 0 to select and toggle
   keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Simulate CS response and update()
+  csConnection << "<H 1 1>";
   appOrchestrator->update();
 
   // Validate outcome, still in Menu state, turnout thrown

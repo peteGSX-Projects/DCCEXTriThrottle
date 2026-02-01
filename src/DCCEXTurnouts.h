@@ -26,11 +26,6 @@
  *
  */
 
-/**
- * @brief This file is only used in native testing
- */
-#ifdef NATIVE_TESTING
-
 #ifndef DCCEXTURNOUTS_H
 #define DCCEXTURNOUTS_H
 
@@ -100,5 +95,3 @@ private:
 };
 
 #endif
-
-#endif // NATIVE_TESTING

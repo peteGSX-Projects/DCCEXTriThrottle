@@ -26,11 +26,6 @@
  *
  */
 
-/**
- * @brief This file is only used in native testing
- */
-#ifdef NATIVE_TESTING
-
 #include "DCCEXTurnouts.h"
 #include <Arduino.h>
 
@@ -144,5 +139,3 @@ void Turnout::_removeFromList(Turnout *turnout) {
     }
   }
 }
-
-#endif // NATIVE_TESTING

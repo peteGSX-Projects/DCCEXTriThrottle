@@ -22,7 +22,8 @@
  */
 TEST_F(IntegrationTestBase, TestRosterListPopulatesMenu) {
   // Create the mock roster
-  csClient->createMockRoster();
+  // DCCEXTestHelpers::createMockRoster(csClient);
+  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
 
   // update() needs to be called 5 times to complete connection
   for (int i = 0; i < 5; i++) {
@@ -48,7 +49,7 @@ TEST_F(IntegrationTestBase, TestRosterListPopulatesMenu) {
   ASSERT_NE(roster->getFirstItem(), nullptr);
 
   // First item should be Loco 1
-  EXPECT_STREQ(roster->getFirstItem()->getName(), "Loco 1");
+  EXPECT_STREQ(roster->getFirstItem()->getName(), "Loco1");
 }
 
 /**
@@ -56,7 +57,7 @@ TEST_F(IntegrationTestBase, TestRosterListPopulatesMenu) {
  */
 TEST_F(IntegrationTestBase, TestTurnoutListPopulatesMenu) {
   // Create the mock turnout list
-  csClient->createMockTurnoutList();
+  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
 
   // update() needs to be called 5 times to complete connection
   for (int i = 0; i < 5; i++) {
@@ -82,5 +83,5 @@ TEST_F(IntegrationTestBase, TestTurnoutListPopulatesMenu) {
   ASSERT_NE(turnouts->getFirstItem(), nullptr);
 
   // First item should be Loco 1
-  EXPECT_STREQ(turnouts->getFirstItem()->getName(), "Turnout 1");
+  EXPECT_STREQ(turnouts->getFirstItem()->getName(), "Turnout1");
 }

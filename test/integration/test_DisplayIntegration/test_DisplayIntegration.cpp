@@ -21,6 +21,8 @@
  * @brief Test interacting with a throttle updates the display
  */
 TEST_F(IntegrationTestBase, TestThrottleDisplayUpdates) {
+  DCCEXTestHelpers::injectSuccessHandshakeEmptyLists(csConnection);
+  
   // update() needs to be called 5 times to complete connection
   for (int i = 0; i < 5; i++) {
     appOrchestrator->update();

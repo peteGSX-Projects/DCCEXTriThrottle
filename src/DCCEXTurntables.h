@@ -26,11 +26,6 @@
  *
  */
 
-/**
- * @brief This file is only used in native testing
- */
-#ifdef NATIVE_TESTING
-
 #ifndef DCCEXTURNTABLES_H
 #define DCCEXTURNTABLES_H
 
@@ -194,5 +189,3 @@ private:
 };
 
 #endif
-
-#endif // NATIVE_TESTING
