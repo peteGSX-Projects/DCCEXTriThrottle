@@ -17,16 +17,8 @@
 
 #include "BaseMenuItem.h"
 
-BaseMenuItem::BaseMenuItem(const char *name, MenuItemType itemType) : _index(-1), _next(nullptr), _itemType(itemType) {
-  // Ensure memory safety and copy name
-  if (name != nullptr) {
-    int nameLength = strlen(name);
-    _name = new char[nameLength + 1];
-    strcpy(_name, name);
-  } else {
-    _name = nullptr;
-  }
-}
+BaseMenuItem::BaseMenuItem(const char *name, MenuItemType itemType)
+    : _name(name), _itemType(itemType), _index(-1), _next(nullptr) {}
 
 void BaseMenuItem::setIndex(int index) { _index = index; }
 
@@ -40,10 +32,4 @@ BaseMenuItem *BaseMenuItem::getNext() { return _next; }
 
 MenuItemType BaseMenuItem::getItemType() { return _itemType; }
 
-BaseMenuItem::~BaseMenuItem() {
-  if (_name != nullptr) {
-    delete[] _name;
-    _name = nullptr;
-  }
-  _next = nullptr;
-}
+BaseMenuItem::~BaseMenuItem() { _next = nullptr; }

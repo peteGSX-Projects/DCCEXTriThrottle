@@ -17,20 +17,7 @@
 
 #include "LocoMenuItem.h"
 
-LocoMenuItem::LocoMenuItem(Loco *loco) : BaseMenuItem(loco->getName(), MenuItemType::LocoType), _loco(loco) {
-  // If there's no name for this loco, set the address as the name
-  if (loco->getName() == nullptr) {
-    if (_name != nullptr) {
-      delete[] _name;
-    }
-
-    char buffer[6];
-    itoa(loco->getAddress(), buffer, 10);
-    int len = strlen(buffer);
-    _name = new char[len + 1];
-    strcpy(_name, buffer);
-  }
-}
+LocoMenuItem::LocoMenuItem(Loco *loco) : BaseMenuItem(loco->getName(), MenuItemType::LocoType), _loco(loco) {}
 
 Loco *LocoMenuItem::getLoco() { return _loco; }
 

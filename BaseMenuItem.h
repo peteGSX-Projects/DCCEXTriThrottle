@@ -64,10 +64,10 @@ public:
   virtual ~BaseMenuItem();
 
 protected:
-  char *_name;            /** The name or label of this menu item */
+  const char *_name;      /** The name or label of this menu item */
+  MenuItemType _itemType; /** The MenuItemType for this item */
   int _index;             /** The index of this item */
   BaseMenuItem *_next;    /** The next item in the linked list */
-  MenuItemType _itemType; /** The MenuItemType for this item */
 };
 
 #endif // BASEMENUITEM_H

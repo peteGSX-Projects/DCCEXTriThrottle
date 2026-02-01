@@ -51,6 +51,7 @@ TEST_F(MenuTests, SimpleMenuStructure) {
   Loco *loco1 = new Loco(234, LocoSource::LocoSourceEntry);
   loco1->setName("Loco 234");
   Loco *loco2 = new Loco(555, LocoSource::LocoSourceEntry);
+  loco2->setName("555");
   mainMenu->addItem(new LocoMenuItem(loco0));
   mainMenu->addItem(new LocoMenuItem(loco1));
   mainMenu->addItem(new LocoMenuItem(loco2));
@@ -158,7 +159,9 @@ TEST_F(MenuTests, TestGetItemByPageIndex) {
 
   // Create two separate Locos for testing
   Loco *locoPage0 = new Loco(100, LocoSource::LocoSourceEntry);
+  locoPage0->setName("100");
   Loco *locoPage1 = new Loco(200, LocoSource::LocoSourceEntry);
+  locoPage1->setName("200");
 
   // Fill page 0
   for (int i = 0; i < itemsPerPage; i++) {
