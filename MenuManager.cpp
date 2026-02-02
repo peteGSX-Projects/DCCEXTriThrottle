@@ -101,8 +101,11 @@ void MenuManager::createRosterMenu(Loco *roster) {
     return;
 
   for (Loco *loco = roster; loco; loco = loco->getNext()) {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::createRosterMenu(): add loco %s", loco->getName());
-    _rosterMenu->addItem(new LocoMenuItem(loco));
+    if (loco->getName() == nullptr) {
+      LOG(LogLevel::LOG_WARN, "MenuManager::createRosterMenu(): loco has no name, address: ", loco->getAddress());
+    } else {
+      _rosterMenu->addItem(new LocoMenuItem(loco));
+    }
   }
 }
 
@@ -117,9 +120,13 @@ void MenuManager::createTurnoutMenu(Turnout *firstTurnout) {
     return;
 
   for (Turnout *turnout = firstTurnout; turnout; turnout = turnout->getNext()) {
-    EventType type = EventType::ToggleTurnout;
-    EventData data(turnout->getId());
-    _turnoutMenu->addItem(new ActionMenuItem(turnout->getName(), type, data));
+    if (turnout->getName() == nullptr) {
+      LOG(LogLevel::LOG_WARN, "MenuManager::createTurnoutMenu(): turnout has no name, id: ", turnout->getId());
+    } else {
+      EventType type = EventType::ToggleTurnout;
+      EventData data(turnout->getId());
+      _turnoutMenu->addItem(new ActionMenuItem(turnout->getName(), type, data));
+    }
   }
 }
 
@@ -135,14 +142,18 @@ void MenuManager::createRouteMenus(Route *firstRoute) {
     return;
 
   for (Route *route = firstRoute; route; route = route->getNext()) {
-    int routeId = route->getId();
-    EventData data(routeId);
-    if (route->getType() == RouteType::RouteTypeRoute) {
-      EventType type = EventType::StartRoute;
-      _routeMenu->addItem(new ActionMenuItem(route->getName(), type, data));
-    } else if (route->getType() == RouteType::RouteTypeAutomation) {
-      EventType type = EventType::StartAutomation;
-      _automationMenu->addItem(new ActionMenuItem(route->getName(), type, data));
+    if (route->getName() == nullptr) {
+      LOG(LogLevel::LOG_WARN, "MenuManager::createRouteMenus(): route has no name, id: ", route->getId());
+    } else {
+      int routeId = route->getId();
+      EventData data(routeId);
+      if (route->getType() == RouteType::RouteTypeRoute) {
+        EventType type = EventType::StartRoute;
+        _routeMenu->addItem(new ActionMenuItem(route->getName(), type, data));
+      } else if (route->getType() == RouteType::RouteTypeAutomation) {
+        EventType type = EventType::StartAutomation;
+        _automationMenu->addItem(new ActionMenuItem(route->getName(), type, data));
+      }
     }
   }
 }

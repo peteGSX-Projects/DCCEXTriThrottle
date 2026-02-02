@@ -103,7 +103,25 @@ public:
     csClient->turnouts = turnout1;
   }
 
-  static void createMockTurntableList() {}
+  static void createMockTurntableList(DCCEXProtocol *csClient) {
+    Turntable *turntable1 = new Turntable(1);
+    turntable1->setType(TurntableType::TurntableTypeDCC);
+    turntable1->setIndex(1);
+    turntable1->setNumberOfIndexes(3);
+    turntable1->setName("Turntable1");
+    turntable1->addIndex(new TurntableIndex(1, 0, 180, "Home"));
+    turntable1->addIndex(new TurntableIndex(1, 1, 10, "TT1 Index1"));
+    turntable1->addIndex(new TurntableIndex(1, 2, 20, "TT1 Index2"));
+    Turntable *turntable2 = new Turntable(2);
+    turntable1->setType(TurntableType::TurntableTypeEXTT);
+    turntable1->setIndex(2);
+    turntable1->setNumberOfIndexes(3);
+    turntable1->setName("Turntable2");
+    turntable1->addIndex(new TurntableIndex(1, 0, 180, "Home"));
+    turntable1->addIndex(new TurntableIndex(1, 1, 10, "TT2 Index1"));
+    turntable1->addIndex(new TurntableIndex(1, 2, 20, "TT2 Index2"));
+    csClient->turntables = turntable1;
+  }
 
   static void createMockRouteList(DCCEXProtocol *csClient) {
     Route *route1 = new Route(1);

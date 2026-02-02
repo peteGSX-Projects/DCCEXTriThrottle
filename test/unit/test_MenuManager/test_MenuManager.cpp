@@ -395,6 +395,7 @@ TEST_F(MenuManagerTests, TestCreateRosterMenu) {
   EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Loco5");
 
   // Clean up
+  client->clearAllLists();
   delete client;
 }
 
@@ -450,6 +451,7 @@ TEST_F(MenuManagerTests, TestCreateTurnoutMenu) {
   EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(4)->getName(), "Turnout5");
 
   // Clean up
+  client->clearAllLists();
   delete client;
 }
 
@@ -489,5 +491,110 @@ TEST_F(MenuManagerTests, TestCreateRouteAutomationMenus) {
   EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(2)->getName(), "Automation3");
 
   // Clean up
+  client->clearAllLists();
+  delete client;
+}
+
+/**
+ * @brief Test that Locos without names do not get added to menus
+ */
+TEST_F(MenuManagerTests, TestNoNameLocoItemsAreIgnored) {
+  // Initialise menus
+  menuManager->initialise();
+
+  // Create a protocol instance and a dummy roster list
+  DCCEXProtocol *client = new DCCEXProtocol;
+  Loco *namedLoco = new Loco(3, LocoSource::LocoSourceRoster);
+  namedLoco->setName("Loco3");
+  Loco *anonLoco = new Loco(5, LocoSource::LocoSourceRoster);
+  client->roster = namedLoco;
+
+  // First make sure the roster is as expected, first named, second nullptr
+  ASSERT_NE(client->roster, nullptr);
+  EXPECT_STREQ(client->roster->getFirst()->getName(), "Loco3");
+  EXPECT_EQ(client->roster->getFirst()->getNext()->getName(), nullptr);
+
+  // Now setup roster menu
+  menuManager->createRosterMenu(client->roster);
+
+  // Now navigate to roster menu '6'
+  menuManager->handleUserInput({'6', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
+  // Should only have one item at index 0 which is Loco3
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Loco3");
+  EXPECT_EQ(menuManager->getCurrentMenu()->getItemByPageIndex(1), nullptr);
+
+  // Clean up
+  client->clearAllLists();
+  delete client;
+}
+
+/**
+ * @brief Test that Turnouts without names do not get added to menus
+ */
+TEST_F(MenuManagerTests, TestNoNameTurnoutItemsAreIgnored) {
+  // Initialise menus
+  menuManager->initialise();
+
+  // Create a DCCEXProtocol instance and dummy turnout list
+  DCCEXProtocol *client = new DCCEXProtocol;
+  Turnout *namedTurnout = new Turnout(1, false);
+  namedTurnout->setName("Turnout1");
+  Turnout *anonTurnout = new Turnout(2, false);
+  client->turnouts = namedTurnout;
+
+  // First make sure the turnout list is as expected, first named, second nullptr
+  ASSERT_NE(client->turnouts, nullptr);
+  EXPECT_STREQ(client->turnouts->getFirst()->getName(), "Turnout1");
+  EXPECT_EQ(client->turnouts->getFirst()->getNext()->getName(), nullptr);
+
+  // Call createTurnoutMenu() with the first entry
+  menuManager->createTurnoutMenu(client->turnouts);
+
+  // Now navigate to turnout menu '3'
+  menuManager->handleUserInput({'3', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turnouts");
+  // Should only have one item at index 0 which is Turnout1
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turnout1");
+  EXPECT_EQ(menuManager->getCurrentMenu()->getItemByPageIndex(1), nullptr);
+
+  // Clean up
+  client->clearAllLists();
+  delete client;
+}
+
+/**
+ * @brief Test that Routes without names do not get added to menus
+ */
+TEST_F(MenuManagerTests, TestNoNameRouteItemsAreIgnored) {
+  // Initialise menus
+  menuManager->initialise();
+
+  // Create a DCCEXProtocol instance and dummy route list
+  DCCEXProtocol *client = new DCCEXProtocol;
+  Route *namedRoute = new Route(1);
+  namedRoute->setType(RouteType::RouteTypeRoute);
+  namedRoute->setName("Route1");
+  Route *anonRoute = new Route(2);
+  anonRoute->setType(RouteType::RouteTypeRoute);
+  client->routes = namedRoute;
+
+  // First make sure the route list is as expected, first named, second nullptr
+  ASSERT_NE(client->routes, nullptr);
+  EXPECT_STREQ(client->routes->getFirst()->getName(), "Route1");
+  EXPECT_EQ(client->routes->getFirst()->getNext()->getName(), nullptr);
+
+  // Call createRouteMenu() with the first entry
+  menuManager->createRouteMenus(client->routes);
+
+  // Now navigate to turnout menu '5'
+  menuManager->handleUserInput({'5', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Routes");
+  // Should only have one item at index 0 which is Route1
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Route1");
+  EXPECT_EQ(menuManager->getCurrentMenu()->getItemByPageIndex(1), nullptr);
+
+  // Clean up
+  client->clearAllLists();
   delete client;
 }
