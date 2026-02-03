@@ -109,6 +109,12 @@ public:
   void createRouteMenus(Route *firstRoute);
 
   /**
+   * @brief Create the Turntable Menu from the DCC-EX turntable list
+   * @param firstTurntable Pointer to the first Turntable in the list
+   */
+  void createTurntableMenu(Turntable *firstTurntable);
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();

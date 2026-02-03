@@ -46,6 +46,7 @@ enum EventType {
   RequestStateChange,      // 13
   StartRoute,              // 14
   StartAutomation,         // 15
+  RotateTurntable,         // 16
   EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin() and bounds checking,
                    // MUST BE LAST
 };

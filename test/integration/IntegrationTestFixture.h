@@ -84,6 +84,9 @@ protected:
   }
 
   void TearDown() override {
+    csConnection.clearInput();
+    csConnection.clearOutput();
+    csClient->clearAllLists();
     delete appOrchestrator;
     for (int i = 0; i < NUM_THROTTLES; i++) {
       delete throttles[i];

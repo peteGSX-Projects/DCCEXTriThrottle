@@ -32,7 +32,7 @@ void MenuManager::initialise() {
   _routeMenu = _createManagedMenu("Routes");
   _automationMenu = _createManagedMenu("Automations");
   Menu *tracksMenu = _createManagedMenu("Tracks");
-  Menu *systemMenu = _createManagedMenu("System");
+  Menu *systemMenu = _createManagedMenu("System Info");
 
   // Create throttle menus
   Menu *throttle0Menu = _createThrottleMenu(0);
@@ -154,6 +154,34 @@ void MenuManager::createRouteMenus(Route *firstRoute) {
         EventType type = EventType::StartAutomation;
         _automationMenu->addItem(new ActionMenuItem(route->getName(), type, data));
       }
+    }
+  }
+}
+
+void MenuManager::createTurntableMenu(Turntable *firstTurntable) {
+  if (_turntableMenu == nullptr) return;
+
+  // Make sure menus are clear first
+  _turntableMenu->clearItems();
+
+  if (firstTurntable == nullptr) return;
+
+  for (Turntable *turntable = firstTurntable; turntable; turntable = turntable->getNext()) {
+    if (turntable->getName() == nullptr) {
+      LOG(LogLevel::LOG_WARN, "MenuManager::createTurntableMenu(): turntable has no name, id: ", turntable->getId());
+    } else {
+      int ttId = turntable->getId();
+      Menu *ttMenu = _createManagedMenu(turntable->getName());
+      for (TurntableIndex *ttIndex = turntable->getFirstIndex(); ttIndex; ttIndex = ttIndex->getNextIndex()) {
+        if (ttIndex->getName() == nullptr) {
+          LOG(LogLevel::LOG_WARN, "MenuManager::createTurntableMenu(): index has no name, id: ", ttIndex->getId());
+        } else {
+          int indexId = ttIndex->getId();
+          EventData rotateData(ttId, indexId);
+          ttMenu->addItem(new ActionMenuItem(ttIndex->getName(), EventType::RotateTurntable, rotateData));
+        }
+      }
+      _turntableMenu->addItem(new SubMenuItem(ttMenu));
     }
   }
 }

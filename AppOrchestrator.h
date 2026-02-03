@@ -251,6 +251,12 @@ private:
    */
   void _handleStartAutomation(Event &event);
 
+  /**
+   * @brief Handle a RotateTurntable event
+   * @param event Event containing the turntable ID and index to rotate to
+   */
+  void _handleRotateTurntable(Event &event);
+
   // General helper methods
 
   /**

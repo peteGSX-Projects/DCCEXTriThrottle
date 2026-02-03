@@ -18,6 +18,7 @@
 #ifndef DCCEXTESTHELPERS_H
 #define DCCEXTESTHELPERS_H
 
+#include "AppOrchestrator.h"
 #include <DCCEXProtocol.h>
 
 class DCCEXTestHelpers {
@@ -33,11 +34,7 @@ public:
     csConnection << "<jO>";
   }
 
-  /**
-   * @brief Use this to simulate the full list responses for getLists()
-   * @param csConnection
-   */
-  static void injectSuccessHandshakeFullLists(Stream &csConnection) {
+  static void injectRosterResponses(Stream &csConnection) {
     // Roster
     csConnection << "<jR 1 2 3 4 5>";
     csConnection << "<jR 1 \"Loco1\" \"Func1\">";
@@ -45,7 +42,9 @@ public:
     csConnection << "<jR 3 \"Loco3\" \"Func3\">";
     csConnection << "<jR 4 \"Loco4\" \"Func4\">";
     csConnection << "<jR 5 \"Loco5\" \"Func5\">";
+  }
 
+  static void injectTurnoutResponses(Stream &csConnection) {
     // Turnouts
     csConnection << "<jT 1 2 3 4 5>";
     csConnection << "<jT 1 0 \"Turnout1\">";
@@ -53,7 +52,9 @@ public:
     csConnection << "<jT 3 0 \"Turnout3\">";
     csConnection << "<jT 4 0 \"Turnout4\">";
     csConnection << "<jT 5 0 \"Turnout5\">";
+  }
 
+  static void injectRouteResponses(Stream &csConnection) {
     // Routes
     csConnection << "<jA 1 2 3 4 5 6>";
     csConnection << "<jA 1 R \"Route1\">";
@@ -62,17 +63,47 @@ public:
     csConnection << "<jA 4 A \"Automation1\">";
     csConnection << "<jA 5 A \"Automation2\">";
     csConnection << "<jA 6 A \"Automation3\">";
+  }
 
-    // Turntables no index names due to memory leak in the way these are handled
-    csConnection << "<jO>";
+  static void injectTurntableResponses(Stream &csConnection) {
+    // Turntables
+    csConnection << "<jO 1 2>";
     csConnection << "<jO 1 0 1 3 \"Turntable1\">";
-    csConnection << "<jP 1 0 180>";
-    csConnection << "<jP 1 1 10>";
-    csConnection << "<jP 1 2 20>";
     csConnection << "<jO 2 1 2 3 \"Turntable2\">";
-    csConnection << "<jP 2 0 180>";
-    csConnection << "<jP 2 1 10>";
-    csConnection << "<jP 2 2 20>";
+  }
+
+  static void injectTurntableIndexResponses(Stream &csConnection) {
+    // Turntable indexes
+    csConnection << "<jP 1 0 180 \"Home\">";
+    csConnection << "<jP 1 1 10 \"TT1 Index1\">";
+    csConnection << "<jP 1 2 20 \"TT1 Index2\">";
+    csConnection << "<jP 2 0 180 \"Home\">";
+    csConnection << "<jP 2 1 10 \"TT2 Index1\">";
+    csConnection << "<jP 2 2 20 \"TT2 Index2\">";
+  }
+
+  static void processCSConnection(AppOrchestrator *appOrchestrator, Stream &csConnection) {
+    // Assume appOrchestrator->begin() is already called so we're connecting at this point
+    injectRosterResponses(csConnection);
+    while (csConnection.available() > 0) {
+      appOrchestrator->update();
+    }
+    injectTurnoutResponses(csConnection);
+    while (csConnection.available() > 0) {
+      appOrchestrator->update();
+    }
+    injectRouteResponses(csConnection);
+    while (csConnection.available() > 0) {
+      appOrchestrator->update();
+    }
+    injectTurntableResponses(csConnection);
+    while (csConnection.available() > 0) {
+      appOrchestrator->update();
+    }
+    injectTurntableIndexResponses(csConnection);
+    while (csConnection.available() > 0) {
+      appOrchestrator->update();
+    }
   }
 
   static void createMockRoster(DCCEXProtocol *csClient) {
@@ -113,13 +144,13 @@ public:
     turntable1->addIndex(new TurntableIndex(1, 1, 10, "TT1 Index1"));
     turntable1->addIndex(new TurntableIndex(1, 2, 20, "TT1 Index2"));
     Turntable *turntable2 = new Turntable(2);
-    turntable1->setType(TurntableType::TurntableTypeEXTT);
-    turntable1->setIndex(2);
-    turntable1->setNumberOfIndexes(3);
-    turntable1->setName("Turntable2");
-    turntable1->addIndex(new TurntableIndex(1, 0, 180, "Home"));
-    turntable1->addIndex(new TurntableIndex(1, 1, 10, "TT2 Index1"));
-    turntable1->addIndex(new TurntableIndex(1, 2, 20, "TT2 Index2"));
+    turntable2->setType(TurntableType::TurntableTypeEXTT);
+    turntable2->setIndex(2);
+    turntable2->setNumberOfIndexes(3);
+    turntable2->setName("Turntable2");
+    turntable2->addIndex(new TurntableIndex(1, 0, 180, "Home"));
+    turntable2->addIndex(new TurntableIndex(1, 1, 10, "TT2 Index1"));
+    turntable2->addIndex(new TurntableIndex(1, 2, 20, "TT2 Index2"));
     csClient->turntables = turntable1;
   }
 

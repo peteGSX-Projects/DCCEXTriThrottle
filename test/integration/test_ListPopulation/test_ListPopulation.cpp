@@ -21,13 +21,8 @@
  * @brief Test that the roster list populates the roster menu on CS connection
  */
 TEST_F(IntegrationTestBase, TestRosterListPopulatesMenu) {
-  // Create the mock lists
-  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
-
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -55,13 +50,8 @@ TEST_F(IntegrationTestBase, TestRosterListPopulatesMenu) {
  * @brief Test that the turnout list populates the Turnout menu on CS connection
  */
 TEST_F(IntegrationTestBase, TestTurnoutListPopulatesMenu) {
-  // Create the mock lists
-  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
-
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -89,13 +79,8 @@ TEST_F(IntegrationTestBase, TestTurnoutListPopulatesMenu) {
  * @brief Test that the route list populates the Route and Automation menus on CS connection
  */
 TEST_F(IntegrationTestBase, TestRouteListPopulatesMenus) {
-  // Create the mock lists
-  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
-
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -135,4 +120,41 @@ TEST_F(IntegrationTestBase, TestRouteListPopulatesMenus) {
   Menu *automationMenu = menuManager->getCurrentMenu();
   ASSERT_NE(automationMenu->getFirstItem(), nullptr);
   EXPECT_STREQ(automationMenu->getFirstItem()->getName(), "Automation1");
+}
+
+/**
+ * @brief Test that the turntable list populates the Turntable menu on CS connection
+ */
+TEST_F(IntegrationTestBase, TestTurntableListPopulatesMenu) {
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
+
+  // We should be in Throttle state
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  // Navigate to the menu
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Navigate to the turntable menu
+  keypad->setInputEvent({'4', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Ensure the list is populated
+  Menu *turntables = menuManager->getCurrentMenu();
+  ASSERT_NE(turntables, nullptr);
+
+  // The first item should not be a nullptr
+  ASSERT_NE(turntables->getFirstItem(), nullptr);
+
+  // First item should be Turntable 1
+  EXPECT_STREQ(turntables->getFirstItem()->getName(), "Turntable1");
+
+  // Navigate to Turntable1
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // First item should not be a nullptr and should be Home
+  ASSERT_NE(menuManager->getCurrentMenu()->getFirstItem(), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getFirstItem()->getName(), "Home");
 }

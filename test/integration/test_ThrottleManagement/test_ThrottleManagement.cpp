@@ -21,13 +21,8 @@
  * @brief Test selecting a Loco from a throttle menu associates correctly
  */
 TEST_F(IntegrationTestBase, TestThrottleSelectsLoco) {
-  // Create the mock roster
-  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
-
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
   // We'll use Throttle 2 (index 1)
   int throttleIndex = 1;
@@ -55,13 +50,8 @@ TEST_F(IntegrationTestBase, TestThrottleSelectsLoco) {
  * @brief Test selecting a loco resets the menu back to root
  */
 TEST_F(IntegrationTestBase, TestMenuResetAfterSelectLoco) {
-  // Create the mock roster
-  DCCEXTestHelpers::injectSuccessHandshakeFullLists(csConnection);
-
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -97,12 +87,8 @@ TEST_F(IntegrationTestBase, TestMenuResetAfterSelectLoco) {
  * @brief Test selecting Enter Address from the menu changes state to EnterLocoAddress
  */
 TEST_F(IntegrationTestBase, TestSelectEnterAddressChangesState) {
-  DCCEXTestHelpers::injectSuccessHandshakeEmptyLists(csConnection);
-  
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -128,12 +114,8 @@ TEST_F(IntegrationTestBase, TestSelectEnterAddressChangesState) {
  * @brief Test manually entering a loco address sets the loco for Throttle 1
  */
 TEST_F(IntegrationTestBase, TestManualAddressEntry) {
-  DCCEXTestHelpers::injectSuccessHandshakeEmptyLists(csConnection);
-  
-  // update() needs to be called 5 times to complete connection
-  for (int i = 0; i < 5; i++) {
-    appOrchestrator->update();
-  }
+  // Complete the CS connection
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);

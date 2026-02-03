@@ -330,7 +330,7 @@ TEST_F(MenuManagerTests, TestInitialiseCreatesStructure) {
 
   // '8' shows system info
   menuManager->handleUserInput({'8', UserInputInterface::UserInputAction::Pressed});
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "System");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "System Info");
   EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
 
   // '*' Back to main
@@ -592,6 +592,94 @@ TEST_F(MenuManagerTests, TestNoNameRouteItemsAreIgnored) {
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Routes");
   // Should only have one item at index 0 which is Route1
   EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Route1");
+  EXPECT_EQ(menuManager->getCurrentMenu()->getItemByPageIndex(1), nullptr);
+
+  // Clean up
+  client->clearAllLists();
+  delete client;
+}
+
+/**
+ * @brief Test createTurntableMenu() creates the turntable menu
+ */
+TEST_F(MenuManagerTests, TestCreateTurntableMenu) {
+  // Initialise menus
+  menuManager->initialise();
+
+  // Create a protocol instance and the dummy route list
+  DCCEXProtocol *client = new DCCEXProtocol;
+  DCCEXTestHelpers::createMockTurntableList(client);
+
+  // Call createTurntableMenu() with the first entry
+  menuManager->createTurntableMenu(client->turntables);
+
+  // Ensure the turntable menu is accessible via main menu, '4'
+  menuManager->handleUserInput({'4', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turntables");
+  ASSERT_NE(menuManager->getCurrentMenu()->getFirstItem(), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getFirstItem()->getName(), "Turntable1");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(1)->getName(), "Turntable2");
+
+  // Ensure indexes are accessible via a turntable, '0' to select the first
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+
+  // First item should be home
+  ASSERT_NE(menuManager->getCurrentMenu()->getFirstItem(), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getFirstItem()->getName(), "Home");
+
+  // Clean up
+  client->clearAllLists();
+  delete client;
+}
+
+/**
+ * @brief Test that Turntables and TurntableIndexes without names do not get added to menus
+ */
+TEST_F(MenuManagerTests, TestNoNameTurntableItemsAreIgnored) {
+  // Initialise menus
+  menuManager->initialise();
+
+  // Create a DCCEXProtocol instance and dummy turntable list
+  DCCEXProtocol *client = new DCCEXProtocol;
+  Turntable *namedTurntable = new Turntable(1);
+  namedTurntable->setType(TurntableType::TurntableTypeDCC);
+  namedTurntable->setIndex(0);
+  namedTurntable->setNumberOfIndexes(2);
+  namedTurntable->setName("Turntable1");
+  namedTurntable->addIndex(new TurntableIndex(1, 0, 0, "Home"));
+  namedTurntable->addIndex(new TurntableIndex(1, 1, 0, nullptr));
+  Turntable *anonTurntable = new Turntable(2);
+  anonTurntable->setType(TurntableType::TurntableTypeEXTT);
+  anonTurntable->setIndex(0);
+  anonTurntable->setNumberOfIndexes(1);
+  anonTurntable->addIndex(new TurntableIndex(2, 0, 0, "Home"));
+  client->turntables = namedTurntable;
+
+  // First make sure the turntable list is as expected, first named, second nullptr
+  ASSERT_NE(client->turntables, nullptr);
+  EXPECT_STREQ(client->turntables->getFirst()->getName(), "Turntable1");
+  EXPECT_EQ(client->turntables->getFirst()->getNext()->getName(), nullptr);
+
+  // Validate indexes
+  ASSERT_NE(client->turntables->getFirst()->getFirstIndex(), nullptr);
+  EXPECT_STREQ(client->turntables->getFirst()->getFirstIndex()->getName(), "Home");
+  EXPECT_STREQ(client->turntables->getFirst()->getNext()->getFirstIndex()->getName(), "Home");
+
+  // Call createRouteMenu() with the first entry
+  menuManager->createTurntableMenu(client->turntables);
+
+  // Now navigate to turtable menu '4'
+  menuManager->handleUserInput({'4', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turntables");
+  // Should only have one item at index 0 which is Turntable1
+  ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(0), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turntable1");
+  EXPECT_EQ(menuManager->getCurrentMenu()->getItemByPageIndex(1), nullptr);
+
+  // Turntable1 should only have Home, not index 1
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(0), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Home");
   EXPECT_EQ(menuManager->getCurrentMenu()->getItemByPageIndex(1), nullptr);
 
   // Clean up

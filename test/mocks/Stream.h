@@ -73,6 +73,12 @@ public:
   std::string getOutput() { return _outputBuffer; }
 
   /**
+   * @brief Helper to view the input buffer contents
+   * @return std::string
+   */
+  std::string getInput() { return _inputBuffer; }
+
+  /**
    * @brief Clear the output buffer
    */
   void clearOutput() { _outputBuffer.clear(); }

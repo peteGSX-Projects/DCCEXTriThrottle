@@ -20,6 +20,7 @@
 #include "EventManager.h"
 #include "Throttle.h"
 #include "Version.h"
+#include "test/mocks/DCCEXTestHelpers.h"
 #include "test/mocks/MockButton.h"
 #include "test/mocks/MockConnectionManager.h"
 #include "test/mocks/MockDisplay.h"
@@ -87,6 +88,7 @@ protected:
       delete throttles[i];
     }
 
+    csClient->clearAllLists();
     delete csClient;
     delete csListener;
     delete encoder3;
@@ -600,4 +602,45 @@ TEST_F(AppOrchestratorTests, TestStartAutomation) {
   // Clean up
   delete automation;
   delete loco;
+}
+
+/**
+ * @brief Test receiving a RotateTurntable event triggers the turntable rotation
+ */
+TEST_F(AppOrchestratorTests, TestRotateTurntable) {
+  // Set up the mock turntable list
+  DCCEXTestHelpers::createMockTurntableList(csClient);
+
+  // Validate the first turntable is at index 1
+  Turntable *tt1 = csClient->turntables->getFirst();
+  ASSERT_NE(tt1, nullptr);
+  ASSERT_EQ(tt1->getIndex(), 1);
+
+  // Set up the event to rotate turntable 1 to index 2
+  Event tt1Event(EventType::RotateTurntable, EventData(1, 2));
+
+  // Handle the event
+  appOrchestrator->onEvent(tt1Event);
+
+  // Check the outbound buffer for the rotate command - note it's a DCC turntable
+  EXPECT_EQ(csConnection.getOutput(), "<I 1 2>\r\n");
+
+  // Clear the buffer
+  csConnection.clearOutput();
+
+  // Now repeat for EX-Turntable type, rotate turntable 2 to position 1
+  Turntable *tt2 = csClient->turntables->getById(2);
+
+  // Validate currently at index 2
+  ASSERT_NE(tt2, nullptr);
+  ASSERT_EQ(tt2->getIndex(), 2);
+
+  // Set up the event to rotate turntable 2 to index 1
+  Event tt2Event(EventType::RotateTurntable, EventData(2, 1));
+
+  // Handle the event
+  appOrchestrator->onEvent(tt2Event);
+
+  // Check the outbound buffer for the rotate command - note it's a DCC turntable
+  EXPECT_EQ(csConnection.getOutput(), "<I 2 1 0>\r\n");
 }

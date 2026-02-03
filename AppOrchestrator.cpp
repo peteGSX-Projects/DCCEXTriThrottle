@@ -122,7 +122,8 @@ void AppOrchestrator::onEvent(Event &event) {
       &AppOrchestrator::_handleLocoAddressEntered,      // 12
       &AppOrchestrator::_handleRequestStateChange,      // 13
       &AppOrchestrator::_handleStartRoute,              // 14
-      &AppOrchestrator::_handleStartAutomation          // 15
+      &AppOrchestrator::_handleStartAutomation,         // 15
+      &AppOrchestrator::_handleRotateTurntable          // 16
   };
 
   // // Set the type index
@@ -249,6 +250,12 @@ void AppOrchestrator::_handleCommandStationConnected(Event &event) {
     if (route != nullptr) {
       LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRouteMenus(): ", route->getName());
       _menuManager->createRouteMenus(route);
+    }
+    // Setup the turntable menu
+    Turntable *turntable = _commandStationClient->turntables->getFirst();
+    if (turntable != nullptr) {
+      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurntableMenu(): ", turntable->getName());
+      _menuManager->createTurntableMenu(turntable);
     }
   }
 }
@@ -379,6 +386,12 @@ void AppOrchestrator::_handleStartAutomation(Event &event) {
       _switchState(AppState::Throttle);
     }
   }
+}
+
+void AppOrchestrator::_handleRotateTurntable(Event &event) {
+  int turntableId = event.eventData.locoAddressValue.address;
+  int indexId = event.eventData.locoAddressValue.throttleIndex;
+  _commandStationClient->rotateTurntable(turntableId, indexId);
 }
 
 // General helper methods

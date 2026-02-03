@@ -18,44 +18,50 @@
 #include "../IntegrationTestFixture.h"
 
 /**
- * @brief Test selecting a Turnout from the menu toggles the turnout
+ * @brief Test selecting a Turntable index from the menu rotates the turntable
  */
-TEST_F(IntegrationTestBase, TestSelectTurnoutTogglesTurnout) {
+TEST_F(IntegrationTestBase, TestSelectIndexRotatesTurntable) {
   // Complete the CS connection
   DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
 
-  // Get the first turnout for testing
-  Turnout *turnout = csClient->turnouts->getFirst();
-  ASSERT_NE(turnout, nullptr);
+  // Get the first turntable for testing
+  Turntable *turntable = csClient->turntables->getFirst();
+  ASSERT_NE(turntable, nullptr);
 
-  // First turnout should be closed to start
-  EXPECT_FALSE(turnout->getThrown());
+  // Should be at index 1 to start
+  EXPECT_EQ(turntable->getIndex(), 1);
 
   // We should be in Throttle state
   ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
 
-  // Navigate to the menu, then turnout menu
+  // Navigate to the menu, then turntable menu
   keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
   appOrchestrator->update();
-  keypad->setInputEvent({'3', UserInputInterface::UserInputAction::Pressed});
+  keypad->setInputEvent({'4', UserInputInterface::UserInputAction::Pressed});
   appOrchestrator->update();
 
   // Assert if nullptr
   ASSERT_NE(menuManager->getCurrentMenu(), nullptr);
 
-  // Should be in throttle menu, first item should be "Turnout 1"
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turnouts");
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turnout1");
+  // Should be in Turntable menu, first item should be "Turntable1"
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Turntables");
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(0)->getName(), "Turntable1");
 
-  // Press 0 to select and toggle
+  // Press 0 to select Turntable1 menu and index 1 should be index 1
   keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
   appOrchestrator->update();
+  ASSERT_NE(menuManager->getCurrentMenu()->getItemByPageIndex(1), nullptr);
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getItemByPageIndex(1)->getName(), "TT1 Index1");
 
-  // Simulate CS response and update()
-  csConnection << "<H 1 1>";
+  // Select to rotate turntable
+  keypad->setInputEvent({'1', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+
+  // Simulate CS response and update() - DCC turntable so moving always 0
+  csConnection << "<I 1 1 0>";
   appOrchestrator->update();
 
   // Validate outcome, still in Menu state, turnout thrown
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
-  EXPECT_TRUE(turnout->getThrown());
+  EXPECT_EQ(turntable->getIndex(), 1);
 }

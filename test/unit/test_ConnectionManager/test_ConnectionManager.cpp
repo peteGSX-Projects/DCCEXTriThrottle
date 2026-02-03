@@ -79,7 +79,11 @@ TEST_F(ConnectionManagerTests, TestConnectionSuccessTransition) {
   ASSERT_EQ(connectionManager->getState(), ConnectionState::Connecting);
 
   // Set success handshake
-  DCCEXTestHelpers::injectSuccessHandshakeFullLists(mockStream);
+  DCCEXTestHelpers::injectRosterResponses(mockStream);
+  DCCEXTestHelpers::injectTurnoutResponses(mockStream);
+  DCCEXTestHelpers::injectRouteResponses(mockStream);
+  DCCEXTestHelpers::injectTurntableResponses(mockStream);
+  DCCEXTestHelpers::injectTurntableIndexResponses(mockStream);
 
   // Should take at least 8 updates() to complete getting lists and complete
   for (int i = 0; i < 9; i++) {
