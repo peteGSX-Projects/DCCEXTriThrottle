@@ -22,8 +22,6 @@
 extern "C" char *sbrk(int incr);
 #endif
 
-HardwareManager::HardwareManager() {}
-
 void HardwareManager::initialise() {
 #if defined(ARDUINO_BLUEPILL_F103C8)
   // Disable JTAG and enable SWD by clearing the SWJ_CFG bits
@@ -47,5 +45,3 @@ int HardwareManager::getFreeMemory() {
   return 0; // Fallback for native testing
 #endif
 }
-
-HardwareManager::~HardwareManager() {}

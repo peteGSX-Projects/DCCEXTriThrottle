@@ -29,6 +29,7 @@ enum class AppState {
   Menu,
   UserEntry,
   EnterLocoAddress,
+  DisplaySysInfo,
   APP_STATE_COUNT // Not a state, used for validation checks
 };
 

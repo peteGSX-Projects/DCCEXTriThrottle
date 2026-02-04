@@ -16,6 +16,7 @@
  */
 
 #include "AppOrchestrator.h"
+#include "HardwareManager.h"
 #include "Version.h"
 
 AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputInterface *userInputInterface,
@@ -82,6 +83,10 @@ void AppOrchestrator::update() {
   }
   case AppState::EnterLocoAddress: {
     _handleEnterLocoAddress(inputEvent);
+    break;
+  }
+  case AppState::DisplaySysInfo: {
+    _handleDisplaySysInfo(inputEvent);
     break;
   }
   default: {
@@ -224,6 +229,15 @@ void AppOrchestrator::_handleEnterLocoAddress(UserInputInterface::UserInputEvent
       _enterAddressBufferCount = 0;
       _handleLocoAddressEntered(event);
     }
+  }
+}
+
+void AppOrchestrator::_handleDisplaySysInfo(UserInputInterface::UserInputEvent event) {
+  if (event.action != UserInputInterface::UserInputAction::Pressed)
+    return;
+
+  if (event.key == '*') {
+    _switchState(AppState::Menu);
   }
 }
 
@@ -433,6 +447,15 @@ void AppOrchestrator::_displayCurrentState() {
     char title[] = "Throttle X Address";              // X placeholder
     title[9] = (char)(_activeContextIndex + 1 + '0'); // Overwrite placeholder with throttle number char
     _displayInterface->displayUserEntryScreen(title, "Enter DCC address:");
+    break;
+  }
+  case AppState::DisplaySysInfo: {
+    const char *version = VERSION;
+    int major = _commandStationClient->getMajorVersion();
+    int minor = _commandStationClient->getMinorVersion();
+    int patch = _commandStationClient->getPatchVersion();
+    int freeBytes = HardwareManager::getFreeMemory();
+    _displayInterface->displaySysInfoScreen(version, major, minor, patch, freeBytes);
     break;
   }
   default:

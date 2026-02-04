@@ -644,3 +644,21 @@ TEST_F(AppOrchestratorTests, TestRotateTurntable) {
   // Check the outbound buffer for the rotate command - note it's a DCC turntable
   EXPECT_EQ(csConnection.getOutput(), "<I 2 1 0>\r\n");
 }
+
+/**
+ * @brief Test RequestStateChange to DisplaySysInfo event displays the System Info screen
+ */
+TEST_F(AppOrchestratorTests, TestDisplaySystemInfo) {
+  // Setup the event
+  EventData data(AppState::DisplaySysInfo, -1);
+  Event event(EventType::RequestStateChange, data);
+
+  // Set the expectation
+  EXPECT_CALL(*mockDisplay, displaySysInfoScreen(_, _, _, _, _)).Times(1);
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+  appOrchestrator->update();
+
+  EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::DisplaySysInfo);
+}

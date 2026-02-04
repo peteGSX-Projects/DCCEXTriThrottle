@@ -23,25 +23,15 @@
 class HardwareManager {
 public:
   /**
-   * @brief Construct a new Hardware Manager object
-   */
-  HardwareManager();
-
-  /**
    * @brief Perform hardware setup (eg. disable JTAG on Bluepill)
    */
-  void initialise();
+  static void initialise();
 
   /**
    * @brief Get the Free Memory object
    * @return int Free RAM in bytes
    */
-  int getFreeMemory();
-
-  /**
-   * @brief Destroy the Hardware Manager object
-   */
-  ~HardwareManager();
+  static int getFreeMemory();
 };
 
 #endif // HARDWAREMANAGER_H

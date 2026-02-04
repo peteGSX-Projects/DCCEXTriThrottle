@@ -32,15 +32,16 @@ void MenuManager::initialise() {
   _routeMenu = _createManagedMenu("Routes");
   _automationMenu = _createManagedMenu("Automations");
   Menu *tracksMenu = _createManagedMenu("Tracks");
-  Menu *systemMenu = _createManagedMenu("System Info");
 
   // Create throttle menus
   Menu *throttle0Menu = _createThrottleMenu(0);
   Menu *throttle1Menu = _createThrottleMenu(1);
   Menu *throttle2Menu = _createThrottleMenu(2);
 
-  // Setup sub menus
+  // Setup sub menus and items
   _setupTracksMenu(tracksMenu);
+  EventData sysInfoData(AppState::DisplaySysInfo, -1);
+  ActionMenuItem *sysInfo = new ActionMenuItem("System Info", EventType::RequestStateChange, sysInfoData);
 
   // Setup main menu items
   _rootMenu->addItem(new ThrottleMenuItem(throttle0Menu, 0)); // 0
@@ -51,7 +52,7 @@ void MenuManager::initialise() {
   _rootMenu->addItem(new SubMenuItem(_routeMenu));            // 5
   _rootMenu->addItem(new SubMenuItem(_rosterMenu));           // 6
   _rootMenu->addItem(new SubMenuItem(tracksMenu));            // 7
-  _rootMenu->addItem(new SubMenuItem(systemMenu));            // 8
+  _rootMenu->addItem(sysInfo);                                // 8
 }
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
@@ -159,12 +160,14 @@ void MenuManager::createRouteMenus(Route *firstRoute) {
 }
 
 void MenuManager::createTurntableMenu(Turntable *firstTurntable) {
-  if (_turntableMenu == nullptr) return;
+  if (_turntableMenu == nullptr)
+    return;
 
   // Make sure menus are clear first
   _turntableMenu->clearItems();
 
-  if (firstTurntable == nullptr) return;
+  if (firstTurntable == nullptr)
+    return;
 
   for (Turntable *turntable = firstTurntable; turntable; turntable = turntable->getNext()) {
     if (turntable->getName() == nullptr) {
@@ -301,11 +304,15 @@ Menu *MenuManager::_createManagedMenu(const char *name) {
 }
 
 Menu *MenuManager::_createThrottleMenu(int index) {
-  char nameBuffer[25];
-  int throttleNumber = index + 1;
-  strcpy(nameBuffer, "Throttle ");
-  itoa(throttleNumber, nameBuffer + 9, 10);
-  Menu *throttleMenu = _createManagedMenu(nameBuffer);
+  const char *name = nullptr;
+  if (index == 0) {
+    name = "Throttle 1";
+  } else if (index == 1) {
+    name = "Throttle 2";
+  } else if (index == 2) {
+    name = "Throttle 3";
+  }
+  Menu *throttleMenu = _createManagedMenu(name);
   // Add Select Loco as the first item to select from roster
   throttleMenu->addItem(new SubMenuItem(_rosterMenu, "Select Loco"));
   // Add Enter Address as an action item to show the user entry screen

@@ -328,10 +328,12 @@ TEST_F(MenuManagerTests, TestInitialiseCreatesStructure) {
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Main Menu");
   EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
 
-  // '8' shows system info
-  menuManager->handleUserInput({'8', UserInputInterface::UserInputAction::Pressed});
-  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "System Info");
-  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+  // '8' isn't a menu but is the SysInfo item
+  BaseMenuItem *sysInfo = menuManager->getCurrentMenu()->getItemByPageIndex(8);
+  ASSERT_NE(sysInfo, nullptr);
+  ActionMenuItem *sysInfoAction = static_cast<ActionMenuItem *>(sysInfo);
+  ASSERT_NE(sysInfoAction, nullptr);
+  EXPECT_STREQ(sysInfoAction->getName(), "System Info");
 
   // '*' Back to main
   menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});

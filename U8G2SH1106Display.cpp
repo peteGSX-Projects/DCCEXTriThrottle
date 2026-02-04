@@ -199,6 +199,36 @@ void U8G2SH1106Display::displayUserEntryKey(char key, int count) {
   _oled->sendBuffer();
 }
 
+void U8G2SH1106Display::displaySysInfoScreen(const char *version, int majorCSVersion, int minorCSVersion,
+                                             int patchCSVersion, int bytesFree) {
+  _oled->clear();
+  _displayHeader("System Info");
+  _oled->setFont(_menuFont);
+  uint16_t fontHeight = _oled->getMaxCharHeight();
+  uint16_t y = _calculateHeaderHeight() + (fontHeight * 2);
+  _oled->setCursor(0, y);
+  _oled->print("Version: ");
+  _oled->print(version);
+  y = y + fontHeight;
+  _oled->setCursor(0, y);
+  _oled->print("CS Version: ");
+  _oled->print(majorCSVersion);
+  _oled->print(".");
+  _oled->print(minorCSVersion);
+  _oled->print(".");
+  _oled->print(patchCSVersion);
+  y = y + fontHeight;
+  _oled->setCursor(0, y);
+  _oled->print("Free bytes: ");
+  _oled->print(bytesFree);
+  _oled->drawHLine(0, 54, 128);
+  _oled->setFont(STATUS_FONT); // Use smaller font for status bar
+  // Left: Back hint
+  _oled->setCursor(0, 63);
+  _oled->print("* Back");
+  _oled->sendBuffer();
+}
+
 U8G2SH1106Display::~U8G2SH1106Display() {
   if (_throttleCoordinates != nullptr) {
     delete[] _throttleCoordinates;

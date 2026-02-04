@@ -61,6 +61,8 @@ public:
 
   MOCK_METHOD(void, displayUserEntryKey, (char key, int count), (override));
 
+  MOCK_METHOD(void, displaySysInfoScreen, (const char *version, int majorCSVersion, int minorCSVersion, int patchCSVersion, int bytesFree), (override));
+
   MOCK_METHOD(void, setRedraw, (bool redraw), (override));
 
   MOCK_METHOD(bool, needsRedraw, (), (override));

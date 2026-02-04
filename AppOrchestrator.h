@@ -149,9 +149,15 @@ private:
 
   /**
    * @brief Display the user entry screen to enable entering a Loco address
-   * @param event
+   * @param event UserInputInterface::UserInputEvent
    */
   void _handleEnterLocoAddress(UserInputInterface::UserInputEvent event);
+
+  /**
+   * @brief Handle a DisplaySysInfo event
+   * @param event UserInputInterface::UserInputEvent
+   */
+  void _handleDisplaySysInfo(UserInputInterface::UserInputEvent event);
 
   // onEvent() event handlers
 

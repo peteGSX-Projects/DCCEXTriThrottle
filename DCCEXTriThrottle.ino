@@ -50,8 +50,7 @@ AppOrchestrator *orchestrator = nullptr;
 
 void setup() {
   // Setup hardware
-  static HardwareManager hardwareManager;
-  hardwareManager.initialise();
+  HardwareManager::initialise();
 
   // Setup logger
   static Logger logger;
@@ -130,7 +129,7 @@ void setup() {
 
   LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle initialised, version: ", VERSION);
 
-  LOG(LogLevel::LOG_DEBUG, "Free bytes after setup: ", (int)hardwareManager.getFreeMemory());
+  LOG(LogLevel::LOG_DEBUG, "Free bytes after setup: ", HardwareManager::getFreeMemory());
 }
 
 void loop() { orchestrator->update(); }
