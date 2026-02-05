@@ -56,7 +56,7 @@ void MenuManager::initialise() {
 }
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
-  if (!_currentMenu || inputEvent.key == '\0')
+  if (!_currentMenu || inputEvent.key == '\0' || inputEvent.action != UserInputInterface::UserInputAction::Pressed)
     return;
 
   char key = inputEvent.key;

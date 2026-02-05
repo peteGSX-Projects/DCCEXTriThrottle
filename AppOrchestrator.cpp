@@ -61,6 +61,10 @@ void AppOrchestrator::begin() {
 void AppOrchestrator::update() {
   UserInputInterface::UserInputEvent inputEvent = _userInputInterface->check();
   _connectionManager->update();
+  // Always handle throttle controls
+  for (int i = 0; i < _numThrottles; i++) {
+    _throttles[i]->update();
+  }
   switch (_currentAppState) {
   case AppState::Startup: {
     _handleStartupState();
@@ -68,9 +72,6 @@ void AppOrchestrator::update() {
   }
   case AppState::Throttle: {
     _handleThrottleState(inputEvent);
-    for (int i = 0; i < _numThrottles; i++) {
-      _throttles[i]->update();
-    }
     break;
   }
   case AppState::ConnectionError: {
@@ -281,17 +282,27 @@ void AppOrchestrator::_handleToggleTurnout(Event &event) {
 }
 
 void AppOrchestrator::_handleLocoSelected(Event &event) {
-  if (_throttles) {
-    int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
-    Loco *newLoco = event.eventData.selectLocoValue.loco;
-    // If the current loco is entered manually, delete it first
-    Loco *currentLoco = _throttles[throttleIndex]->getLoco();
-    if (currentLoco != nullptr && currentLoco->getSource() == LocoSource::LocoSourceEntry) {
-      delete currentLoco;
-    }
-    _throttles[throttleIndex]->setLoco(newLoco);
-    _switchState(AppState::Throttle);
+  if (!_throttles)
+    return;
+
+  int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
+  Loco *newLoco = event.eventData.selectLocoValue.loco;
+
+  // If throttle has an existing Loco or Consist at speed > 0, ignore
+  if (_throttles[throttleIndex]->getLoco() != nullptr || _throttles[throttleIndex]->getConsist() != nullptr) {
+    int speed = _throttles[throttleIndex]->getLoco() ? _throttles[throttleIndex]->getLoco()->getSpeed()
+                                                     : _throttles[throttleIndex]->getConsist()->getSpeed();
+    if (speed > 0)
+      return;
   }
+
+  // If the current loco is entered manually, delete it first
+  Loco *currentLoco = _throttles[throttleIndex]->getLoco();
+  if (currentLoco != nullptr && currentLoco->getSource() == LocoSource::LocoSourceEntry) {
+    delete currentLoco;
+  }
+  _throttles[throttleIndex]->setLoco(newLoco);
+  _switchState(AppState::Throttle);
 }
 
 void AppOrchestrator::_handleReceivedLocoUpdate(Event &event) {}
@@ -360,8 +371,19 @@ void AppOrchestrator::_handleExitMenu(Event &event) { _switchState(AppState::Thr
 void AppOrchestrator::_handleMenuRefreshRequired(Event &event) { _displayInterface->setRedraw(true); }
 
 void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
+  if (!_throttles)
+    return;
+
   int address = event.eventData.locoAddressValue.address;
   int throttleIndex = event.eventData.locoAddressValue.throttleIndex;
+
+  // If throttle has an existing Loco or Consist at speed > 0, ignore
+  if (_throttles[throttleIndex]->getLoco() != nullptr || _throttles[throttleIndex]->getConsist() != nullptr) {
+    int speed = _throttles[throttleIndex]->getLoco() ? _throttles[throttleIndex]->getLoco()->getSpeed()
+                                                     : _throttles[throttleIndex]->getConsist()->getSpeed();
+    if (speed > 0)
+      return;
+  }
 
   // Need to validate DCC address first, redirect with an error if invalid
   if (address < 1 || address > 10239) {
