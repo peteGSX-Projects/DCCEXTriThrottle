@@ -1,4 +1,5 @@
 /*
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -239,4 +240,57 @@ TEST_F(ThrottleTests, TestExternalSpeedUpdate) {
   throttle->update();
   EXPECT_EQ(throttle->getSpeed(), 20);
   EXPECT_FALSE(throttle->isSpeedPending());
+}
+
+/**
+ * @brief Test forget loco deletes local local and unsets from throttle
+ */
+TEST_F(ThrottleTests, TestForgetLoco) {
+  // Assign mock loco 10
+  Loco *loco10 = new Loco(10, LocoSource::LocoSourceEntry);
+  throttle->setLoco(loco10);
+  ASSERT_EQ(throttle->getLoco(), loco10);
+
+  // Forget it
+  throttle->forgetLoco();
+
+  // Validate
+  ASSERT_EQ(throttle->getLoco(), nullptr);
+}
+
+/**
+ * @brief Test forget loco deletes consist and unsets from throttle
+ */
+TEST_F(ThrottleTests, TestForgetConsist) {
+  // Create and assign mock consist
+  Loco *loco10 = new Loco(10, LocoSource::LocoSourceEntry);
+  Loco *loco11 = new Loco(11, LocoSource::LocoSourceEntry);
+  Consist *mockConsist = new Consist;
+  mockConsist->addLoco(loco10, Facing::FacingForward);
+  mockConsist->addLoco(loco11, Facing::FacingReversed);
+  throttle->setConsist(mockConsist);
+  ASSERT_EQ(throttle->getConsist(), mockConsist);
+
+  // Forget it
+  throttle->forgetLoco();
+
+  // Validate
+  ASSERT_EQ(throttle->getConsist(), nullptr);
+}
+
+/**
+ * @brief Test forgetting a loco at speed > 0 is ignored
+ */
+TEST_F(ThrottleTests, TestForgetLocoAtSpeed) {
+  // Assign loco 3 and set speed
+  loco3->setSpeed(10);
+  throttle->setLoco(loco3);
+  ASSERT_EQ(throttle->getLoco(), loco3);
+  EXPECT_EQ(throttle->getSpeed(), 10);
+
+  // Forget it
+  throttle->forgetLoco();
+
+  // Validate
+  ASSERT_EQ(throttle->getLoco(), loco3);
 }

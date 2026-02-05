@@ -88,6 +88,8 @@ protected:
       delete throttles[i];
     }
 
+    csConnection.clearInput();
+    csConnection.clearOutput();
     csClient->clearAllLists();
     delete csClient;
     delete csListener;
@@ -525,6 +527,9 @@ TEST_F(AppOrchestratorTests, TestTogglePowerOffSendsOn) {
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
 }
 
+/**
+ * @brief Test a ToggleTurnout event toggles the turnout state
+ */
 TEST_F(AppOrchestratorTests, TestToggleTurnout) {
   // Create a dummy turnout and add it to the client
   Turnout *turnout = new Turnout(1, false);
@@ -662,3 +667,141 @@ TEST_F(AppOrchestratorTests, TestDisplaySystemInfo) {
 
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::DisplaySysInfo);
 }
+
+/**
+ * @brief Test ForgetLoco event clears the currently selected roster Loco from the Throttle index
+ */
+TEST_F(AppOrchestratorTests, TestForgetRosterLoco) {
+  // Setup mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Associate the first loco with throttle index 2
+  Loco *loco = csClient->roster->getFirst();
+  throttles[2]->setLoco(loco);
+
+  // Validate current state
+  ASSERT_EQ(throttles[2]->getLoco(), loco);
+
+  // Set up the event
+  Event event(EventType::ForgetLoco, EventData(2));
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+
+  // Validate throttle is cleared
+  EXPECT_EQ(throttles[2]->getLoco(), nullptr);
+
+  //
+}
+
+/**
+ * @brief Test the ForgetLoco event deletes a local only Loco and clears from the Throttle index
+ */
+TEST_F(AppOrchestratorTests, TestForgetLocalLoco) {
+  // Create local Loco and associate with throttle index 1
+  Loco *localLoco = new Loco(3, LocoSource::LocoSourceEntry);
+  throttles[1]->setLoco(localLoco);
+
+  // Validate current state
+  ASSERT_EQ(throttles[1]->getLoco(), localLoco);
+
+  // Set up the event
+  Event event(EventType::ForgetLoco, EventData(1));
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+
+  // Validate throttle is cleared
+  EXPECT_EQ(throttles[1]->getLoco(), nullptr);
+}
+
+/**
+ * @brief Test the ForgetLoco event clears consist from the Throttle index
+ */
+TEST_F(AppOrchestratorTests, TestForgetConsist) {
+  // Create the mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Create a local Loco
+  Loco *localLoco = new Loco(5, LocoSource::LocoSourceEntry);
+
+  // Create a consist with the first roster Loco and the local Loco
+  Loco *rosterLoco = csClient->roster->getFirst();
+  Consist *consist = new Consist();
+  consist->addLoco(rosterLoco, Facing::FacingForward);
+  consist->addLoco(localLoco, Facing::FacingReversed);
+
+  // Validate consist
+  ASSERT_NE(consist, nullptr);
+  ASSERT_EQ(consist->getFirst()->getLoco(), rosterLoco);
+  ASSERT_EQ(consist->getFirst()->getNext()->getLoco(), localLoco);
+
+  // Associate the consist with Throttle index 0
+  throttles[0]->setConsist(consist);
+
+  // Validate
+  ASSERT_EQ(throttles[0]->getConsist(), consist);
+
+  // Set up the event
+  Event event(EventType::ForgetLoco, EventData(0));
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+
+  // Validate roster Loco still exists, local Loco is deleted, consist is deleted, and Throttle is clear
+  EXPECT_EQ(throttles[0]->getConsist(), nullptr);
+}
+
+/**
+ * @brief Test ForgetLoco for speed > 0 is ignored
+ */
+TEST_F(AppOrchestratorTests, TestForgetLocoAtSpeed) {
+  // Setup mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Associate the first loco with throttle index 2 and set speed
+  Loco *loco = csClient->roster->getFirst();
+  throttles[2]->setLoco(loco);
+  loco->setSpeed(10);
+
+  // Validate current state
+  ASSERT_EQ(throttles[2]->getLoco(), loco);
+  EXPECT_EQ(throttles[2]->getLoco()->getSpeed(), 10);
+
+  // Set up the event
+  Event event(EventType::ForgetLoco, EventData(2));
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+
+  // Validate is still associated with Throttle
+  EXPECT_EQ(throttles[2]->getLoco(), loco);
+}
+
+/**
+ * @brief Test ForgetLoco for an invalid throttle index is ignored
+ */
+TEST_F(AppOrchestratorTests, TestForgetLocoInvalidThrottle) {
+  // Setup mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Associate the first loco with throttle index 2
+  Loco *loco = csClient->roster->getFirst();
+  throttles[2]->setLoco(loco);
+
+  // Validate current state
+  ASSERT_EQ(throttles[2]->getLoco(), loco);
+
+  // Set up the event
+  Event event(EventType::ForgetLoco, EventData(-1));
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+
+  // Validate Loco is still associated with the throttle
+  EXPECT_EQ(throttles[2]->getLoco(), loco);
+}
+
+/**
+ * @brief Test changing loco/consist selection when speed > 0 is ignored
+ */

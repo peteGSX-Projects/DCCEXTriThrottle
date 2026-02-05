@@ -63,6 +63,27 @@ void Throttle::setLoco(Loco *loco) {
 
 Loco *Throttle::getLoco() { return _loco; }
 
+void Throttle::forgetLoco() {
+  if (_loco == nullptr && _consist == nullptr)
+    return;
+
+  int speed = _loco ? _loco->getSpeed() : _consist->getSpeed();
+  if (speed > 0)
+    return;
+
+  if (_loco != nullptr) {
+    if (_loco->getSource() == LocoSource::LocoSourceEntry) {
+      delete _loco;
+    }
+    _loco = nullptr;
+    _locoChanged = true;
+  } else {
+    delete _consist;
+    _consist = nullptr;
+    _locoChanged = true;
+  }
+}
+
 int Throttle::getSpeed() { return _speed; }
 
 bool Throttle::isSpeedPending() {

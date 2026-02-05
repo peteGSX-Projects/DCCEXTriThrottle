@@ -263,6 +263,12 @@ private:
    */
   void _handleRotateTurntable(Event &event);
 
+  /**
+   * @brief Handle a ForgetLoco event
+   * @param event ForgetLoco event
+   */
+  void _handleForgetLoco(Event &event);
+
   // General helper methods
 
   /**

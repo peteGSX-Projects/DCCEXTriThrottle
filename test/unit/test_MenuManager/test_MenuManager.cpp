@@ -361,6 +361,14 @@ TEST_F(MenuManagerTests, TestThrottleMenuStructure) {
   BaseMenuItem *item1 = menuManager->getCurrentMenu()->getItemByPageIndex(1);
   ASSERT_NE(item1, nullptr);
   EXPECT_STREQ(item1->getName(), "Enter Address");
+  // 2 should be Automations
+  BaseMenuItem *item2 = menuManager->getCurrentMenu()->getItemByPageIndex(2);
+  ASSERT_NE(item2, nullptr);
+  EXPECT_STREQ(item2->getName(), "Automations");
+  // 3 should be Forget
+  BaseMenuItem *item3 = menuManager->getCurrentMenu()->getItemByPageIndex(3);
+  ASSERT_NE(item3, nullptr);
+  EXPECT_STREQ(item3->getName(), "Forget");
 
   // First item should be the roster
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});

@@ -318,8 +318,10 @@ Menu *MenuManager::_createThrottleMenu(int index) {
   // Add Enter Address as an action item to show the user entry screen
   throttleMenu->addItem(
       new ActionMenuItem("Enter Address", EventType::RequestStateChange, EventData(AppState::EnterLocoAddress, index)));
-  // Add automations menu
+  // Add Automations menu
   throttleMenu->addItem(new SubMenuItem(_automationMenu, "Automations"));
+  // Add Forget action to clear selection
+  throttleMenu->addItem(new ActionMenuItem("Forget", EventType::ForgetLoco, EventData(index)));
   return throttleMenu;
 }
 

@@ -72,6 +72,11 @@ public:
   Loco *getLoco();
 
   /**
+   * @brief Forget the currently assigned Loco or Consist, also deletes LocoSourceEntry Loco
+   */
+  void forgetLoco();
+
+  /**
    * @brief Get the Speed object
    * @return uint8_t Get the current speed of this throttle
    */

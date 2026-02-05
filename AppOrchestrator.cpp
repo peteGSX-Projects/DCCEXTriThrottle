@@ -128,7 +128,8 @@ void AppOrchestrator::onEvent(Event &event) {
       &AppOrchestrator::_handleRequestStateChange,      // 13
       &AppOrchestrator::_handleStartRoute,              // 14
       &AppOrchestrator::_handleStartAutomation,         // 15
-      &AppOrchestrator::_handleRotateTurntable          // 16
+      &AppOrchestrator::_handleRotateTurntable,         // 16
+      &AppOrchestrator::_handleForgetLoco               // 17
   };
 
   // // Set the type index
@@ -406,6 +407,16 @@ void AppOrchestrator::_handleRotateTurntable(Event &event) {
   int turntableId = event.eventData.locoAddressValue.address;
   int indexId = event.eventData.locoAddressValue.throttleIndex;
   _commandStationClient->rotateTurntable(turntableId, indexId);
+}
+
+void AppOrchestrator::_handleForgetLoco(Event &event) {
+  int throttleIndex = event.eventData.intValue;
+  if (!_throttles || (throttleIndex < 0 && throttleIndex > 2))
+    return;
+
+  _throttles[throttleIndex]->forgetLoco();
+
+  _switchState(AppState::Throttle);
 }
 
 // General helper methods
