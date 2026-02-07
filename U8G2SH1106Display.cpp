@@ -67,6 +67,12 @@ void U8G2SH1106Display::displayThrottleScreen(Throttle **throttles, TrackPower s
   for (int i = 0; i < _numThrottles; i++) {
     updateThrottleScreen(i, throttles[i], true);
   }
+  _oled->drawHLine(0, 55, 128);
+  _oled->setFont(MENU_FONT);
+  _oled->setCursor(0, 63);
+  _oled->print("* Menu");
+  _oled->setCursor(80, 63);
+  _oled->print("Power: ");
   updateThrottleTrackPower(state);
 }
 

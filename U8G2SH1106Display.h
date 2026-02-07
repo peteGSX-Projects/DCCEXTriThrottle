@@ -81,7 +81,8 @@
 #endif // THROTTLE_FONT
 #ifndef STATUS_FONT
 // #define STATUS_FONT u8g2_font_micro_mr
-#define STATUS_FONT u8g2_font_5x8_mr
+#define STATUS_FONT u8g2_font_micro_tr
+// #define STATUS_FONT u8g2_font_5x8_mr
 #endif // STATUS_FONT
 #ifndef ESTOP_FONT
 // #define ESTOP_FONT u8g2_font_6x12_mr
