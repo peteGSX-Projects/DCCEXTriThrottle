@@ -91,7 +91,7 @@ void AppOrchestrator::update() {
     break;
   }
   default: {
-    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::update(): Unknown AppState");
+    LOG(LogLevel::LOG_ERROR, "AppOrchestrator::update(): Unknown AppState: ", (int)_currentAppState);
     break;
   }
   }
@@ -116,21 +116,20 @@ void AppOrchestrator::onEvent(Event &event) {
       &AppOrchestrator::_handleCommandStationConnected, // 0
       &AppOrchestrator::_handleToggleTurnout,           // 1
       &AppOrchestrator::_handleLocoSelected,            // 2
-      &AppOrchestrator::_handleReceivedLocoUpdate,      // 3
-      &AppOrchestrator::_handleReceivedTrackPower,      // 4
-      &AppOrchestrator::_handleReceivedReadLoco,        // 5
-      &AppOrchestrator::_handleToggleTrackPower,        // 6
-      &AppOrchestrator::_handleReceivedLocoBroadcast,   // 7
-      &AppOrchestrator::_handleConnectionRetry,         // 8
-      &AppOrchestrator::_handleReadLocoRetry,           // 9
-      &AppOrchestrator::_handleExitMenu,                // 10
-      &AppOrchestrator::_handleMenuRefreshRequired,     // 11
-      &AppOrchestrator::_handleLocoAddressEntered,      // 12
-      &AppOrchestrator::_handleRequestStateChange,      // 13
-      &AppOrchestrator::_handleStartRoute,              // 14
-      &AppOrchestrator::_handleStartAutomation,         // 15
-      &AppOrchestrator::_handleRotateTurntable,         // 16
-      &AppOrchestrator::_handleForgetLoco               // 17
+      &AppOrchestrator::_handleReceivedTrackPower,      // 3
+      &AppOrchestrator::_handleReceivedReadLoco,        // 4
+      &AppOrchestrator::_handleToggleTrackPower,        // 5
+      &AppOrchestrator::_handleReceivedLocoBroadcast,   // 6
+      &AppOrchestrator::_handleConnectionRetry,         // 7
+      &AppOrchestrator::_handleReadLocoRetry,           // 8
+      &AppOrchestrator::_handleExitMenu,                // 9
+      &AppOrchestrator::_handleMenuRefreshRequired,     // 10
+      &AppOrchestrator::_handleLocoAddressEntered,      // 11
+      &AppOrchestrator::_handleRequestStateChange,      // 12
+      &AppOrchestrator::_handleStartRoute,              // 13
+      &AppOrchestrator::_handleStartAutomation,         // 14
+      &AppOrchestrator::_handleRotateTurntable,         // 15
+      &AppOrchestrator::_handleForgetLoco               // 16
   };
 
   // // Set the type index
@@ -305,8 +304,6 @@ void AppOrchestrator::_handleLocoSelected(Event &event) {
   _switchState(AppState::Throttle);
 }
 
-void AppOrchestrator::_handleReceivedLocoUpdate(Event &event) {}
-
 void AppOrchestrator::_handleReceivedTrackPower(Event &event) {
   // Always keep track power state current
   TrackPower powerState = event.eventData.trackPowerValue;
@@ -433,7 +430,7 @@ void AppOrchestrator::_handleRotateTurntable(Event &event) {
 
 void AppOrchestrator::_handleForgetLoco(Event &event) {
   int throttleIndex = event.eventData.intValue;
-  if (!_throttles || (throttleIndex < 0 && throttleIndex > 2))
+  if (!_throttles || throttleIndex < 0 || throttleIndex > 2)
     return;
 
   _throttles[throttleIndex]->forgetLoco();

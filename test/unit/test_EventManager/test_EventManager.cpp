@@ -82,34 +82,6 @@ TEST_F(EventManagerTests, TestIntegerData) {
   Mock::VerifyAndClearExpectations(listener);
 }
 
-/// @brief Test an event with LocoData can be published and received by a
-/// Listener
-TEST_F(EventManagerTests, TestLocoData) {
-  // Subscribe to ReceivedLocoUpdate which would use a Loco instance
-  eventManager->subscribe(listener, EventType::ReceivedLocoUpdate);
-
-  // Create a dummy Loco instance
-  Loco *loco = new Loco(42, LocoSource::LocoSourceEntry);
-
-  // Expect our dummy Loco instance with ReceivedLocoUpdate
-  Event expectedEvent(EventType::ReceivedLocoUpdate, EventData(loco));
-  EXPECT_CALL(*listener,
-              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedLocoUpdate),
-                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoData)),
-                            Field(&Event::eventData, Field(&EventData::locoValue, loco)))))
-      .Times(1);
-
-  // Publish a ReceivedLocoUpdate event
-  EventData data(loco);
-  eventManager->publish(EventType::ReceivedLocoUpdate, data);
-
-  // Clean up
-  delete loco;
-
-  // Verify and clear expectations
-  Mock::VerifyAndClearExpectations(listener);
-}
-
 /// @brief Test an event with NoneData can be published and received by a
 /// Listener
 TEST_F(EventManagerTests, TestNoneData) {
@@ -252,12 +224,13 @@ TEST_F(EventManagerTests, TestRequestStateChange) {
   int throttleIndex = 1;
 
   // Expectation
-  EXPECT_CALL(*listener,
-              onEvent(AllOf(Field(&Event::eventType, EventType::RequestStateChange),
-                            Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::StateRequestData)),
-                            Field(&Event::eventData, Field(&EventData::stateRequestValue,
-                                                           AllOf(Field(&StateRequest::state, state),
-                                                                 Field(&StateRequest::contextIndex, throttleIndex)))))))
+  EXPECT_CALL(
+      *listener,
+      onEvent(AllOf(Field(&Event::eventType, EventType::RequestStateChange),
+                    Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::StateRequestData)),
+                    Field(&Event::eventData, Field(&EventData::stateRequestValue,
+                                                   AllOf(Field(&StateRequest::state, state),
+                                                         Field(&StateRequest::contextIndex, throttleIndex)))))))
       .Times(1);
 
   // Publish the event

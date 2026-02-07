@@ -59,6 +59,4 @@ void ConnectionManager::update() {
 
 ConnectionState ConnectionManager::getState() { return _connectionState; }
 
-DCCEXProtocol *ConnectionManager::getCommandStationClient() { return _commandStationClient; }
-
 ConnectionManager::~ConnectionManager() {}

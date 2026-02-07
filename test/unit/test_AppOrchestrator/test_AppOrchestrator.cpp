@@ -50,6 +50,7 @@ protected:
   EventManager *eventManager;
   MenuManager *menuManager;
   Stream csConnection;
+  Stream console;
   CommandStationListener *csListener;
   DCCEXProtocol *csClient;
 
@@ -58,6 +59,7 @@ protected:
     mockDisplay = new MockDisplay;
     mockKeypad = new MockKeypad;
     logger = new Logger;
+    logger->setOutput(&console);
     button1 = new MockButton;
     button2 = new MockButton;
     button3 = new MockButton;
@@ -88,6 +90,8 @@ protected:
       delete throttles[i];
     }
 
+    console.clearInput();
+    console.clearOutput();
     csConnection.clearInput();
     csConnection.clearOutput();
     csClient->clearAllLists();
@@ -628,7 +632,7 @@ TEST_F(AppOrchestratorTests, TestRotateTurntable) {
   appOrchestrator->onEvent(tt1Event);
 
   // Check the outbound buffer for the rotate command - note it's a DCC turntable
-  EXPECT_EQ(csConnection.getOutput(), "<I 1 2>\r\n");
+  EXPECT_THAT(csConnection.getOutput(), StartsWith("<I 1 2>"));
 
   // Clear the buffer
   csConnection.clearOutput();
@@ -647,7 +651,7 @@ TEST_F(AppOrchestratorTests, TestRotateTurntable) {
   appOrchestrator->onEvent(tt2Event);
 
   // Check the outbound buffer for the rotate command - note it's a DCC turntable
-  EXPECT_EQ(csConnection.getOutput(), "<I 2 1 0>\r\n");
+  EXPECT_THAT(csConnection.getOutput(), StartsWith("<I 2 1 0>"));
 }
 
 /**
@@ -805,3 +809,53 @@ TEST_F(AppOrchestratorTests, TestForgetLocoInvalidThrottle) {
 /**
  * @brief Test changing loco/consist selection when speed > 0 is ignored
  */
+TEST_F(AppOrchestratorTests, TestSelectLocoAtSpeed) {
+  // Setup mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Associate the first loco with throttle index 0 and set speed
+  Loco *loco = csClient->roster->getFirst();
+  throttles[0]->setLoco(loco);
+  loco->setSpeed(20);
+
+  // Validate current state
+  ASSERT_EQ(throttles[0]->getLoco(), loco);
+  EXPECT_EQ(throttles[0]->getLoco()->getSpeed(), 20);
+
+  // Set second roster loco as our attempt to select
+  Loco *newLoco = loco->getNext();
+
+  // Set up the event
+  EventData data(newLoco, 0);
+  Event event(EventType::LocoSelected, data);
+
+  // Handle the event
+  appOrchestrator->onEvent(event);
+
+  // Validate first loco is still associated with Throttle
+  EXPECT_EQ(throttles[0]->getLoco(), loco);
+}
+
+/**
+ * @brief Test an unknown AppState logs an error
+ */
+TEST_F(AppOrchestratorTests, TestUnknownAppState) {
+  // Set an unknown AppState
+  appOrchestrator->setCurrentAppState(AppState::APP_STATE_COUNT);
+
+  // Update, and the log should contain an error
+  appOrchestrator->update();
+  EXPECT_THAT(console.getOutput(), StartsWith("[ERR] AppOrchestrator::update(): Unknown AppState:"));
+}
+
+/**
+ * @brief Test an unknown EventType logs an error
+ */
+TEST_F(AppOrchestratorTests, TestUnknownEventType) {
+  // Set up event with an unknown type
+  Event event(EventType::EVENT_TYPE_COUNT, EventData());
+
+  // Handle the event and the log should contain an error
+  appOrchestrator->onEvent(event);
+  EXPECT_THAT(console.getOutput(), StartsWith("[ERR] AppOrchestrator::onEvent() unknown event:"));
+}

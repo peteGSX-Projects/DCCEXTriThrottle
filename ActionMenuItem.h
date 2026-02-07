@@ -43,12 +43,6 @@ public:
    */
   EventData getEventData();
 
-  /**
-   * @brief Set the Event Data associated with this item
-   * @param eventData Valid EventData structure to publish with the event
-   */
-  void setEventData(EventData eventData);
-
   ~ActionMenuItem();
 
 private:

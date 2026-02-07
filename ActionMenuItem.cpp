@@ -24,6 +24,4 @@ EventType ActionMenuItem::getEventType() { return _eventType; }
 
 EventData ActionMenuItem::getEventData() { return _eventData; }
 
-void ActionMenuItem::setEventData(EventData eventData) { _eventData = eventData; }
-
 ActionMenuItem::~ActionMenuItem() {}

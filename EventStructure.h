@@ -33,21 +33,20 @@ enum EventType {
   CommandStationConnected, // 0
   ToggleTurnout,           // 1
   LocoSelected,            // 2
-  ReceivedLocoUpdate,      // 3
-  ReceivedTrackPower,      // 4
-  ReceivedReadLoco,        // 5
-  ToggleTrackPower,        // 6
-  ReceivedLocoBroadcast,   // 7
-  ConnectionRetry,         // 8
-  ReadLocoRetry,           // 9
-  ExitMenu,                // 10
-  MenuRefreshRequired,     // 11
-  LocoAddressEntered,      // 12
-  RequestStateChange,      // 13
-  StartRoute,              // 14
-  StartAutomation,         // 15
-  RotateTurntable,         // 16
-  ForgetLoco,              // 17
+  ReceivedTrackPower,      // 3
+  ReceivedReadLoco,        // 4
+  ToggleTrackPower,        // 5
+  ReceivedLocoBroadcast,   // 6
+  ConnectionRetry,         // 7
+  ReadLocoRetry,           // 8
+  ExitMenu,                // 9
+  MenuRefreshRequired,     // 10
+  LocoAddressEntered,      // 11
+  RequestStateChange,      // 12
+  StartRoute,              // 13
+  StartAutomation,         // 14
+  RotateTurntable,         // 15
+  ForgetLoco,              // 16
   EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin() and bounds checking,
                    // MUST BE LAST
 };

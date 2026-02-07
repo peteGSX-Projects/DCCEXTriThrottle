@@ -1,5 +1,5 @@
 /*
- *  © 2026 Peter Cole 
+ *  © 2026 Peter Cole
  *  © 2025 Peter Cole
  *
  *  This is free software: you can redistribute it and/or modify
@@ -141,16 +141,16 @@
 
 // Set default keypad pins (same for Bluepill/Blackpill)
 #ifndef KEYPAD_ROW_PINS
-#define KEYPAD_ROW_PINS PB4,PB9,PB8,PB6
+#define KEYPAD_ROW_PINS PB4, PB9, PB8, PB6
 #endif // KEYPAD_ROW_PINS
 
 #ifndef KEYPAD_COLUMN_PINS
-#define KEYPAD_COLUMN_PINS PB5,PB3,PB7
+#define KEYPAD_COLUMN_PINS PB5, PB3, PB7
 #endif // KEYPAD_COLUMN_PINS
 
 // Set default key map
 #ifndef KEYPAD_MAP
-#define KEYPAD_MAP '1','2','3','4','5','6','7','8','9','*','0','#'
+#define KEYPAD_MAP '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'
 #endif // KEYPAD_MAP
 
 // Set default keypad timings
@@ -185,5 +185,19 @@
 
 // This will never really change so define throttle count here
 #define NUM_THROTTLES 3
+
+// Define lists to retrieve
+#ifndef GET_ROSTER
+#define GET_ROSTER true
+#endif // GET_ROSTER
+#ifndef GET_TURNOUTS
+#define GET_TURNOUTS true
+#endif // GET_TURNOUTS
+#ifndef GET_ROUTES
+#define GET_ROUTES true
+#endif // GET_ROUTES
+#ifndef GET_TURNTABLES
+#define GET_TURNTABLES true
+#endif // GET_TURNTABLES
 
 #endif // DEFINES_H

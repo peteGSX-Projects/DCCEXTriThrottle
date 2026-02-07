@@ -35,7 +35,6 @@ protected:
 
     // Subscribe events
     eventManager->subscribe(mockOrchestrator, EventType::ReceivedTrackPower);
-    eventManager->subscribe(mockOrchestrator, EventType::ReceivedLocoUpdate);
     eventManager->subscribe(mockOrchestrator, EventType::ReceivedLocoBroadcast);
   }
 
@@ -45,29 +44,6 @@ protected:
     delete mockOrchestrator;
   }
 };
-
-/**
- * @brief Test receiving a Loco object update publishes the event
- */
-TEST_F(CommandStationListenerTests, TestLocoUpdateEventPublishes) {
-  // Set up the expectation
-  Loco *loco = new Loco(3, LocoSource::LocoSourceEntry);
-  EXPECT_CALL(*mockOrchestrator,
-              onEvent(AllOf(
-                  // Verify the event type
-                  Field(&Event::eventType, EventType::ReceivedLocoUpdate),
-                  // Verify the inner data type inside EventData
-                  Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoData)),
-                  // Verify the actual enum value inside the union
-                  Field(&Event::eventData, Field(&EventData::locoValue, loco)))))
-      .Times(1);
-
-  // Simulate receiving the update
-  commandStationListener->receivedLocoUpdate(loco);
-
-  // Clean up
-  delete loco;
-}
 
 /**
  * @brief Test receiving a loco broadcast update publishes the event

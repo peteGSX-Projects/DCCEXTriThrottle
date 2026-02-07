@@ -57,11 +57,6 @@ public:
   virtual ConnectionState getState();
 
   /**
-   * @brief Get the Command Station Client object
-   */
-  virtual DCCEXProtocol *getCommandStationClient();
-
-  /**
    * @brief Destroy the Connection Manager object
    */
   virtual ~ConnectionManager();

@@ -180,12 +180,6 @@ private:
   void _handleLocoSelected(Event &event);
 
   /**
-   * @brief Handle a ReceivedLocoUpdate event to update a roster Loco object
-   * @param event ReceivedLocoUpdate event containing the pointer to the Loco object
-   */
-  void _handleReceivedLocoUpdate(Event &event);
-
-  /**
    * @brief Handle a RecievedTrackPower event to update power status
    * @param event ReceivedTrackPower event containing the track power status
    */

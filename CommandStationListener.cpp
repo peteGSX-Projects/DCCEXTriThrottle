@@ -20,23 +20,11 @@
 CommandStationListener::CommandStationListener(EventManager *eventManager, Logger *logger)
     : _eventManager(eventManager), _logger(logger) {}
 
-void CommandStationListener::receivedServerVersion(int major, int minor, int patch) {}
-
-void CommandStationListener::receivedLocoUpdate(Loco *loco) {
-  if (_eventManager) {
-    EventData eventData(loco);
-    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoUpdate(): published event for loco: ",
-        loco->getName());
-    _eventManager->publish(EventType::ReceivedLocoUpdate, eventData);
-  }
-}
-
 void CommandStationListener::receivedLocoBroadcast(int address, int speed, Direction direction, int functionMap) {
   if (_eventManager) {
     LocoBroadcast broadcast = {address, speed, direction, functionMap};
     EventData eventData(broadcast);
-    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address: ",
-        address);
+    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address: ", address);
     _eventManager->publish(EventType::ReceivedLocoBroadcast, eventData);
   }
 }
