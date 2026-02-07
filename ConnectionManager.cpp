@@ -31,7 +31,7 @@ void ConnectionManager::update() {
   _commandStationClient->check();
 
   if (!_commandStationClient->receivedLists()) {
-    _commandStationClient->getLists(true, true, true, true);
+    _commandStationClient->getLists(GET_ROSTER, GET_TURNOUTS, GET_ROUTES, GET_TURNTABLES);
   }
 
   if (_connectionState != ConnectionState::Connecting)
