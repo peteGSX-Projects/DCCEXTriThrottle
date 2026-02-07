@@ -466,7 +466,7 @@ void AppOrchestrator::_displayCurrentState() {
     break;
   }
   case AppState::ConnectionError: {
-    _displayInterface->displayConnectionErrorScreen();
+    _displayInterface->displayErrorScreen("Connection Error", "Could not connect, '*' for demo", false);
     break;
   }
   case AppState::Menu: {

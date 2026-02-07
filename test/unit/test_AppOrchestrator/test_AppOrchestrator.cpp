@@ -158,7 +158,9 @@ TEST_F(AppOrchestratorTests, TestTransitionOnConnectionFail) {
   EXPECT_CALL(*connectionManager, getState()).WillOnce(Return(ConnectionState::Failed));
 
   // We expect the Throttle screen to be displayed once
-  EXPECT_CALL(*mockDisplay, displayConnectionErrorScreen()).Times(1);
+  EXPECT_CALL(*mockDisplay,
+              displayErrorScreen(StrEq("Connection Error"), StrEq("Could not connect, '*' for demo"), false))
+      .Times(1);
 
   // First update() should be Startup
   appOrchestrator->update();
@@ -858,4 +860,22 @@ TEST_F(AppOrchestratorTests, TestUnknownEventType) {
   // Handle the event and the log should contain an error
   appOrchestrator->onEvent(event);
   EXPECT_THAT(console.getOutput(), StartsWith("[ERR] AppOrchestrator::onEvent() unknown event:"));
+}
+
+/**
+ * @brief Test the ExitMenu event returns to Throttle state and resets menu navigation
+ */
+TEST_F(AppOrchestratorTests, TestExitMenu) {
+  // Set to the menu state and set active throttle index
+  appOrchestrator->setCurrentAppState(AppState::Menu);
+  menuManager->setActiveThrottleIndex(2);
+
+  // Handle an ExitMenu event
+  Event exitEvent(EventType::ExitMenu, EventData());
+  appOrchestrator->onEvent(exitEvent);
+
+  // Validate result
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
+  EXPECT_TRUE(menuManager->isAtRootMenu());
 }

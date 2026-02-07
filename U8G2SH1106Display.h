@@ -155,9 +155,12 @@ public:
   void displayMenuScreen(Menu *menu) override;
 
   /**
-   * @brief Display the connection error screen
+   * @brief Display the error screen
+   * @param title Error title
+   * @param message Brief description
+   * @param halt True if '*' key displayed, false to indicate no further action possible
    */
-  void displayConnectionErrorScreen() override;
+  void displayErrorScreen(const char *title, const char *message, bool halt) override;
 
   /**
    * @brief Display the progress screen
@@ -171,7 +174,7 @@ public:
    */
   void updateProgressScreen();
 
-    /**
+  /**
    * @brief Display a screen for user entry from the keypad, eg. entering a DCC address
    * @param title Title to display on the screen
    * @param message Instruction message for what to do
@@ -193,7 +196,8 @@ public:
    * @param patchCSVersion Patch version of the connected EX-CommandStation software
    * @param bytesFree Free RAM in bytes
    */
-  void displaySysInfoScreen(const char *version, int majorCSVersion, int minorCSVersion, int patchCSVersion, int bytesFree) override;
+  void displaySysInfoScreen(const char *version, int majorCSVersion, int minorCSVersion, int patchCSVersion,
+                            int bytesFree) override;
 
   /**
    * @brief Destroy the U8G2SH1106Display object

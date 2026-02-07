@@ -51,7 +51,7 @@ public:
 
   MOCK_METHOD(void, displayMenuScreen, (Menu * menu), (override));
 
-  MOCK_METHOD(void, displayConnectionErrorScreen, (), (override));
+  MOCK_METHOD(void, displayErrorScreen, (const char *title, const char *message, bool halt), (override));
 
   MOCK_METHOD(void, displayProgressScreen, (const char *title, const char *message), (override));
 
@@ -61,7 +61,9 @@ public:
 
   MOCK_METHOD(void, displayUserEntryKey, (char key, int count), (override));
 
-  MOCK_METHOD(void, displaySysInfoScreen, (const char *version, int majorCSVersion, int minorCSVersion, int patchCSVersion, int bytesFree), (override));
+  MOCK_METHOD(void, displaySysInfoScreen,
+              (const char *version, int majorCSVersion, int minorCSVersion, int patchCSVersion, int bytesFree),
+              (override));
 
   MOCK_METHOD(void, setRedraw, (bool redraw), (override));
 

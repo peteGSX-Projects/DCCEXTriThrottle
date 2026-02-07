@@ -157,10 +157,19 @@ void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
   _oled->sendBuffer();
 }
 
-void U8G2SH1106Display::displayConnectionErrorScreen() {
+void U8G2SH1106Display::displayErrorScreen(const char *title, const char *message, bool halt) {
   _oled->clear();
-  _displayHeader("Connection error");
-  _displayProgressMessage("* for demo");
+  _displayHeader(title);
+  _displayProgressMessage(message);
+  _oled->drawHLine(0, 55, 128);
+  _oled->setFont(MENU_FONT);
+  _oled->setCursor(0, 63);
+  if (halt) {
+    _oled->print("HALTED");
+  } else {
+    _oled->print("* Continue");
+  }
+  _oled->sendBuffer();
 }
 
 void U8G2SH1106Display::displayProgressScreen(const char *title, const char *message) {
