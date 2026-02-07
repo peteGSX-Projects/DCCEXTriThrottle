@@ -879,3 +879,13 @@ TEST_F(AppOrchestratorTests, TestExitMenu) {
   EXPECT_EQ(menuManager->getActiveThrottleIndex(), -1);
   EXPECT_TRUE(menuManager->isAtRootMenu());
 }
+
+
+TEST_F(AppOrchestratorTests, TestOutOfMemoryState) {
+  // Set expectation
+  EXPECT_CALL(*mockDisplay, displayErrorScreen(StrEq("Memory Error"), StrEq("Out of memory, system halted"), true)).Times(1);
+
+  // Set the state and update
+  appOrchestrator->setCurrentAppState(AppState::OutOfMemory);
+  appOrchestrator->update();
+}

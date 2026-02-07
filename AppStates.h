@@ -30,6 +30,7 @@ enum class AppState {
   UserEntry,
   EnterLocoAddress,
   DisplaySysInfo,
+  OutOfMemory,
   APP_STATE_COUNT // Not a state, used for validation checks
 };
 

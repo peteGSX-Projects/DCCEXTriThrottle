@@ -154,10 +154,15 @@ private:
   void _handleEnterLocoAddress(UserInputInterface::UserInputEvent event);
 
   /**
-   * @brief Handle a DisplaySysInfo event
+   * @brief Handle DisplaySysInfo state
    * @param event UserInputInterface::UserInputEvent
    */
   void _handleDisplaySysInfo(UserInputInterface::UserInputEvent event);
+
+  /**
+   * @brief Handle Out of Memory state, halts system
+   */
+  void _handleOutOfMemory();
 
   // onEvent() event handlers
 

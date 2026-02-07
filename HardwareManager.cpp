@@ -42,6 +42,14 @@ int HardwareManager::getFreeMemory() {
   char top;
   return &top - reinterpret_cast<char *>(sbrk(0));
 #else
-  return 0; // Fallback for native testing
+  return 65536; // Fallback for native testing
 #endif
+}
+
+bool HardwareManager::isMemorySafe() {
+  if (HardwareManager::getFreeMemory() < _stackHeapBuffer) {
+    return false;
+  } else {
+    return true;
+  }
 }

@@ -32,6 +32,16 @@ public:
    * @return int Free RAM in bytes
    */
   static int getFreeMemory();
+
+  /**
+   * @brief Check if allocating more memory is safe
+   * @return true If stack/heap gap is more than the buffer (512 bytes)
+   * @return false If stack/heap is less than the buffer
+   */
+  static bool isMemorySafe();
+
+private:
+  static const int _stackHeapBuffer = 512; // Ensure at least 512 bytes free always
 };
 
 #endif // HARDWAREMANAGER_H

@@ -90,6 +90,10 @@ void AppOrchestrator::update() {
     _handleDisplaySysInfo(inputEvent);
     break;
   }
+  case AppState::OutOfMemory: {
+    _handleOutOfMemory();
+    break;
+  }
   default: {
     LOG(LogLevel::LOG_ERROR, "AppOrchestrator::update(): Unknown AppState: ", (int)_currentAppState);
     break;
@@ -242,6 +246,8 @@ void AppOrchestrator::_handleDisplaySysInfo(UserInputInterface::UserInputEvent e
   }
 }
 
+void AppOrchestrator::_handleOutOfMemory() {}
+
 // onEvent() handlers
 
 void AppOrchestrator::_handleCommandStationConnected(Event &event) {
@@ -252,25 +258,41 @@ void AppOrchestrator::_handleCommandStationConnected(Event &event) {
     Loco *roster = _commandStationClient->roster->getFirst();
     if (roster != nullptr) {
       LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRosterMenu(): ", roster->getName());
-      _menuManager->createRosterMenu(roster);
+      if (HardwareManager::isMemorySafe()) {
+        _menuManager->createRosterMenu(roster);
+      } else {
+        _switchState(AppState::OutOfMemory);
+      }
     }
     // Setup the turnout menu
     Turnout *turnout = _commandStationClient->turnouts->getFirst();
     if (turnout != nullptr) {
       LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurnoutMenu(): ", turnout->getName());
-      _menuManager->createTurnoutMenu(turnout);
+      if (HardwareManager::isMemorySafe()) {
+        _menuManager->createTurnoutMenu(turnout);
+      } else {
+        _switchState(AppState::OutOfMemory);
+      }
     }
     // Setup the route and automation menus
     Route *route = _commandStationClient->routes->getFirst();
     if (route != nullptr) {
       LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRouteMenus(): ", route->getName());
-      _menuManager->createRouteMenus(route);
+      if (HardwareManager::isMemorySafe()) {
+        _menuManager->createRouteMenus(route);
+      } else {
+        _switchState(AppState::OutOfMemory);
+      }
     }
     // Setup the turntable menu
     Turntable *turntable = _commandStationClient->turntables->getFirst();
     if (turntable != nullptr) {
       LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurntableMenu(): ", turntable->getName());
-      _menuManager->createTurntableMenu(turntable);
+      if (HardwareManager::isMemorySafe()) {
+        _menuManager->createTurntableMenu(turntable);
+      } else {
+        _switchState(AppState::OutOfMemory);
+      }
     }
   }
 }
@@ -387,6 +409,8 @@ void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
     LOG(LogLevel::LOG_WARN, "AppOrchestrator:: Invalid DCC address entered: ", address);
     _switchState(AppState::EnterLocoAddress);
     _displayInterface->displayUserEntryScreen("Enter Address", "Invalid address! Retry:");
+  } else if (!HardwareManager::isMemorySafe()) {
+    _switchState(AppState::OutOfMemory);
   } else {
     // Otherwise create the new loco with the address as the name and associate it
     Loco *loco = new Loco(address, LocoSource::LocoSourceEntry);
@@ -486,6 +510,10 @@ void AppOrchestrator::_displayCurrentState() {
     int patch = _commandStationClient->getPatchVersion();
     int freeBytes = HardwareManager::getFreeMemory();
     _displayInterface->displaySysInfoScreen(version, major, minor, patch, freeBytes);
+    break;
+  }
+  case AppState::OutOfMemory: {
+    _displayInterface->displayErrorScreen("Memory Error", "Out of memory, system halted", true);
     break;
   }
   default:
