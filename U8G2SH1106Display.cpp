@@ -28,25 +28,6 @@ U8G2SH1106Display::U8G2SH1106Display(int numThrottles) : _numThrottles(numThrott
 #else
 #error Invalid OLED connection type specific, must be OLED_I2C or OLED_SPI
 #endif // OLED_CONNECTION
-  _throttleCoordinates = new ThrottleCoordinates[_numThrottles];
-  _throttleCoordinates[0].speed.x = 4;
-  _throttleCoordinates[0].speed.y = 20;
-  _throttleCoordinates[0].direction.x = 10;
-  _throttleCoordinates[0].direction.y = 35;
-  _throttleCoordinates[0].address.x = 0;
-  _throttleCoordinates[0].address.y = 50;
-  _throttleCoordinates[1].speed.x = 46;
-  _throttleCoordinates[1].speed.y = 20;
-  _throttleCoordinates[1].direction.x = 52;
-  _throttleCoordinates[1].direction.y = 35;
-  _throttleCoordinates[1].address.x = 43;
-  _throttleCoordinates[1].address.y = 50;
-  _throttleCoordinates[2].speed.x = 88;
-  _throttleCoordinates[2].speed.y = 20;
-  _throttleCoordinates[2].direction.x = 94;
-  _throttleCoordinates[2].direction.y = 35;
-  _throttleCoordinates[2].address.x = 87;
-  _throttleCoordinates[2].address.y = 50;
   _progressCounter = 0;
 }
 
@@ -243,12 +224,7 @@ void U8G2SH1106Display::displaySysInfoScreen(const char *version, int majorCSVer
   _oled->sendBuffer();
 }
 
-U8G2SH1106Display::~U8G2SH1106Display() {
-  if (_throttleCoordinates != nullptr) {
-    delete[] _throttleCoordinates;
-    _throttleCoordinates = nullptr;
-  }
-}
+U8G2SH1106Display::~U8G2SH1106Display() {}
 
 uint16_t U8G2SH1106Display::_calculateHeaderHeight() {
   _oled->setFont(_menuFont);
@@ -279,43 +255,81 @@ void U8G2SH1106Display::_displayProgressMessage(const char *message) {
 
 void U8G2SH1106Display::_displayThrottleSpeed(int throttle, int speed) {
   _oled->setFont(SPEED_FONT);
-  _oled->setCursor(_throttleCoordinates[throttle].speed.x, _throttleCoordinates[throttle].speed.y);
-  _oled->print("   ");
-  _oled->setCursor(_throttleCoordinates[throttle].speed.x, _throttleCoordinates[throttle].speed.y);
-  _oled->print(speed);
+  // Set the y coordinate for all
+  uint16_t y = 20;
+  // Get parameters from display instance
+  uint16_t displayWidth = _oled->getWidth();
+  uint8_t fontHeight = _oled->getMaxCharHeight();
+  char speedBuffer[4];
+  itoa(speed, speedBuffer, 10);
+  uint16_t boxWidth = displayWidth / 3;
+
+  // Calculate the x for the speed string to be centred
+  uint16_t x = _calculateCentredX(throttle, _oled->getStrWidth(speedBuffer));
+
+  _oled->setDrawColor(0);
+  _oled->drawBox(throttle * boxWidth, y - fontHeight, boxWidth, fontHeight);
+  _oled->setDrawColor(1);
+  _oled->setCursor(x, y);
+  _oled->print(speedBuffer);
   _oled->sendBuffer();
 }
 
 void U8G2SH1106Display::_displayThrottleDirection(int throttle, Direction direction) {
   _oled->setFont(THROTTLE_FONT);
-  _oled->setCursor(_throttleCoordinates[throttle].direction.x, _throttleCoordinates[throttle].direction.y);
-  _oled->print("   ");
-  _oled->setCursor(_throttleCoordinates[throttle].direction.x, _throttleCoordinates[throttle].direction.y);
-  if (direction == Forward) {
-    _oled->print("Fwd");
-  } else {
-    _oled->print("Rev");
-  }
+  // Set y for all
+  uint16_t y = 35;
+
+  // Calculate box dimensions
+  uint16_t boxWidth = _oled->getWidth() / 3;
+  uint8_t fontHeight = _oled->getMaxCharHeight();
+
+  // Get direction string and calculate x
+  const char *text = (direction == Direction::Forward) ? "Fwd" : "Rev";
+  uint16_t x = _calculateCentredX(throttle, _oled->getStrWidth(text));
+
+  // Clear box and display text
+  _oled->setDrawColor(0);
+  _oled->drawBox(throttle * boxWidth, y - fontHeight, boxWidth, fontHeight);
+  _oled->setDrawColor(1);
+  _oled->setCursor(x, y);
+  _oled->print(text);
   _oled->sendBuffer();
 }
 
 void U8G2SH1106Display::_displayThrottleAddress(int throttle, int address, bool isConsist) {
   _oled->setFont(THROTTLE_FONT);
-  _oled->setCursor(_throttleCoordinates[throttle].address.x, _throttleCoordinates[throttle].address.y);
-  _oled->print("       ");
-  _oled->setCursor(_throttleCoordinates[throttle].address.x, _throttleCoordinates[throttle].address.y);
-  _oled->print(address);
+  // Set y for all
+  uint16_t y = 50;
+
+  // Calculate box dimensions
+  uint16_t boxWidth = _oled->getWidth() / 3;
+  uint8_t fontHeight = _oled->getMaxCharHeight();
+
+  // Get address as a string
+  char addressBuffer[7]; // max 5 digits plus c for consist and null terminator
+  itoa(address, addressBuffer, 10);
   if (isConsist) {
-    _oled->print("c");
+    int len = strlen(addressBuffer);
+    if (len < (int)sizeof(addressBuffer) - 1) {
+      addressBuffer[len] = 'c';
+      addressBuffer[len + 1] = '\0';
+    }
   }
+  uint16_t x = _calculateCentredX(throttle, _oled->getStrWidth(addressBuffer));
+
+  _oled->setDrawColor(0);
+  _oled->drawBox(throttle * boxWidth, y - fontHeight, boxWidth, fontHeight);
+  _oled->setDrawColor(1);
+  _oled->setCursor(x, y);
+  _oled->print(addressBuffer);
   _oled->sendBuffer();
 }
 
-void U8G2SH1106Display::_displayThrottleEStop(int throttle) {
-  _oled->setFont(ESTOP_FONT);
-  _oled->setCursor(_throttleCoordinates[throttle].speed.x, _throttleCoordinates[throttle].speed.y);
-  _oled->print("ESTOP");
-  _oled->sendBuffer();
+uint16_t U8G2SH1106Display::_calculateCentredX(int throttle, uint16_t textWidth) {
+  uint16_t boxWidth = _oled->getWidth() / 3;
+  uint16_t boxX = throttle * boxWidth;
+  return boxX + (boxWidth / 2) - (textWidth / 2);
 }
 
 #endif // NATIVE_TESTING

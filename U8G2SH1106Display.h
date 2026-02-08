@@ -90,23 +90,6 @@
 #endif // ESTOP_FONT
 
 /**
- * @brief Structure for X/Y coordinates of individual throttle items
- */
-struct ThrottleItemCoordinates {
-  int x;
-  int y;
-};
-
-/**
- * @brief Structure for a throttle's screen coordinates to update
- */
-struct ThrottleCoordinates {
-  ThrottleItemCoordinates speed;
-  ThrottleItemCoordinates direction;
-  ThrottleItemCoordinates address;
-};
-
-/**
  * @brief Display implementation for SH1106 based OLEDs using the U8g2 Arduino library
  */
 class U8G2SH1106Display : public DisplayInterface {
@@ -211,7 +194,6 @@ private:
   const uint8_t *_speedFont = SPEED_FONT;
   const uint8_t *_throttleFont = THROTTLE_FONT;
   int _numThrottles;
-  ThrottleCoordinates *_throttleCoordinates;
   int _progressCounter;
 
   /**
@@ -254,10 +236,11 @@ private:
   void _displayThrottleAddress(int throttle, int address, bool isConsist);
 
   /**
-   * @brief Displays ESTOP for the specified throttle
-   * @param throttle Number of the throttle to update
+   * @brief Helper to calculate the centred x coordinate for the specified string width and throttle index
+   * @param throttle Throttle index
+   * @param textWidth Width of the text being displayed
    */
-  void _displayThrottleEStop(int throttle);
+  uint16_t _calculateCentredX(int throttle, uint16_t textWidth);
 };
 
 #endif // NATIVE_TESTING
