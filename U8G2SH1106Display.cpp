@@ -50,10 +50,8 @@ void U8G2SH1106Display::displayThrottleScreen(Throttle **throttles, TrackPower s
   }
   _oled->drawHLine(0, 55, 128);
   _oled->setFont(MENU_FONT);
-  _oled->setCursor(0, 63);
-  _oled->print("* Menu");
-  _oled->setCursor(80, 63);
-  _oled->print("Power: ");
+  _oled->drawStr(0, 63, "* Menu");
+  _oled->drawStr(80, 63, "Power: ");
   updateThrottleTrackPower(state);
 }
 
@@ -76,17 +74,24 @@ void U8G2SH1106Display::updateThrottleScreen(int throttleIndex, Throttle *thrott
 }
 
 void U8G2SH1106Display::updateThrottleTrackPower(TrackPower state) {
-  _oled->setFont(MENU_FONT);
-  _oled->setCursor(113, 63);
-  _oled->print("   ");
-  _oled->setCursor(113, 63);
+  uint16_t x = 113;
+  uint16_t y = 63;
+
+  const char *text = nullptr;
   if (state == PowerOn) {
-    _oled->print("On");
+    text = "On";
   } else if (state == PowerOff) {
-    _oled->print("Off");
+    text = "Off";
   } else {
-    _oled->print("?");
+    text = "?";
   }
+
+  uint16_t clearWidth = _oled->getStrWidth("Off");
+  uint8_t fontHeight = _oled->getMaxCharHeight();
+  _oled->setDrawColor(0);
+  _oled->drawBox(x, y - fontHeight, clearWidth, y);
+  _oled->setDrawColor(1);
+  _oled->drawStr(x, y, text);
   _oled->sendBuffer();
 }
 
