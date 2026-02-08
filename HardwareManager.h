@@ -41,7 +41,15 @@ public:
   static bool isMemorySafe();
 
 private:
-  static const int _stackHeapBuffer = 512; // Ensure at least 512 bytes free always
+  static const int _stackHeapBuffer = 256; // Ensure at least 256 bytes free always
+
+  /**
+   * @brief Check whether a chunk of memory can be allocated and freed.
+   * This probes the allocator by calling malloc() and free() and is
+   * intended to be a safer runtime check on platforms where sbrk(0)
+   * is unreliable.
+   */
+  static bool _canAllocate(size_t bytes);
 };
 
 #endif // HARDWAREMANAGER_H

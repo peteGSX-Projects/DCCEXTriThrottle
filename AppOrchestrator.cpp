@@ -307,6 +307,9 @@ void AppOrchestrator::_handleLocoSelected(Event &event) {
     return;
 
   int throttleIndex = event.eventData.selectLocoValue.throttleIndex;
+  if (throttleIndex < 0 || throttleIndex >= _numThrottles)
+    return;
+
   Loco *newLoco = event.eventData.selectLocoValue.loco;
 
   // If throttle has an existing Loco or Consist at speed > 0, ignore
@@ -396,6 +399,10 @@ void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
   int address = event.eventData.locoAddressValue.address;
   int throttleIndex = event.eventData.locoAddressValue.throttleIndex;
 
+  // Validate throttle index is within bounds
+  if (throttleIndex < 0 || throttleIndex >= _numThrottles)
+    return;
+
   // If throttle has an existing Loco or Consist at speed > 0, ignore
   if (_throttles[throttleIndex]->getLoco() != nullptr || _throttles[throttleIndex]->getConsist() != nullptr) {
     int speed = _throttles[throttleIndex]->getLoco() ? _throttles[throttleIndex]->getLoco()->getSpeed()
@@ -436,13 +443,14 @@ void AppOrchestrator::_handleStartRoute(Event &event) {
 void AppOrchestrator::_handleStartAutomation(Event &event) {
   int automationId = event.eventData.locoAddressValue.address;
   int throttleIndex = _menuManager->getActiveThrottleIndex();
-  if (_throttles) {
-    // Must have a Loco, and also never send a Consist
-    if (_throttles[throttleIndex]->getLoco() != nullptr) {
-      int address = _throttles[throttleIndex]->getLoco()->getAddress();
-      _commandStationClient->handOffLoco(address, automationId);
-      _switchState(AppState::Throttle);
-    }
+  if (!_throttles || throttleIndex < 0 || throttleIndex >= _numThrottles) {
+    return;
+  }
+  // Must have a Loco, and also never send a Consist
+  if (_throttles[throttleIndex]->getLoco() != nullptr) {
+    int address = _throttles[throttleIndex]->getLoco()->getAddress();
+    _commandStationClient->handOffLoco(address, automationId);
+    _switchState(AppState::Throttle);
   }
 }
 

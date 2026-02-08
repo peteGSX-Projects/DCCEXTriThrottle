@@ -17,6 +17,7 @@
 
 #include "HardwareManager.h"
 #include <Arduino.h>
+#include <stdlib.h>
 
 #if defined(ARDUINO_ARCH_STM32)
 extern "C" char *sbrk(int incr);
@@ -47,9 +48,13 @@ int HardwareManager::getFreeMemory() {
 }
 
 bool HardwareManager::isMemorySafe() {
-  if (HardwareManager::getFreeMemory() < _stackHeapBuffer) {
-    return false;
-  } else {
-    return true;
-  }
+  return HardwareManager::_canAllocate(_stackHeapBuffer);
+}
+
+bool HardwareManager::_canAllocate(size_t bytes) {
+  if (bytes == 0) return true;
+  void *p = malloc(bytes);
+  if (!p) return false;
+  free(p);
+  return true;
 }
