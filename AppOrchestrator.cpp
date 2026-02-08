@@ -26,7 +26,7 @@ AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputIn
     : _displayInterface(displayInterface), _userInputInterface(userInputInterface), _logger(logger),
       _numThrottles(numThrottles), _throttles(throttles), _connectionManager(connectionManager),
       _eventManager(eventManager), _menuManager(menuManager), _commandStationClient(commandStationClient) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
+  // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator() created");
   _currentAppState = AppState::Startup;
   _activeContextIndex = -1;
   _enterAddressBuffer = 0;
@@ -35,7 +35,7 @@ AppOrchestrator::AppOrchestrator(DisplayInterface *displayInterface, UserInputIn
 }
 
 void AppOrchestrator::begin() {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::begin()");
+  // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::begin()");
 
   // Auto subscribe to events first
   for (int i = 0; i < EventType::EVENT_TYPE_COUNT; i++) {
@@ -109,7 +109,7 @@ void AppOrchestrator::update() {
 }
 
 void AppOrchestrator::onEvent(Event &event) {
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): ", (int)event.eventType);
+  // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::onEvent(): ", (int)event.eventType);
 
   /**
    * @brief Define the function pointer table for all event handlers using the typedef signature
@@ -257,7 +257,7 @@ void AppOrchestrator::_handleCommandStationConnected(Event &event) {
     // Setup the roster menu
     Loco *roster = _commandStationClient->roster->getFirst();
     if (roster != nullptr) {
-      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRosterMenu(): ", roster->getName());
+      // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRosterMenu(): ", roster->getName());
       if (HardwareManager::isMemorySafe()) {
         _menuManager->createRosterMenu(roster);
       } else {
@@ -267,7 +267,7 @@ void AppOrchestrator::_handleCommandStationConnected(Event &event) {
     // Setup the turnout menu
     Turnout *turnout = _commandStationClient->turnouts->getFirst();
     if (turnout != nullptr) {
-      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurnoutMenu(): ", turnout->getName());
+      // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurnoutMenu(): ", turnout->getName());
       if (HardwareManager::isMemorySafe()) {
         _menuManager->createTurnoutMenu(turnout);
       } else {
@@ -277,7 +277,7 @@ void AppOrchestrator::_handleCommandStationConnected(Event &event) {
     // Setup the route and automation menus
     Route *route = _commandStationClient->routes->getFirst();
     if (route != nullptr) {
-      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRouteMenus(): ", route->getName());
+      // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createRouteMenus(): ", route->getName());
       if (HardwareManager::isMemorySafe()) {
         _menuManager->createRouteMenus(route);
       } else {
@@ -287,7 +287,7 @@ void AppOrchestrator::_handleCommandStationConnected(Event &event) {
     // Setup the turntable menu
     Turntable *turntable = _commandStationClient->turntables->getFirst();
     if (turntable != nullptr) {
-      LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurntableMenu(): ", turntable->getName());
+      // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator: _menuManager->createTurntableMenu(): ", turntable->getName());
       if (HardwareManager::isMemorySafe()) {
         _menuManager->createTurntableMenu(turntable);
       } else {
@@ -479,7 +479,7 @@ void AppOrchestrator::_switchState(AppState newState) {
   if (_currentAppState == newState)
     return;
 
-  LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(): ", (int)newState);
+  // LOG(LogLevel::LOG_DEBUG, "AppOrchestrator::_switchState(): ", (int)newState);
   if (newState == AppState::Throttle) {
     _menuManager->reset();
   }

@@ -129,7 +129,7 @@ void setup() {
 
   LOG(LogLevel::LOG_MESSAGE, "DCC-EX Tri-Throttle initialised, version: ", VERSION);
 
-  LOG(LogLevel::LOG_DEBUG, "Free bytes after setup: ", HardwareManager::getFreeMemory());
+  LOG(LogLevel::LOG_MESSAGE, "Free bytes after setup: ", HardwareManager::getFreeMemory());
 }
 
 void loop() { orchestrator->update(); }

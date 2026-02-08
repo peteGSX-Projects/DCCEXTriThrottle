@@ -131,7 +131,7 @@ void Throttle::_handleUserConfirmationAction(UserConfirmationInterface::UserConf
   if ((!_loco && !_consist) || action == UserConfirmationInterface::UserConfirmationAction::None)
     return;
 
-  LOG(LogLevel::LOG_DEBUG, "Throttle()::UserConfirmationAction(): ", (int)action);
+  // LOG(LogLevel::LOG_DEBUG, "Throttle()::UserConfirmationAction(): ", (int)action);
 
   if (action == UserConfirmationInterface::UserConfirmationAction::SingleClick) {
     if (_speed > 0) {
@@ -155,7 +155,7 @@ void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionA
   if ((!_loco && !_consist) || action == UserSelectionInterface::UserSelectionAction::None)
     return;
 
-  LOG(LogLevel::LOG_DEBUG, "Throttle()::UserSelectionAction(): ", (int)action);
+  // LOG(LogLevel::LOG_DEBUG, "Throttle()::UserSelectionAction(): ", (int)action);
 
   // Use enum mapping to values to save Flash rather than switch/case
   // Make action 0 indexed so 0 - 2 are up, 3 - 5 are down

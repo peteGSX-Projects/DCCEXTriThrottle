@@ -24,7 +24,7 @@ void CommandStationListener::receivedLocoBroadcast(int address, int speed, Direc
   if (_eventManager) {
     LocoBroadcast broadcast = {address, speed, direction, functionMap};
     EventData eventData(broadcast);
-    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address: ", address);
+    // LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address: ", address);
     _eventManager->publish(EventType::ReceivedLocoBroadcast, eventData);
   }
 }
@@ -32,7 +32,7 @@ void CommandStationListener::receivedLocoBroadcast(int address, int speed, Direc
 void CommandStationListener::receivedTrackPower(TrackPower powerState) {
   if (_eventManager) {
     EventData eventData(powerState);
-    LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedTrackPower(): published event");
+    // LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedTrackPower(): published event");
     _eventManager->publish(EventType::ReceivedTrackPower, eventData);
   }
 }

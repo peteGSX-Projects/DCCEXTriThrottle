@@ -60,7 +60,7 @@ void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent)
     return;
 
   char key = inputEvent.key;
-  LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: ", key);
+  // LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: ", key);
 
   if (key >= '0' && key <= '9') {
     _handleSelection(key - '0');
@@ -201,14 +201,14 @@ void MenuManager::_handleBack() {
 
   // If we're at the top, exit the menu system and reset throttle context
   if (node.menu == nullptr) {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleBack(): Exit Menu");
+    // LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleBack(): Exit Menu");
     reset();
     _eventManager->publish(EventType::ExitMenu, EventData());
   } else {
     // Restore the navigation state
     _currentMenu = node.menu;
     _activeThrottleIndex = node.throttleIndex;
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleBack(): Back to %s", _currentMenu->getName());
+    // LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleBack(): Back to %s", _currentMenu->getName());
     _eventManager->publish(EventType::MenuRefreshRequired, EventData());
   }
 }
@@ -224,10 +224,10 @@ void MenuManager::_handleSelection(int digit) {
   BaseMenuItem *item = _currentMenu->getItemByPageIndex(digit);
 
   if (item == nullptr) {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): No item at this index: ", digit);
+    // LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): No item at this index: ", digit);
     return;
   }
-  LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection() select: ", item->getName());
+  // LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection() select: ", item->getName());
 
   switch (item->getItemType()) {
   case MenuItemType::ThrottleMenuType: {
@@ -259,7 +259,7 @@ void MenuManager::_handleSelection(int digit) {
       EventData eventData(locoItem->getLoco(), _activeThrottleIndex);
       _eventManager->publish(EventType::LocoSelected, eventData);
     } else {
-      LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Loco selected with no throttle context, ignoring");
+      // LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Loco selected with no throttle context, ignoring");
     }
     break;
   }
@@ -273,7 +273,7 @@ void MenuManager::_handleSelection(int digit) {
     break;
   }
   default: {
-    LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Unhandled MenuItemType: ", (int)item->getItemType());
+    // LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Unhandled MenuItemType: ", (int)item->getItemType());
     break;
   }
   }

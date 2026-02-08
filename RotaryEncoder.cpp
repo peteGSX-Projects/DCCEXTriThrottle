@@ -29,7 +29,7 @@ void RotaryEncoder::begin() {
   pinMode(_clkPin, _inputMode);
   pinMode(_dtPin, _inputMode);
   _state = R_START;
-  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::begin()");
+  // LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::begin()");
 }
 
 RotaryEncoder::Direction RotaryEncoder::checkDirection() {
@@ -45,10 +45,10 @@ RotaryEncoder::Direction RotaryEncoder::checkDirection() {
 
   // Return the direction based on the state bits
   if (direction == DIR_CW) {
-    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returning CW");
+    // LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returning CW");
     return RotaryEncoder::Direction::CW;
   } else if (direction == DIR_CCW) {
-    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returning CCW");
+    // LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::checkDirection() returning CCW");
     return RotaryEncoder::Direction::CCW;
   }
   return RotaryEncoder::Direction::None;
@@ -79,15 +79,15 @@ UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {
     }
     _lastUpThrottleStep = currentMillis;
   }
-  if (action != UserSelectionAction::None)
-    LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::check() returning: ", static_cast<int>(action));
+  // if (action != UserSelectionAction::None)
+    // LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::check() returning: ", static_cast<int>(action));
   return action;
 }
 
 void RotaryEncoder::setMode(RotaryEncoder::Mode mode) {
   _mode = mode;
   _state = R_START; // Reset to R_START
-  LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::setMode(): ", static_cast<int>(_mode));
+  // LOG(LogLevel::LOG_DEBUG, "RotaryEncoder::setMode(): ", static_cast<int>(_mode));
 }
 
 #endif // NATIVE_TESTING
