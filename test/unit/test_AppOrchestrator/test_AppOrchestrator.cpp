@@ -880,12 +880,105 @@ TEST_F(AppOrchestratorTests, TestExitMenu) {
   EXPECT_TRUE(menuManager->isAtRootMenu());
 }
 
-
+/**
+ * @brief Test out of memory displays the error
+ */
 TEST_F(AppOrchestratorTests, TestOutOfMemoryState) {
   // Set expectation
-  EXPECT_CALL(*mockDisplay, displayErrorScreen(StrEq("Memory Error"), StrEq("Out of memory, system halted"), true)).Times(1);
+  EXPECT_CALL(*mockDisplay, displayErrorScreen(StrEq("Memory Error"), StrEq("Out of memory, system halted"), true))
+      .Times(1);
 
   // Set the state and update
   appOrchestrator->setCurrentAppState(AppState::OutOfMemory);
   appOrchestrator->update();
+}
+
+/**
+ * @brief Test entering a loco address manually that is in the roster uses the roster entry
+ */
+TEST_F(AppOrchestratorTests, TestExistingLocoAddressUsesRoster) {
+  // Set up the mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Simulate entering a loco address for address 3 which is in the roster (Loco3) for throttle 0
+  EventData data(3, 0);
+  Event event(EventType::LocoAddressEntered, data);
+  appOrchestrator->onEvent(event);
+
+  // Assert throttle 0 should now have a loco and it should be roster loco 3
+  Loco *loco = throttles[0]->getLoco();
+  ASSERT_EQ(loco, Loco::getByAddress(3));
+  EXPECT_STREQ(loco->getName(), "Loco3");
+}
+
+/**
+ * @brief Test attempting to associate a roster loco with an additional throttle fails
+ */
+TEST_F(AppOrchestratorTests, TestRosterLocoOnMultipleThrottles) {
+  // Set up the mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Associate first loco with throttle index 0 and validate
+  Loco *firstLoco = csClient->roster->getFirst();
+  throttles[0]->setLoco(firstLoco);
+  ASSERT_EQ(throttles[0]->getLoco(), firstLoco);
+
+  // Now attempt to associate the first loco with throttle index 1
+  EventData data(firstLoco, 1);
+  Event event(EventType::LocoSelected, data);
+  appOrchestrator->onEvent(event);
+
+  // Assert that throttle index 1 has no loco
+  ASSERT_EQ(throttles[1]->getLoco(), nullptr);
+}
+
+/**
+ * @brief Test attempting to associate a local loco with an additional throttle fails
+ */
+TEST_F(AppOrchestratorTests, TestLocalLocoOnMultipleThrottles) {
+  // Create a mock loco and associate with throttle 0
+  Loco *loco3 = new Loco(3, LocoSource::LocoSourceEntry);
+  throttles[0]->setLoco(loco3);
+  ASSERT_EQ(throttles[0]->getLoco(), loco3);
+
+  // Now attempt to create another loco at address 3 for throttle index 1
+  EventData data(3, 1);
+  Event event(EventType::LocoAddressEntered, data);
+  appOrchestrator->onEvent(event);
+
+  // Assert that throttle index 1 has no loco
+  ASSERT_EQ(throttles[1]->getLoco(), nullptr);
+
+  // Clean up
+  delete loco3;
+}
+
+/**
+ * @brief Test attempting to associate a roster loco with an additional throttle fails with a consist
+ */
+TEST_F(AppOrchestratorTests, TestRosterLocoOnMultipleThrottlesConsist) {
+  // Set up the mock roster
+  DCCEXTestHelpers::createMockRoster(csClient);
+
+  // Build a mock consist with first and second locos
+  Loco *firstLoco = csClient->roster->getFirst();
+  Loco *secondLoco = firstLoco->getNext();
+  Consist *consist = new Consist();
+  consist->addLoco(firstLoco, Facing::FacingForward);
+  consist->addLoco(secondLoco, Facing::FacingReversed);
+
+  // Associate consist with throttle index 0 and validate
+  throttles[0]->setConsist(consist);
+  ASSERT_EQ(throttles[0]->getConsist(), consist);
+
+  // Now attempt to associate the second loco with throttle index 1
+  EventData data(secondLoco, 1);
+  Event event(EventType::LocoSelected, data);
+  appOrchestrator->onEvent(event);
+
+  // Assert that throttle index 1 has no loco
+  ASSERT_EQ(throttles[1]->getLoco(), nullptr);
+
+  // Clean up
+  delete consist;
 }

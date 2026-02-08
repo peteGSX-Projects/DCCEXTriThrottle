@@ -320,6 +320,10 @@ void AppOrchestrator::_handleLocoSelected(Event &event) {
       return;
   }
 
+  // If this loco address is associated with any other throttle, do nothing
+  if (_isLocoAddressAssociated(newLoco->getAddress()))
+    return;
+
   // If the current loco is entered manually, delete it first
   Loco *currentLoco = _throttles[throttleIndex]->getLoco();
   if (currentLoco != nullptr && currentLoco->getSource() == LocoSource::LocoSourceEntry) {
@@ -399,6 +403,10 @@ void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
   int address = event.eventData.locoAddressValue.address;
   int throttleIndex = event.eventData.locoAddressValue.throttleIndex;
 
+  // If address already in use, bail out
+  if (_isLocoAddressAssociated(address))
+    return;
+
   // Validate throttle index is within bounds
   if (throttleIndex < 0 || throttleIndex >= _numThrottles)
     return;
@@ -419,11 +427,15 @@ void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
   } else if (!HardwareManager::isMemorySafe()) {
     _switchState(AppState::OutOfMemory);
   } else {
-    // Otherwise create the new loco with the address as the name and associate it
-    Loco *loco = new Loco(address, LocoSource::LocoSourceEntry);
-    char name[6];
-    itoa(address, name, 10);
-    loco->setName(name);
+    // Attempt to retrieve the loco from the roster first
+    Loco *loco = _commandStationClient->roster->getByAddress(address);
+    if (loco == nullptr) {
+      // If there isn't one, create the new loco with the address as the name and associate it
+      loco = new Loco(address, LocoSource::LocoSourceEntry);
+      char name[6];
+      itoa(address, name, 10);
+      loco->setName(name);
+    }
     Event selectEvent(EventType::LocoSelected, EventData(loco, throttleIndex));
     _handleLocoSelected(selectEvent);
   }
@@ -538,4 +550,22 @@ void AppOrchestrator::_updateThrottleDisplay() {
       _throttles[i]->resetLocoChanged();
     }
   }
+}
+
+bool AppOrchestrator::_isLocoAddressAssociated(int address) {
+  if (!_throttles)
+    return false;
+
+  for (int i = 0; i < NUM_THROTTLES; i++) {
+    if (_throttles[i]->getLoco() && _throttles[i]->getLoco()->getAddress() == address) {
+      return true;
+    } else if (_throttles[i]->getConsist() != nullptr) {
+      for (ConsistLoco *cLoco = _throttles[i]->getConsist()->getFirst(); cLoco; cLoco = cLoco->getNext()) {
+        if (cLoco->getLoco()->getAddress() == address) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }

@@ -285,6 +285,14 @@ private:
    * @brief Helper method to update throttle elements only instead of full redraw
    */
   void _updateThrottleDisplay();
+
+  /**
+   * @brief Check if the provided loco address is associated with a throttle, including in consists
+   * @param address DCC address to check
+   * @return true If address is associated with any loco or consist on any throttle
+   * @return false If not associated
+   */
+  bool _isLocoAddressAssociated(int address);
 };
 
 #endif // APPORCHESTRATOR_H

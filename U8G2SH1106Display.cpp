@@ -139,7 +139,6 @@ void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
   }
 
   _oled->drawHLine(0, 54, 128);
-  _oled->setFont(STATUS_FONT); // Use smaller font for status bar
 
   // Left: Back hint
   _oled->setCursor(0, 63);
@@ -147,7 +146,7 @@ void U8G2SH1106Display::displayMenuScreen(Menu *menu) {
 
   // Right: Pagination (only show if there's more than one page)
   if (menu->getTotalPages() > 1) {
-    _oled->setCursor(70, 63);
+    _oled->setCursor(75, 63);
     _oled->print("# Page ");
     _oled->print(menu->getCurrentPage() + 1);
     _oled->print("/");
