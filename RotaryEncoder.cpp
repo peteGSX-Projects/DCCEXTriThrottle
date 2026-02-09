@@ -58,7 +58,7 @@ UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {
   UserSelectionAction action = UserSelectionAction::None;
   unsigned long currentMillis = millis();
   Direction result = checkDirection();
-  if (result == Direction::CCW) {
+  if (result == Direction::CW) {
     unsigned long timeDifference = currentMillis - _lastDownThrottleStep;
     if (timeDifference < _throttleStepFastestThreshold) {
       action = UserSelectionAction::DownFastest;
@@ -68,7 +68,7 @@ UserSelectionInterface::UserSelectionAction RotaryEncoder::check() {
       action = UserSelectionAction::Down;
     }
     _lastDownThrottleStep = currentMillis;
-  } else if (result == Direction::CW) {
+  } else if (result == Direction::CCW) {
     unsigned long timeDifference = currentMillis - _lastUpThrottleStep;
     if (timeDifference < _throttleStepFastestThreshold) {
       action = UserSelectionAction::UpFastest;

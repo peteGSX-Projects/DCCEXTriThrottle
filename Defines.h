@@ -100,9 +100,9 @@
 #define COMMANDSTATION_STREAM Serial1
 #endif // COMMANDSTATION_STREAM
 
-// Set invert throttle as false by default
+// Set invert throttle as true by default
 #ifndef INVERT_THROTTLE
-#define INVERT_THROTTLE false
+#define INVERT_THROTTLE true
 #endif // INVERT_THROTTLE
 
 // Set default throttle speed change steps (used to increment/decrement speed)
