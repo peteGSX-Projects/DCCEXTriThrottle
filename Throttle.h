@@ -19,6 +19,7 @@
 #ifndef THROTTLE_H
 #define THROTTLE_H
 
+#include "Defines.h"
 #include "Logger.h"
 #include "UserConfirmationInterface.h"
 #include "UserInputInterface.h"
@@ -161,8 +162,9 @@ private:
   Direction _direction;
   bool _directionChanged;
   bool _locoChanged;
+  bool _setThrottlePending;
   unsigned long _lastUserInteraction;
-  const unsigned long _SYNC_TIME = 250;
+  unsigned long _lastSpeedCommand;
 
   /**
    * @brief Handle user confirmation interactions destined for this Throttle instance
