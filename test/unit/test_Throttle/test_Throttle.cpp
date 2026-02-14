@@ -54,6 +54,7 @@ protected:
 
   // Optional teardown method
   void TearDown() override {
+    resetMillis();
     delete consist;
     delete csClient;
     delete throttle;
