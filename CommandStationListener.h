@@ -32,15 +32,6 @@ public:
   CommandStationListener(EventManager *eventManager, Logger *logger);
 
   /**
-   * @brief Publish a Loco broadcast event
-   * @param address DCC address of the loco
-   * @param speed Speed of the loco
-   * @param direction Direction of the loco
-   * @param functionMap Function state mapping of the loco
-   */
-  void receivedLocoBroadcast(int address, int speed, Direction direction, int functionMap) override;
-
-  /**
    * @brief Publish a track power event
    * @param powerState TrackPower
    */

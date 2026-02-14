@@ -20,15 +20,6 @@
 CommandStationListener::CommandStationListener(EventManager *eventManager, Logger *logger)
     : _eventManager(eventManager), _logger(logger) {}
 
-void CommandStationListener::receivedLocoBroadcast(int address, int speed, Direction direction, int functionMap) {
-  if (_eventManager) {
-    LocoBroadcast broadcast = {address, speed, direction, functionMap};
-    EventData eventData(broadcast);
-    // LOG(LogLevel::LOG_DEBUG, "CommandStationListener::receivedLocoBroadcast(): published event for address: ", address);
-    _eventManager->publish(EventType::ReceivedLocoBroadcast, eventData);
-  }
-}
-
 void CommandStationListener::receivedTrackPower(TrackPower powerState) {
   if (_eventManager) {
     EventData eventData(powerState);

@@ -35,7 +35,6 @@ protected:
 
     // Subscribe events
     eventManager->subscribe(mockOrchestrator, EventType::ReceivedTrackPower);
-    eventManager->subscribe(mockOrchestrator, EventType::ReceivedLocoBroadcast);
   }
 
   void TearDown() override {
@@ -44,25 +43,6 @@ protected:
     delete mockOrchestrator;
   }
 };
-
-/**
- * @brief Test receiving a loco broadcast update publishes the event
- */
-TEST_F(CommandStationListenerTests, TestLocoBroadcastEventPublishes) {
-  // Set up the expectation
-  EXPECT_CALL(*mockOrchestrator,
-              onEvent(AllOf(Field(&Event::eventType, EventType::ReceivedLocoBroadcast),
-                            Field(&Event::eventData,
-                                  AllOf(Field(&EventData::dataType, EventData::DataType::LocoBroadcastData),
-                                        Field(&EventData::locoBroadcastValue,
-                                              AllOf(Field(&LocoBroadcast::address, 3), Field(&LocoBroadcast::speed, 25),
-                                                    Field(&LocoBroadcast::direction, Direction::Forward),
-                                                    Field(&LocoBroadcast::functionMap, 0))))))))
-      .Times(1);
-
-  // Simulate receiving the update
-  commandStationListener->receivedLocoBroadcast(3, 25, Direction::Forward, 0);
-}
 
 /**
  * @brief Test receiving a track power update publishes the event

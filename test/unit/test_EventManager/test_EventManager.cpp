@@ -43,20 +43,20 @@ protected:
 /// @brief Test an EventListener can subscribe to and unsubscribe from events
 TEST_F(EventManagerTests, TestSubscribeUnsubscribe) {
   // To start with, our listener should not be subscribed to
-  // ReceivedLocoBroadcast events
-  EXPECT_FALSE(eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+  // ReceivedReadLoco events
+  EXPECT_FALSE(eventManager->isSubscribed(listener, EventType::ReceivedReadLoco));
 
   // Subscribe and validate
-  eventManager->subscribe(listener, EventType::ReceivedLocoBroadcast);
+  eventManager->subscribe(listener, EventType::ReceivedReadLoco);
 
   // Now, our listener should be subscribed to ReceivedLocoBroadcast events
-  EXPECT_TRUE(eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+  EXPECT_TRUE(eventManager->isSubscribed(listener, EventType::ReceivedReadLoco));
 
   // Then, unsubscribe and validate
-  eventManager->unsubscribe(listener, EventType::ReceivedLocoBroadcast);
+  eventManager->unsubscribe(listener, EventType::ReceivedReadLoco);
 
   // Now, our listener should be subscribed to ReceivedLocoBroadcast events
-  EXPECT_FALSE(eventManager->isSubscribed(listener, EventType::ReceivedLocoBroadcast));
+  EXPECT_FALSE(eventManager->isSubscribed(listener, EventType::ReceivedReadLoco));
 }
 
 /// @brief Test an event with IntegerData can be published and received by a
@@ -120,34 +120,6 @@ TEST_F(EventManagerTests, TestTrackPowerData) {
   // Publish a ReceivedTrackPower event
   EventData data(TrackPower::PowerOn);
   eventManager->publish(EventType::ReceivedTrackPower, data);
-
-  // Verify and clear expectations
-  Mock::VerifyAndClearExpectations(listener);
-}
-
-/// @brief Test an event with LocoBroadcastData can be published and received by
-/// a Listener
-TEST_F(EventManagerTests, TestLocoBroadcastData) {
-  // Subscribe the listener to all event types
-  eventManager->subscribe(listener, EventType::ReceivedLocoBroadcast);
-
-  // Expect a LocoBroadcast event type with LocoBroadcastData
-  EXPECT_CALL(
-      *listener,
-      onEvent(AllOf(
-          Field(&Event::eventType, EventType::ReceivedLocoBroadcast),
-          Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoBroadcastData)),
-          Field(&Event::eventData, Field(&EventData::locoBroadcastValue,
-                                         AllOf(Field(&LocoBroadcast::address, 3), Field(&LocoBroadcast::speed, 50),
-                                               Field(&LocoBroadcast::direction, Direction::Forward),
-                                               Field(&LocoBroadcast::functionMap, 2)))))))
-      .Times(1);
-
-  // Publish a ReceivedLocoBroadcast event for loco 3 moving forward at speed
-  // 50, with functions 0 and 1 on (2)
-  LocoBroadcast broadcast = {3, 50, Direction::Forward, 2};
-  EventData broadcastData(broadcast);
-  eventManager->publish(EventType::ReceivedLocoBroadcast, broadcastData);
 
   // Verify and clear expectations
   Mock::VerifyAndClearExpectations(listener);

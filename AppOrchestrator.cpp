@@ -123,17 +123,16 @@ void AppOrchestrator::onEvent(Event &event) {
       &AppOrchestrator::_handleReceivedTrackPower,      // 3
       &AppOrchestrator::_handleReceivedReadLoco,        // 4
       &AppOrchestrator::_handleToggleTrackPower,        // 5
-      &AppOrchestrator::_handleReceivedLocoBroadcast,   // 6
-      &AppOrchestrator::_handleConnectionRetry,         // 7
-      &AppOrchestrator::_handleReadLocoRetry,           // 8
-      &AppOrchestrator::_handleExitMenu,                // 9
-      &AppOrchestrator::_handleMenuRefreshRequired,     // 10
-      &AppOrchestrator::_handleLocoAddressEntered,      // 11
-      &AppOrchestrator::_handleRequestStateChange,      // 12
-      &AppOrchestrator::_handleStartRoute,              // 13
-      &AppOrchestrator::_handleStartAutomation,         // 14
-      &AppOrchestrator::_handleRotateTurntable,         // 15
-      &AppOrchestrator::_handleForgetLoco               // 16
+      &AppOrchestrator::_handleConnectionRetry,         // 6
+      &AppOrchestrator::_handleReadLocoRetry,           // 7
+      &AppOrchestrator::_handleExitMenu,                // 8
+      &AppOrchestrator::_handleMenuRefreshRequired,     // 9
+      &AppOrchestrator::_handleLocoAddressEntered,      // 10
+      &AppOrchestrator::_handleRequestStateChange,      // 11
+      &AppOrchestrator::_handleStartRoute,              // 12
+      &AppOrchestrator::_handleStartAutomation,         // 13
+      &AppOrchestrator::_handleRotateTurntable,         // 14
+      &AppOrchestrator::_handleForgetLoco               // 15
   };
 
   // // Set the type index
@@ -354,34 +353,6 @@ void AppOrchestrator::_handleToggleTrackPower(Event &event) {
   }
   _menuManager->reset();
   _switchState(AppState::Throttle);
-}
-
-void AppOrchestrator::_handleReceivedLocoBroadcast(Event &event) {
-  LocoBroadcast broadcast = event.eventData.locoBroadcastValue;
-
-  // Need to iterate through each throttle to find the Loco
-  for (int i = 0; i < _numThrottles; i++) {
-    Loco *loco;
-    if (_throttles[i]->getLoco() != nullptr) {
-      // If it's a loco, easy
-      loco = _throttles[i]->getLoco();
-    } else if (_throttles[i]->getConsist() != nullptr) {
-      // If it's a consist, we only care about the first one
-      loco = _throttles[i]->getConsist()->getFirst()->getLoco();
-    } else {
-      // Continue to the next throttle if no Loco
-      continue;
-    }
-    // If it's a roster loco, it's already managed
-    if (loco->getSource() == LocoSource::LocoSourceRoster)
-      continue;
-
-    if (loco->getAddress() == broadcast.address) {
-      loco->setSpeed(broadcast.speed);
-      loco->setDirection(broadcast.direction);
-      loco->setFunctionStates(broadcast.functionMap);
-    }
-  }
 }
 
 void AppOrchestrator::_handleConnectionRetry(Event &event) {

@@ -203,12 +203,6 @@ private:
   void _handleToggleTrackPower(Event &event);
 
   /**
-   * @brief Handle a ReceivedLocoBroadcast event to ensure the Loco object is updated
-   * @param event Event containing LocoBroadcastData
-   */
-  void _handleReceivedLocoBroadcast(Event &event);
-
-  /**
    * @brief Handle a ConnectionRetry event to update the progress screen
    * @param event ConnectionRetry event
    */

@@ -396,46 +396,6 @@ TEST_F(AppOrchestratorTests, TestEnterAddressBufferBuilding) {
 }
 
 /**
- * @brief Test ReceivedLocoBroadcast updates a Loco object correctly
- */
-TEST_F(AppOrchestratorTests, TestLocoBroadcastUpdatesThrottle) {
-  // Set up loco 3 on throttle 0
-  Loco *loco = new Loco(3, LocoSource::LocoSourceEntry);
-  loco->setName("Loco 3");
-  throttles[0]->setLoco(loco);
-
-  // Create a broadcast event: loco 3, speed 25, reverse, and lights on
-  LocoBroadcast broadcast = {3, 25, Direction::Reverse, 1};
-  EventData eventData(broadcast);
-  Event event(EventType::ReceivedLocoBroadcast, eventData);
-
-  // Handle the event
-  appOrchestrator->onEvent(event);
-
-  // Throttle 0 should have incorrect details to start (0 and forward)
-  EXPECT_EQ(throttles[0]->getSpeed(), 0);
-  EXPECT_EQ(throttles[0]->getDirection(), Direction::Forward);
-
-  // Actual Loco object should be correct
-  EXPECT_EQ(throttles[0]->getLoco()->getSpeed(), 25);
-  EXPECT_EQ(throttles[0]->getLoco()->getDirection(), Direction::Reverse);
-
-  // The throttle should also have isSpeedPending() set as it has not updated
-  EXPECT_TRUE(throttles[0]->isSpeedPending());
-
-  // Advance time beyond the sync time (250ms) and update throttle
-  advanceMillis(300);
-  throttles[0]->update();
-
-  // Throttle should now be correct and not pending
-  EXPECT_EQ(throttles[0]->getSpeed(), 25);
-  EXPECT_EQ(throttles[0]->getDirection(), Direction::Reverse);
-  EXPECT_FALSE(throttles[0]->isSpeedPending());
-
-  delete loco;
-}
-
-/**
  * @brief Test receiving a ReceivedTrackPower event updates the power status on the Throttle screen
  */
 TEST_F(AppOrchestratorTests, TestReceivedTrackPowerUpdatesThrottleScreen) {
