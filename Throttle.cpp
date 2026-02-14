@@ -160,7 +160,8 @@ void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionA
   // Use enum mapping to values to save Flash rather than switch/case
   // Make action 0 indexed so 0 - 2 are up, 3 - 5 are down
   int actionIndex = (int)action - 1;
-  bool increase = (actionIndex < 3);
+  bool actionIsUp = (actionIndex < 3);
+  bool increase = (actionIsUp != _selector->throttleInverted());
 
   // Lookup table for the steps
   static const uint8_t steps[] = {_throttleStep, _throttleStepFaster, _throttleStepFastest};
@@ -199,7 +200,7 @@ void Throttle::_sync(UserSelectionInterface::UserSelectionAction action) {
 
   int realSpeed = _loco ? _loco->getSpeed() : _consist->getSpeed();
   Direction realDirection = _loco ? _loco->getDirection() : _consist->getDirection();
-  if (millis() - _lastUserInteraction > _SYNC_TIME) {
+  if (millis() - _lastUserInteraction > SYNC_TIME) {
     if (_direction != realDirection) {
       _direction = realDirection;
       _directionChanged = true;

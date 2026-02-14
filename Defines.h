@@ -124,6 +124,11 @@
 #define THROTTLE_STEP_FASTEST_THRESHOLD 125
 #endif // THROTTLE_STEP_FASTEST_THRESHOLD
 
+// Set default time in ms for syncing throttle speed with Loco/Consist speed
+#ifndef SYNC_TIME
+#define SYNC_TIME 250
+#endif // SYNC_TIME
+
 // Set device testing if user has configured any device tests
 #undef DEVICE_TESTING
 #if defined(TEST_DISPLAY) || defined(TEST_KEYPAD) || defined(TEST_ENCODERS) || defined(TEST_BUTTONS)
