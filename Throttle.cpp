@@ -32,9 +32,7 @@ Throttle::Throttle(int index, UserConfirmationInterface *confirmer, UserSelectio
   _direction = Direction::Forward;
   _directionChanged = false;
   _locoChanged = false;
-  _setThrottlePending = false;
   _lastUserInteraction = 0;
-  _lastSpeedCommand = 0;
 }
 
 void Throttle::setConsist(Consist *consist) {
@@ -46,11 +44,7 @@ void Throttle::setConsist(Consist *consist) {
   _locoChanged = true;
   _speed = _consist->getSpeed();
   _direction = _consist->getDirection();
-  _lastUserInteraction = millis();
-  _speedChanged = true;
-  _directionChanged = true;
-  _setThrottlePending = false;
-  _sync(UserSelectionInterface::UserSelectionAction::None);
+  _lastUserInteraction = 0;
 }
 
 Consist *Throttle::getConsist() { return _consist; }
@@ -64,11 +58,7 @@ void Throttle::setLoco(Loco *loco) {
   _locoChanged = true;
   _speed = _loco->getSpeed();
   _direction = _loco->getDirection();
-  _lastUserInteraction = millis();
-  _speedChanged = true;
-  _directionChanged = true;
-  _setThrottlePending = false;
-  _sync(UserSelectionInterface::UserSelectionAction::None);
+  _lastUserInteraction = 0;
 }
 
 Loco *Throttle::getLoco() { return _loco; }
@@ -92,7 +82,6 @@ void Throttle::forgetLoco() {
     _consist = nullptr;
     _locoChanged = true;
   }
-  _setThrottlePending = false;
 }
 
 int Throttle::getSpeed() { return _speed; }
@@ -133,10 +122,6 @@ void Throttle::update() {
   _handleUserConfirmationAction(confirm);
   _handleUserSelectionAction(select);
 
-  if (_setThrottlePending && (millis() - _lastSpeedCommand >= SPEED_CHANGE_DELAY)) {
-    _setThrottle();
-  }
-
   _sync(select);
 }
 
@@ -152,16 +137,13 @@ void Throttle::_handleUserConfirmationAction(UserConfirmationInterface::UserConf
     if (_speed > 0) {
       _speed = 0;
       _speedChanged = true;
-      _setThrottlePending = true;
     } else {
       _direction = (_direction == Direction::Forward) ? Direction::Reverse : Direction::Forward;
       _directionChanged = true;
-      _setThrottlePending = true;
     }
   } else if (action == UserConfirmationInterface::UserConfirmationAction::LongClick) {
     _speed = -1;
     _speedChanged = true;
-    _setThrottlePending = true;
   }
 
   if (_speedChanged || _directionChanged) {
@@ -178,8 +160,7 @@ void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionA
   // Use enum mapping to values to save Flash rather than switch/case
   // Make action 0 indexed so 0 - 2 are up, 3 - 5 are down
   int actionIndex = (int)action - 1;
-  bool actionIsUp = (actionIndex < 3);
-  bool increase = (actionIsUp != _selector->throttleInverted());
+  bool increase = (actionIndex < 3);
 
   // Lookup table for the steps
   static const uint8_t steps[] = {_throttleStep, _throttleStepFaster, _throttleStepFastest};
@@ -200,13 +181,11 @@ void Throttle::_handleUserSelectionAction(UserSelectionInterface::UserSelectionA
   if (_speed != newSpeed) {
     _speed = newSpeed;
     _speedChanged = true;
-    _setThrottlePending = true;
+    _setThrottle();
   }
 }
 
 void Throttle::_setThrottle() {
-  _lastSpeedCommand = millis();
-  _setThrottlePending = false;
   if (_loco) {
     _commandStationClient->setThrottle(_loco, _speed, _direction);
   } else if (_consist) {
@@ -218,12 +197,9 @@ void Throttle::_sync(UserSelectionInterface::UserSelectionAction action) {
   if (!_loco && !_consist)
     return;
 
-  if (_setThrottlePending)
-    return;
-
   int realSpeed = _loco ? _loco->getSpeed() : _consist->getSpeed();
   Direction realDirection = _loco ? _loco->getDirection() : _consist->getDirection();
-  if (millis() - _lastUserInteraction > SYNC_TIME || _locoChanged) {
+  if (millis() - _lastUserInteraction > _SYNC_TIME) {
     if (_direction != realDirection) {
       _direction = realDirection;
       _directionChanged = true;
