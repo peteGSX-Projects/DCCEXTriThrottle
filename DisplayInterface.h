@@ -102,13 +102,14 @@ public:
   /**
    * @brief Display the SysInfo screen
    * @param version DCC-EX Tri-Throttle version from Version.h
+   * @param libVersion DCCEXProtocol library version
    * @param majorCSVersion Major version of the connected EX-CommandStation software
    * @param minorCSVersion Minor version of the connected EX-CommandStation software
    * @param patchCSVersion Patch version of the connected EX-CommandStation software
    * @param bytesFree Free RAM in bytes
    */
-  virtual void displaySysInfoScreen(const char *version, int majorCSVersion, int minorCSVersion, int patchCSVersion,
-                                    int bytesFree) = 0;
+  virtual void displaySysInfoScreen(const char *version, const char *libVersion, int majorCSVersion, int minorCSVersion,
+                                    int patchCSVersion, int bytesFree) = 0;
 
   /**
    * @brief Set the redraw flag for the display

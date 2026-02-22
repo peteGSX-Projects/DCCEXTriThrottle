@@ -199,16 +199,20 @@ void U8G2SH1106Display::displayUserEntryKey(char key, int count) {
   _oled->sendBuffer();
 }
 
-void U8G2SH1106Display::displaySysInfoScreen(const char *version, int majorCSVersion, int minorCSVersion,
-                                             int patchCSVersion, int bytesFree) {
+void U8G2SH1106Display::displaySysInfoScreen(const char *version, const char *libVersion, int majorCSVersion,
+                                             int minorCSVersion, int patchCSVersion, int bytesFree) {
   _oled->clear();
   _displayHeader("System Info");
   _oled->setFont(_menuFont);
   uint16_t fontHeight = _oled->getMaxCharHeight();
-  uint16_t y = _calculateHeaderHeight() + (fontHeight * 2);
+  uint16_t y = _calculateHeaderHeight() + (fontHeight);
   _oled->setCursor(0, y);
   _oled->print("Version: ");
   _oled->print(version);
+  y = y + fontHeight;
+  _oled->setCursor(0, y);
+  _oled->print("Lib Version: ");
+  _oled->print(libVersion);
   y = y + fontHeight;
   _oled->setCursor(0, y);
   _oled->print("CS Version: ");

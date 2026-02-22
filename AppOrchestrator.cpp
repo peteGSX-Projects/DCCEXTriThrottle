@@ -496,11 +496,12 @@ void AppOrchestrator::_displayCurrentState() {
   }
   case AppState::DisplaySysInfo: {
     const char *version = VERSION;
+    const char *libVersion = _commandStationClient->getLibraryVersion();
     int major = _commandStationClient->getMajorVersion();
     int minor = _commandStationClient->getMinorVersion();
     int patch = _commandStationClient->getPatchVersion();
     int freeBytes = HardwareManager::getFreeMemory();
-    _displayInterface->displaySysInfoScreen(version, major, minor, patch, freeBytes);
+    _displayInterface->displaySysInfoScreen(version, libVersion, major, minor, patch, freeBytes);
     break;
   }
   case AppState::OutOfMemory: {

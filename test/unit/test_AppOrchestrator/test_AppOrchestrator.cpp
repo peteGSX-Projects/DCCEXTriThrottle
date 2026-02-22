@@ -443,7 +443,7 @@ TEST_F(AppOrchestratorTests, TestTogglePowerUnknownSendsOn) {
   appOrchestrator->onEvent(event);
 
   // Validate outcome
-  EXPECT_EQ(csConnection.getOutput(), "<1>\r\n");
+  EXPECT_EQ(csConnection.getOutput(), "<1>");
 
   // Should be back in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -465,7 +465,7 @@ TEST_F(AppOrchestratorTests, TestTogglePowerOnSendsOff) {
   appOrchestrator->onEvent(toggleEvent);
 
   // Validate outcome
-  EXPECT_EQ(csConnection.getOutput(), "<0>\r\n");
+  EXPECT_EQ(csConnection.getOutput(), "<0>");
 
   // Should be back in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -487,7 +487,7 @@ TEST_F(AppOrchestratorTests, TestTogglePowerOffSendsOn) {
   appOrchestrator->onEvent(toggleEvent);
 
   // Validate outcome
-  EXPECT_EQ(csConnection.getOutput(), "<1>\r\n");
+  EXPECT_EQ(csConnection.getOutput(), "<1>");
 
   // Should be back in Throttle state
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -539,7 +539,7 @@ TEST_F(AppOrchestratorTests, TestStartRoute) {
   appOrchestrator->onEvent(routeEvent);
 
   // Check the outbound buffer for the correct string
-  EXPECT_EQ(csConnection.getOutput(), "</ START 1>\r\n");
+  EXPECT_EQ(csConnection.getOutput(), "</ START 1>");
 }
 
 /**
@@ -565,7 +565,7 @@ TEST_F(AppOrchestratorTests, TestStartAutomation) {
   appOrchestrator->onEvent(automationEvent);
 
   // Check the outbound buffer for the correct string
-  EXPECT_EQ(csConnection.getOutput(), "</ START 1234 4>\r\n");
+  EXPECT_EQ(csConnection.getOutput(), "</ START 1234 4>");
 
   // AppOrchestrator should also return to Throttle state when starting an automation
   EXPECT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
@@ -625,7 +625,7 @@ TEST_F(AppOrchestratorTests, TestDisplaySystemInfo) {
   Event event(EventType::RequestStateChange, data);
 
   // Set the expectation
-  EXPECT_CALL(*mockDisplay, displaySysInfoScreen(_, _, _, _, _)).Times(1);
+  EXPECT_CALL(*mockDisplay, displaySysInfoScreen(_, _, _, _, _, _)).Times(1);
 
   // Handle the event
   appOrchestrator->onEvent(event);

@@ -174,12 +174,13 @@ public:
   /**
    * @brief Display the SysInfo screen
    * @param version DCC-EX Tri-Throttle version from Version.h
+   * @param libVersion DCCEXProtocol library version
    * @param majorCSVersion Major version of the connected EX-CommandStation software
    * @param minorCSVersion Minor version of the connected EX-CommandStation software
    * @param patchCSVersion Patch version of the connected EX-CommandStation software
    * @param bytesFree Free RAM in bytes
    */
-  void displaySysInfoScreen(const char *version, int majorCSVersion, int minorCSVersion, int patchCSVersion,
+  void displaySysInfoScreen(const char *version, const char *libVersion, int majorCSVersion, int minorCSVersion, int patchCSVersion,
                             int bytesFree) override;
 
   /**
