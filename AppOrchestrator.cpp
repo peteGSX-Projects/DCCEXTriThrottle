@@ -176,7 +176,8 @@ void AppOrchestrator::_handleStartupState() {
 }
 
 void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent event) {
-  switch (event.key) {
+  char key = event.key;
+  switch (key) {
   case '*': {
     _switchState(AppState::Menu);
     break;
@@ -186,6 +187,29 @@ void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent ev
       _commandStationClient->emergencyStop();
     } else if (event.action == UserInputInterface::UserInputAction::Pressed) {
       // Track power here
+    }
+    break;
+  }
+  case '1':
+  case '2':
+  case '3': {
+    int throttleIndex = key - '1';
+    if (event.action == UserInputInterface::UserInputAction::Pressed) {
+      if (_throttles[throttleIndex]->getLoco() != nullptr) {
+        Loco *loco = _throttles[throttleIndex]->getLoco();
+        if (_commandStationClient->isFunctionOn(loco, 0)) {
+          _commandStationClient->functionOff(loco, 0);
+        } else {
+          _commandStationClient->functionOn(loco, 0);
+        }
+      } else if (_throttles[throttleIndex]->getConsist() != nullptr) {
+        Consist *consist = _throttles[throttleIndex]->getConsist();
+        if (_commandStationClient->isFunctionOn(consist, 0)) {
+          _commandStationClient->functionOff(consist, 0);
+        } else {
+          _commandStationClient->functionOn(consist, 0);
+        }
+      }
     }
     break;
   }

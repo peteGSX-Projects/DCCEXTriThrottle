@@ -132,9 +132,9 @@ public:
 
   /**
    * @brief Handle user input interactions for this Throttle instance
-   * @param action Valid UserInputInterface::UserInputAction
+   * @param action Valid UserInputInterface::UserInputEvent
    */
-  void HandleUserInputAction(UserInputInterface::UserInputAction action);
+  void handleUserInputEvent(UserInputInterface::UserInputEvent inputEvent);
 
   /**
    * @brief Call this method at least once per main loop iteration to process user interaction

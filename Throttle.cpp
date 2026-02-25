@@ -108,7 +108,7 @@ bool Throttle::locoChanged() { return _locoChanged; }
 
 void Throttle::resetLocoChanged() { _locoChanged = false; }
 
-void Throttle::HandleUserInputAction(UserInputInterface::UserInputAction action) {}
+void Throttle::handleUserInputEvent(UserInputInterface::UserInputEvent inputEvent) {}
 
 void Throttle::update() {
   UserConfirmationInterface::UserConfirmationAction confirm = _confirmer->check();
