@@ -558,20 +558,42 @@ bool AppOrchestrator::_isLocoAddressAssociated(int address) {
 }
 
 void AppOrchestrator::_handleFunction(Throttle *throttle, int function, UserInputInterface::UserInputAction action) {
-  if (throttle->getLoco() == nullptr && throttle->getConsist() == nullptr)
+  // Need the Loco object to check for momentary later, and consist refers to lead loco
+  Loco *loco = throttle->getLoco();
+  if (!loco && throttle->getConsist()) {
+    loco = throttle->getConsist()->getFirst()->getLoco();
+  }
+  if (!loco)
     return;
 
-  Loco *loco = throttle->getLoco() ? throttle->getLoco() : throttle->getConsist()->getFirst()->getLoco();
   bool isMomentary = loco->isFunctionMomentary(function);
-  bool isFunctionOn = loco->isFunctionOn(function);
+  bool isCurrentlyOn = loco->isFunctionOn(function);
+  bool shouldBeOn = isCurrentlyOn;
 
-  if ((isMomentary && !isFunctionOn && action == UserInputInterface::UserInputAction::Held) ||
-      (!isMomentary && !isFunctionOn && action == UserInputInterface::UserInputAction::Pressed)) {
-    throttle->getLoco() ? _commandStationClient->functionOn(throttle->getLoco(), function)
-                        : _commandStationClient->functionOn(throttle->getConsist(), function);
-  } else if ((isMomentary && isFunctionOn && action == UserInputInterface::UserInputAction::Released) ||
-             (!isMomentary && isFunctionOn && action == UserInputInterface::UserInputAction::Pressed)) {
-    throttle->getLoco() ? _commandStationClient->functionOff(throttle->getLoco(), function)
-                        : _commandStationClient->functionOff(throttle->getConsist(), function);
+  // Set target state based on momentary and press type
+  if (isMomentary) {
+    if (action == UserInputInterface::UserInputAction::Held)
+      shouldBeOn = true;
+    else if (action == UserInputInterface::UserInputAction::Released)
+      shouldBeOn = false;
+    else
+      return; // Ignore Pressed for momentary
+  } else {
+    if (action == UserInputInterface::UserInputAction::Pressed)
+      shouldBeOn = !isCurrentlyOn;
+    else
+      return; // Ignore Held/Released for latching
+  }
+
+  // Send to CS if a change is actually required
+  if (shouldBeOn != isCurrentlyOn) {
+    // Use the proper entity for the command station call
+    if (shouldBeOn) {
+      throttle->getLoco() ? _commandStationClient->functionOn(loco, function)
+                          : _commandStationClient->functionOn(throttle->getConsist(), function);
+    } else {
+      throttle->getLoco() ? _commandStationClient->functionOff(loco, function)
+                          : _commandStationClient->functionOff(throttle->getConsist(), function);
+    }
   }
 }
