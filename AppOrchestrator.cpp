@@ -177,36 +177,27 @@ void AppOrchestrator::_handleStartupState() {
 
 void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent event) {
   char key = event.key;
-  switch (key) {
-  case '*': {
+
+  if (key == '*') {
     _switchState(AppState::Menu);
-    break;
+    return;
   }
-  case '0': {
-    if (event.action == UserInputInterface::UserInputAction::Held) {
-      _commandStationClient->emergencyStop();
-    } else if (event.action == UserInputInterface::UserInputAction::Pressed) {
-      // Track power here
+
+  if (key == '0' && event.action == UserInputInterface::UserInputAction::Held) {
+    _commandStationClient->emergencyStop();
+    return;
+  }
+
+  if (key >= '1' && key <= '9') {
+    int keyValue = key - '1';         // get 0 - 8
+    int throttleIndex = keyValue % 3; // get 0, 1, or 2
+    int functionGroup = keyValue / 3; // 0 (F0), 1 (F1), 2 (function menu for loco)
+
+    if (functionGroup < 2) {
+      _handleFunction(_throttles[throttleIndex], functionGroup, event.action);
+    } else {
+      // Display function menu here
     }
-    break;
-  }
-  case '1':
-  case '2':
-  case '3': {
-    int throttleIndex = key - '1';
-    _handleFunction(_throttles[throttleIndex], 0, event.action);
-    break;
-  }
-  case '4':
-  case '5':
-  case '6': {
-    int throttleIndex = key - '4';
-    _handleFunction(_throttles[throttleIndex], 1, event.action);
-    break;
-  }
-  default: {
-    break;
-  }
   }
 }
 
