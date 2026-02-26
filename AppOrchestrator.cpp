@@ -194,23 +194,14 @@ void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent ev
   case '2':
   case '3': {
     int throttleIndex = key - '1';
-    if (event.action == UserInputInterface::UserInputAction::Pressed) {
-      if (_throttles[throttleIndex]->getLoco() != nullptr) {
-        Loco *loco = _throttles[throttleIndex]->getLoco();
-        if (_commandStationClient->isFunctionOn(loco, 0)) {
-          _commandStationClient->functionOff(loco, 0);
-        } else {
-          _commandStationClient->functionOn(loco, 0);
-        }
-      } else if (_throttles[throttleIndex]->getConsist() != nullptr) {
-        Consist *consist = _throttles[throttleIndex]->getConsist();
-        if (_commandStationClient->isFunctionOn(consist, 0)) {
-          _commandStationClient->functionOff(consist, 0);
-        } else {
-          _commandStationClient->functionOn(consist, 0);
-        }
-      }
-    }
+    _handleFunction(_throttles[throttleIndex], 0, event.action);
+    break;
+  }
+  case '4':
+  case '5':
+  case '6': {
+    int throttleIndex = key - '4';
+    _handleFunction(_throttles[throttleIndex], 1, event.action);
     break;
   }
   default: {
@@ -564,4 +555,23 @@ bool AppOrchestrator::_isLocoAddressAssociated(int address) {
     }
   }
   return false;
+}
+
+void AppOrchestrator::_handleFunction(Throttle *throttle, int function, UserInputInterface::UserInputAction action) {
+  if (throttle->getLoco() == nullptr && throttle->getConsist() == nullptr)
+    return;
+
+  Loco *loco = throttle->getLoco() ? throttle->getLoco() : throttle->getConsist()->getFirst()->getLoco();
+  bool isMomentary = loco->isFunctionMomentary(function);
+  bool isFunctionOn = loco->isFunctionOn(function);
+
+  if ((isMomentary && !isFunctionOn && action == UserInputInterface::UserInputAction::Held) ||
+      (!isMomentary && !isFunctionOn && action == UserInputInterface::UserInputAction::Pressed)) {
+    throttle->getLoco() ? _commandStationClient->functionOn(throttle->getLoco(), function)
+                        : _commandStationClient->functionOn(throttle->getConsist(), function);
+  } else if ((isMomentary && isFunctionOn && action == UserInputInterface::UserInputAction::Released) ||
+             (!isMomentary && isFunctionOn && action == UserInputInterface::UserInputAction::Pressed)) {
+    throttle->getLoco() ? _commandStationClient->functionOff(throttle->getLoco(), function)
+                        : _commandStationClient->functionOff(throttle->getConsist(), function);
+  }
 }

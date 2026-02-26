@@ -287,6 +287,14 @@ private:
    * @return false If not associated
    */
   bool _isLocoAddressAssociated(int address);
+
+  /**
+   * @brief Helper method to toggle the provided function for the Loco/Consist on the throttle index
+   * @param throttleIndex Index of the throttle controlling the Loco/Consist
+   * @param function Function to toggle state for
+   * @param action UserInputAction - Required to deal with momentary functions (eg. horn)
+   */
+  void _handleFunction(Throttle *throttle, int function, UserInputInterface::UserInputAction action);
 };
 
 #endif // APPORCHESTRATOR_H

@@ -37,11 +37,11 @@ public:
   static void injectRosterResponses(Stream &csConnection) {
     // Roster
     csConnection << "<jR 1 2 3 4 5>";
-    csConnection << "<jR 1 \"Loco1\" \"Func1\">";
-    csConnection << "<jR 2 \"Loco2\" \"Func2\">";
-    csConnection << "<jR 3 \"Loco3\" \"Func3\">";
-    csConnection << "<jR 4 \"Loco4\" \"Func4\">";
-    csConnection << "<jR 5 \"Loco5\" \"Func5\">";
+    csConnection << "<jR 1 \"Loco1\" \"Func0/*Func1\">";
+    csConnection << "<jR 2 \"Loco2\" \"Func0/*Func1\">";
+    csConnection << "<jR 3 \"Loco3\" \"Func0/*Func1\">";
+    csConnection << "<jR 4 \"Loco4\" \"Func0/*Func1\">";
+    csConnection << "<jR 5 \"Loco5\" \"Func0/*Func1\">";
   }
 
   static void injectTurnoutResponses(Stream &csConnection) {

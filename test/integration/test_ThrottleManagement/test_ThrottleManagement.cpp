@@ -145,7 +145,7 @@ TEST_F(IntegrationTestBase, TestManualAddressEntry) {
 /**
  * @brief Test turning lights on/off with '1', '2', '3' keys
  */
-TEST_F(IntegrationTestBase, TestLocoLightFunctions) {
+TEST_F(IntegrationTestBase, TestLocoLightFunction) {
   // Connect so we are in throttle state and have a roster
   DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
   csConnection.clearOutput();
@@ -206,7 +206,7 @@ TEST_F(IntegrationTestBase, TestLocoLightFunctions) {
 /**
  * @brief Test turning lights on/off with '1', '2', '3' keys
  */
-TEST_F(IntegrationTestBase, TestConsistLightFunctions) {
+TEST_F(IntegrationTestBase, TestConsistLightFunction) {
   // Connect so we are in throttle state and have a roster
   DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
   csConnection.clearOutput();
@@ -249,6 +249,119 @@ TEST_F(IntegrationTestBase, TestConsistLightFunctions) {
   keypad->setInputEvent({'3', UserInputInterface::UserInputAction::Pressed});
   appOrchestrator->update();
   EXPECT_EQ(csConnection.getOutput(), "<F 1 0 0><F 2 0 0><F 3 0 0>");
+
+  // Clean up
+  delete consist;
+}
+
+/**
+ * @brief Test turning horn on/off with '4', '5', '6' keys
+ */
+TEST_F(IntegrationTestBase, TestLocoHornFunction) {
+  // Connect so we are in throttle state and have a roster
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
+  csConnection.clearOutput();
+
+  Loco *loco1 = csClient->roster->getFirst();
+  Loco *loco2 = loco1->getNext();
+  Loco *loco3 = loco2->getNext();
+
+  // All three must have function 1 off first and it should be momentary
+  ASSERT_FALSE(csClient->isFunctionOn(loco1, 1));
+  ASSERT_FALSE(csClient->isFunctionOn(loco2, 1));
+  ASSERT_FALSE(csClient->isFunctionOn(loco3, 1));
+  ASSERT_TRUE(loco1->isFunctionMomentary(1));
+  ASSERT_TRUE(loco2->isFunctionMomentary(1));
+  ASSERT_TRUE(loco3->isFunctionMomentary(1));
+
+  // Associate locos with each throttle
+  throttles[0]->setLoco(loco1);
+  throttles[1]->setLoco(loco2);
+  throttles[2]->setLoco(loco3);
+
+  // Function 1 will be off by default, so holding '4', '5', and '6' should turn it on for the appropriate loco
+  keypad->setInputEvent({'4', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 1 1>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'5', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 2 1 1>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'6', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 3 1 1>");
+  csConnection.clearOutput();
+
+  // Simulate receiving the broadcasts which set functions on
+  csConnection << "<l 1 0 128 2><l 2 0 128 2><l 3 0 128 2>";
+  appOrchestrator->update();
+
+  // Validate function 1 is now on for each
+  ASSERT_TRUE(csClient->isFunctionOn(loco1, 1));
+  ASSERT_TRUE(csClient->isFunctionOn(loco2, 1));
+  ASSERT_TRUE(csClient->isFunctionOn(loco3, 1));
+
+  // Repeat key presses which should send function off for '4', '5', '6' respectively
+  keypad->setInputEvent({'4', UserInputInterface::UserInputAction::Released});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 1 0>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'5', UserInputInterface::UserInputAction::Released});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 2 1 0>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'6', UserInputInterface::UserInputAction::Released});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 3 1 0>");
+  csConnection.clearOutput();
+}
+
+/**
+ * @brief Test turning horn on/off with '4', '5', '6' keys
+ */
+TEST_F(IntegrationTestBase, TestConsistHornFunction) {
+  // Connect so we are in throttle state and have a roster
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
+  csConnection.clearOutput();
+
+  Loco *loco1 = csClient->roster->getFirst();
+  Loco *loco2 = loco1->getNext();
+  Loco *loco3 = loco2->getNext();
+
+  // All three must have function 1 off first
+  ASSERT_FALSE(csClient->isFunctionOn(loco1, 1));
+  ASSERT_FALSE(csClient->isFunctionOn(loco2, 1));
+  ASSERT_FALSE(csClient->isFunctionOn(loco3, 1));
+
+  // Create consist
+  Consist *consist = new Consist();
+  consist->addLoco(loco1, Facing::FacingForward);
+  consist->addLoco(loco2, Facing::FacingReversed);
+  consist->addLoco(loco3, Facing::FacingForward);
+
+  // Associate consist with throttle 2
+  throttles[2]->setConsist(consist);
+
+  // Function 1 will be off by default, so sending '1', should turn it on for all locos
+  keypad->setInputEvent({'6', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 1 1><F 2 1 1><F 3 1 1>");
+  csConnection.clearOutput();
+
+  // Simulate receiving the broadcasts which set functions on
+  csConnection << "<l 1 0 128 2><l 2 0 0 2><l 3 0 128 2>";
+  appOrchestrator->update();
+
+  // Validate function 1 is now on for each
+  ASSERT_TRUE(csClient->isFunctionOn(loco1, 1));
+  ASSERT_TRUE(csClient->isFunctionOn(loco2, 1));
+  ASSERT_TRUE(csClient->isFunctionOn(loco3, 1));
+
+  // Repeat key presses which should send function off for '6'
+  keypad->setInputEvent({'6', UserInputInterface::UserInputAction::Released});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 1 0><F 2 1 0><F 3 1 0>");
 
   // Clean up
   delete consist;
