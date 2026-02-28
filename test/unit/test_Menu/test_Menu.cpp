@@ -227,3 +227,18 @@ TEST_F(MenuTests, TestClearItems) {
   delete menu;
   delete dummy;
 }
+
+/**
+ * @brief Test renaming a menu
+ */
+TEST_F(MenuTests, TestRenameMenu) {
+  Menu *menu = new Menu("This is a name");
+  ASSERT_STREQ(menu->getName(), "This is a name");
+
+  // Rename and validate
+  menu->setName("New name");
+  ASSERT_STREQ(menu->getName(), "New name");
+
+  // Clean up
+  delete menu;
+}

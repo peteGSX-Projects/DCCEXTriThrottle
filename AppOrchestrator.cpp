@@ -132,7 +132,8 @@ void AppOrchestrator::onEvent(Event &event) {
       &AppOrchestrator::_handleStartRoute,              // 12
       &AppOrchestrator::_handleStartAutomation,         // 13
       &AppOrchestrator::_handleRotateTurntable,         // 14
-      &AppOrchestrator::_handleForgetLoco               // 15
+      &AppOrchestrator::_handleForgetLoco,              // 15
+      &AppOrchestrator::_handleToggleLocoFunction       // 16
   };
 
   // // Set the type index
@@ -196,7 +197,7 @@ void AppOrchestrator::_handleThrottleState(UserInputInterface::UserInputEvent ev
     if (functionGroup < 2) {
       _handleFunction(_throttles[throttleIndex], functionGroup, event.action);
     } else {
-      // Display function menu here
+      _handleLocoFunctionMenu(throttleIndex);
     }
   }
 }
@@ -459,6 +460,16 @@ void AppOrchestrator::_handleForgetLoco(Event &event) {
   _switchState(AppState::Throttle);
 }
 
+void AppOrchestrator::_handleToggleLocoFunction(Event &event) {
+  if (event.eventData.locoFunctionValue.function < 0 || event.eventData.locoFunctionValue.function > 28 ||
+      event.eventData.locoFunctionValue.throttleIndex < 0 || event.eventData.locoFunctionValue.throttleIndex > 2 ||
+      event.eventData.locoFunctionValue.action == UserInputInterface::UserInputAction::None)
+    return;
+
+  _handleFunction(_throttles[event.eventData.locoFunctionValue.throttleIndex],
+                  event.eventData.locoFunctionValue.function, event.eventData.locoFunctionValue.action);
+}
+
 // General helper methods
 
 void AppOrchestrator::_switchState(AppState newState) {
@@ -587,4 +598,21 @@ void AppOrchestrator::_handleFunction(Throttle *throttle, int function, UserInpu
                           : _commandStationClient->functionOff(throttle->getConsist(), function);
     }
   }
+}
+
+void AppOrchestrator::_handleLocoFunctionMenu(int throttleIndex) {
+  // Get the Loco or lead loco if a consist
+  Loco *loco = _throttles[throttleIndex]->getLoco();
+  if (!loco && _throttles[throttleIndex]->getConsist()) {
+    loco = _throttles[throttleIndex]->getConsist()->getFirst()->getLoco();
+  }
+  if (!loco)
+    return;
+
+  // Make sure menu navigation is reset first and then setup the function menu
+  _menuManager->reset();
+  _menuManager->setupFunctionMenu(loco, throttleIndex);
+
+  // Now switch to menu state
+  _switchState(AppState::Menu);
 }

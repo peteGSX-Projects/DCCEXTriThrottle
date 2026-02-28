@@ -110,6 +110,20 @@ void Menu::clearItems() {
   _currentPage = 0;
 }
 
+void Menu::setName(const char *name) {
+  if (!name)
+    return;
+
+  if (_name != nullptr) {
+    delete[] _name;
+    _name = nullptr;
+  }
+
+  int nameLength = strlen(name);
+  _name = new char[nameLength + 1];
+  strcpy(_name, name);
+}
+
 Menu::~Menu() {
   if (_name != nullptr) {
     delete[] _name;

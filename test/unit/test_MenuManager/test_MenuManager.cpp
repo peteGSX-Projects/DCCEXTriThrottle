@@ -696,3 +696,104 @@ TEST_F(MenuManagerTests, TestNoNameTurntableItemsAreIgnored) {
   client->clearAllLists();
   delete client;
 }
+
+/**
+ * @brief Test setting up a function menu for a Loco
+ */
+TEST_F(MenuManagerTests, TestSetupFunctionMenu) {
+  // Create a loco with some named and unnamed functions
+  Loco *loco = new Loco(3, LocoSource::LocoSourceEntry);
+  loco->setName("Loco 3");
+  loco->setupFunctions("Lights/*Horn/Bell/Whistle/Brakes///Squeal/Wheeze/Whimper");
+
+  // Setup a mock listener and subscribe to ToggleLocoFunction
+  MockEventListener *orchestrator = new MockEventListener();
+  eventManager->subscribe(orchestrator, EventType::ToggleLocoFunction);
+
+  // Initialise MenuManager
+  menuManager->initialise();
+
+  // Call setupFunctionMenu() - throttle index 1
+  menuManager->setupFunctionMenu(loco, 1);
+
+  // This should now be the current menu, validate
+  Menu *functionMenu = menuManager->getCurrentMenu();
+  ASSERT_NE(functionMenu, menuManager->getRootMenu());
+  EXPECT_STREQ(functionMenu->getName(), "Loco 3");
+
+  // Validate functions are as expected
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(0)->getName(), "Lights");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(1)->getName(), "*Horn");
+  // Validate functions without names are generic
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(5)->getName(), "F5");
+
+  // Test selecting a function generates an event with the function, throttle, and action type
+  EXPECT_CALL(
+      *orchestrator,
+      onEvent(AllOf(Field(&Event::eventType, EventType::ToggleLocoFunction),
+                    Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoFunctionData)),
+                    Field(&Event::eventData,
+                          Field(&EventData::locoFunctionValue,
+                                AllOf(Field(&LocoFunction::function, 0), Field(&LocoFunction::throttleIndex, 1),
+                                      Field(&LocoFunction::action, UserInputInterface::UserInputAction::Pressed)))))))
+      .Times(1);
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+
+  // Check page 2 as well
+  menuManager->handleUserInput({'#', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(0)->getName(), "F10");
+
+  // And page 3
+  menuManager->handleUserInput({'#', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(0)->getName(), "F20");
+
+  // Test selecting a function generates an event with the function, throttle, and action type
+  EXPECT_CALL(
+      *orchestrator,
+      onEvent(AllOf(Field(&Event::eventType, EventType::ToggleLocoFunction),
+                    Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoFunctionData)),
+                    Field(&Event::eventData,
+                          Field(&EventData::locoFunctionValue,
+                                AllOf(Field(&LocoFunction::function, 28), Field(&LocoFunction::throttleIndex, 1),
+                                      Field(&LocoFunction::action, UserInputInterface::UserInputAction::Pressed)))))))
+      .Times(1);
+
+  // Last should be F28, so 9 should give us nullpointer and F28 should work
+  EXPECT_EQ(functionMenu->getItemByPageIndex(9), nullptr);
+  menuManager->handleUserInput({'8', UserInputInterface::UserInputAction::Pressed});
+
+  // Clean up
+  delete orchestrator;
+}
+
+/**
+ * @brief Test changing locos updates the function menu correctly
+ */
+TEST_F(MenuManagerTests, TestReplaceFunctionMenu) {
+  // Create two locos with some functions
+  Loco *loco3 = new Loco(3, LocoSource::LocoSourceEntry);
+  loco3->setName("Loco 3");
+  loco3->setupFunctions("Lights/*Horn/Whistle");
+  Loco *loco5 = new Loco(5, LocoSource::LocoSourceEntry);
+  loco5->setName("Loco 5");
+  loco5->setupFunctions("Lights/*Horn/Bell");
+
+  // Initialise MenuManager
+  menuManager->initialise();
+
+  // Call setupFunctionMenu() for loco3
+  menuManager->setupFunctionMenu(loco3, 0);
+
+  // Validate it's correct for loco3
+  Menu *functionMenu = menuManager->getCurrentMenu();
+  ASSERT_STREQ(functionMenu->getName(), "Loco 3");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(2)->getName(), "Whistle");
+
+  // Now setup for loco5 and repeat
+  menuManager->setupFunctionMenu(loco5, 0);
+
+  // Validate it's correct for loco5
+  functionMenu = menuManager->getCurrentMenu();
+  ASSERT_STREQ(functionMenu->getName(), "Loco 5");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(2)->getName(), "Bell");
+}

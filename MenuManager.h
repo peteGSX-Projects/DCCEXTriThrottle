@@ -115,6 +115,13 @@ public:
   void createTurntableMenu(Turntable *firstTurntable);
 
   /**
+   * @brief Setup the function menu for the specified Loco
+   * @param loco Pointer to the Loco object to build the function menu for
+   * @param throttleIndex Index of the Throttle the loco is associated with
+   */
+  void setupFunctionMenu(Loco *loco, int throttleIndex);
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();
@@ -141,7 +148,9 @@ private:
   Menu *_turntableMenu;
   Menu *_routeMenu;
   Menu *_automationMenu;
+  Menu *_functionMenu;
   int _menuCount;
+  static char _functionNameBuffers[29][14];
 
   /**
    * @brief Handle navigating to the parent item
@@ -156,8 +165,9 @@ private:
   /**
    * @brief Handle selection of the item
    * @param digit Number of the key pressed by the user
+   * @param action UserInputAction performed by the user
    */
-  void _handleSelection(int digit);
+  void _handleSelection(int digit, UserInputInterface::UserInputAction action);
 
   /**
    * @brief Push the current menu context and throttle index to the stack

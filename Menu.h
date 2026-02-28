@@ -103,6 +103,12 @@ public:
   void clearItems();
 
   /**
+   * @brief Set the Name of the Menu
+   * @param name New name for the Menu
+   */
+  void setName(const char *name);
+
+  /**
    * @brief Destroy the Menu object, also deletes all associated items
    */
   ~Menu();

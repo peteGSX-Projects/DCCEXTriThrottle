@@ -17,10 +17,12 @@
 
 #include "MenuManager.h"
 
+char MenuManager::_functionNameBuffers[29][14];
+
 MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
     : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr), _activeThrottleIndex(-1), _historyIndex(-1),
       _rootMenu(nullptr), _rosterMenu(nullptr), _turnoutMenu(nullptr), _turntableMenu(nullptr), _routeMenu(nullptr),
-      _automationMenu(nullptr), _menuCount(0) {}
+      _automationMenu(nullptr), _functionMenu(nullptr), _menuCount(0) {}
 
 void MenuManager::initialise() {
   // Create Menu instances
@@ -56,17 +58,17 @@ void MenuManager::initialise() {
 }
 
 void MenuManager::handleUserInput(UserInputInterface::UserInputEvent inputEvent) {
-  if (!_currentMenu || inputEvent.key == '\0' || inputEvent.action != UserInputInterface::UserInputAction::Pressed)
+  if (!_currentMenu || inputEvent.key == '\0' || inputEvent.action == UserInputInterface::UserInputAction::None)
     return;
 
   char key = inputEvent.key;
   // LOG(LogLevel::LOG_DEBUG, "MenuManager::handleUserInput() key: ", key);
 
   if (key >= '0' && key <= '9') {
-    _handleSelection(key - '0');
-  } else if (key == '*') {
+    _handleSelection(key - '0', inputEvent.action);
+  } else if (key == '*' && inputEvent.action == UserInputInterface::UserInputAction::Pressed) {
     _handleBack();
-  } else if (key == '#') {
+  } else if (key == '#' && inputEvent.action == UserInputInterface::UserInputAction::Pressed) {
     _handleNextPage();
   }
 }
@@ -189,6 +191,44 @@ void MenuManager::createTurntableMenu(Turntable *firstTurntable) {
   }
 }
 
+void MenuManager::setupFunctionMenu(Loco *loco, int throttleIndex) {
+  if (!loco)
+    return;
+
+  if (_functionMenu == nullptr) {
+    _functionMenu = _createManagedMenu(loco->getName());
+  } else {
+    _functionMenu->clearItems();
+    _functionMenu->setName(loco->getName());
+  }
+
+  _currentMenu = _functionMenu;
+  for (int function = 0; function < 29; function++) {
+    const char *name = loco->getFunctionName(function);
+    bool isMomentary = loco->isFunctionMomentary(function);
+    char *functionName = _functionNameBuffers[function];
+    int position = 0;
+
+    // Build the name, start with momentary indicator if true
+    if (isMomentary)
+      functionName[position++] = '*';
+
+    if (name && name[0] != '\0') {
+      // If it has a name, copy it, accounting for * and null terminator
+      strncpy(&functionName[position], name, 14 - position - 1);
+    } else {
+      // Otherwise make generic F name
+      functionName[position++] = 'F';
+      itoa(function, &functionName[position], 10);
+    }
+    // Ensure null terminator is there
+    functionName[sizeof(functionName) - 1] = '\0';
+
+    _functionMenu->addItem(
+        new ActionMenuItem(functionName, EventType::ToggleLocoFunction, EventData(function, throttleIndex, UserInputInterface::UserInputAction::None)));
+  }
+}
+
 MenuManager::~MenuManager() {
   for (int i = 0; i < _menuCount; i++) {
     delete _allManagedMenus[i];
@@ -220,7 +260,7 @@ void MenuManager::_handleNextPage() {
   }
 }
 
-void MenuManager::_handleSelection(int digit) {
+void MenuManager::_handleSelection(int digit, UserInputInterface::UserInputAction action) {
   BaseMenuItem *item = _currentMenu->getItemByPageIndex(digit);
 
   if (item == nullptr) {
@@ -231,35 +271,39 @@ void MenuManager::_handleSelection(int digit) {
 
   switch (item->getItemType()) {
   case MenuItemType::ThrottleMenuType: {
-    ThrottleMenuItem *throttleMenu = static_cast<ThrottleMenuItem *>(item);
+    if (action == UserInputInterface::UserInputAction::Pressed) {
+      ThrottleMenuItem *throttleMenu = static_cast<ThrottleMenuItem *>(item);
 
-    // Save current navigation state
-    _push(_currentMenu, _activeThrottleIndex);
+      // Save current navigation state
+      _push(_currentMenu, _activeThrottleIndex);
 
-    _activeThrottleIndex = throttleMenu->getThrottleIndex();
-    _currentMenu = throttleMenu->getMenu();
-    _currentMenu->setCurrentPage(0);
-    _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+      _activeThrottleIndex = throttleMenu->getThrottleIndex();
+      _currentMenu = throttleMenu->getMenu();
+      _currentMenu->setCurrentPage(0);
+      _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+    }
     break;
   }
   case MenuItemType::SubMenuType: {
-    SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
+    if (action == UserInputInterface::UserInputAction::Pressed) {
+      SubMenuItem *subMenu = static_cast<SubMenuItem *>(item);
 
-    // Save current navigation state
-    _push(_currentMenu, _activeThrottleIndex);
+      // Save current navigation state
+      _push(_currentMenu, _activeThrottleIndex);
 
-    _currentMenu = subMenu->getMenu();
-    _currentMenu->setCurrentPage(0);
-    _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+      _currentMenu = subMenu->getMenu();
+      _currentMenu->setCurrentPage(0);
+      _eventManager->publish(EventType::MenuRefreshRequired, EventData());
+    }
     break;
   }
   case MenuItemType::LocoType: {
-    if (_activeThrottleIndex != -1) {
-      LocoMenuItem *locoItem = static_cast<LocoMenuItem *>(item);
-      EventData eventData(locoItem->getLoco(), _activeThrottleIndex);
-      _eventManager->publish(EventType::LocoSelected, eventData);
-    } else {
-      // LOG(LogLevel::LOG_DEBUG, "MenuManager::_handleSelection(): Loco selected with no throttle context, ignoring");
+    if (action == UserInputInterface::UserInputAction::Pressed) {
+      if (_activeThrottleIndex != -1) {
+        LocoMenuItem *locoItem = static_cast<LocoMenuItem *>(item);
+        EventData eventData(locoItem->getLoco(), _activeThrottleIndex);
+        _eventManager->publish(EventType::LocoSelected, eventData);
+      }
     }
     break;
   }
@@ -268,8 +312,17 @@ void MenuManager::_handleSelection(int digit) {
 
     EventType eventType = actionItem->getEventType();
     EventData eventData = actionItem->getEventData();
+    bool publish = false;
 
-    _eventManager->publish(eventType, eventData);
+    if (eventType == EventType::ToggleLocoFunction) {
+      eventData.locoFunctionValue.action = action;
+      publish = true;
+    } else if (action == UserInputInterface::UserInputAction::Pressed) {
+      publish = true;
+    }
+
+    if (publish)
+      _eventManager->publish(eventType, eventData);
     break;
   }
   default: {

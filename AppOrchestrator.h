@@ -262,6 +262,12 @@ private:
    */
   void _handleForgetLoco(Event &event);
 
+  /**
+   * @brief Handle a ToggleLocoFunction event
+   * @param event ToggleLocoFunction event
+   */
+  void _handleToggleLocoFunction(Event &event);
+
   // General helper methods
 
   /**
@@ -289,12 +295,18 @@ private:
   bool _isLocoAddressAssociated(int address);
 
   /**
-   * @brief Helper method to toggle the provided function for the Loco/Consist on the throttle index
-   * @param throttleIndex Index of the throttle controlling the Loco/Consist
+   * @brief Helper method to toggle the provided function for the Loco/Consist on the specified Throttle
+   * @param throttle Pointer to the Throttle object
    * @param function Function to toggle state for
    * @param action UserInputAction - Required to deal with momentary functions (eg. horn)
    */
   void _handleFunction(Throttle *throttle, int function, UserInputInterface::UserInputAction action);
+
+  /**
+   * @brief Helper method to display the function menu for the Loco associated with the throttle index
+   * @param throttleIndex Index of the Throttle instance the Loco is associated with
+   */
+  void _handleLocoFunctionMenu(int throttleIndex);
 };
 
 #endif // APPORCHESTRATOR_H

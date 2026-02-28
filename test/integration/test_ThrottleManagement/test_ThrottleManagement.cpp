@@ -366,3 +366,125 @@ TEST_F(IntegrationTestBase, TestConsistHornFunction) {
   // Clean up
   delete consist;
 }
+
+/**
+ * @brief Test navigating to the function menu from Throttle and activating functions
+ */
+TEST_F(IntegrationTestBase, TestLocoFunctionMenu) {
+  // Connect so we are in throttle state and have a roster
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
+  csConnection.clearOutput();
+
+  Loco *loco1 = csClient->roster->getFirst();
+  Loco *loco2 = loco1->getNext();
+  Loco *loco3 = loco2->getNext();
+
+  // Associate locos with each throttle
+  throttles[0]->setLoco(loco1);
+  throttles[1]->setLoco(loco2);
+  throttles[2]->setLoco(loco3);
+
+  // '7', '8', and '9' should show function menu for each, with 0 turning lights on/off and 1 horn
+  keypad->setInputEvent({'7', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
+  Menu *functionMenu = menuManager->getCurrentMenu();
+  EXPECT_STREQ(functionMenu->getName(), "Loco1");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(0)->getName(), "Func0");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(1)->getName(), "*Func1");
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 0 1>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'1', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 1 1>");
+  csConnection.clearOutput();
+
+  // Return to throttle with '*' and repeat
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  keypad->setInputEvent({'8', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
+  functionMenu = menuManager->getCurrentMenu();
+  EXPECT_STREQ(functionMenu->getName(), "Loco2");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(0)->getName(), "Func0");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(1)->getName(), "*Func1");
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 2 0 1>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'1', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 2 1 1>");
+  csConnection.clearOutput();
+
+  // Return to throttle with '*' and repeat
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+
+  keypad->setInputEvent({'9', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
+  functionMenu = menuManager->getCurrentMenu();
+  EXPECT_STREQ(functionMenu->getName(), "Loco3");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(0)->getName(), "Func0");
+  EXPECT_STREQ(functionMenu->getItemByPageIndex(1)->getName(), "*Func1");
+  keypad->setInputEvent({'0', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 3 0 1>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'1', UserInputInterface::UserInputAction::Held});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 3 1 1>");
+  csConnection.clearOutput();
+
+  // Return to throttle with '*' and repeat
+  keypad->setInputEvent({'*', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Throttle);
+}
+
+/**
+ * @brief Test toggling F28 works
+ */
+TEST_F(IntegrationTestBase, TestHighestLocoFunction) {
+  // Connect so we are in throttle state and have a roster
+  DCCEXTestHelpers::processCSConnection(appOrchestrator, csConnection);
+  csConnection.clearOutput();
+
+  Loco *loco1 = csClient->roster->getFirst();
+
+  // Associate loco with a throttle
+  throttles[0]->setLoco(loco1);
+
+  // '7' should show function menu, navigate to page 3
+  keypad->setInputEvent({'7', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  Menu *functionMenu = menuManager->getCurrentMenu();
+  ASSERT_EQ(appOrchestrator->getCurrentAppState(), AppState::Menu);
+  keypad->setInputEvent({'#', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  appOrchestrator->update();
+  ASSERT_STREQ(functionMenu->getItemByPageIndex(8)->getName(), "F28");
+  keypad->setInputEvent({'8', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 28 1>");
+  csConnection.clearOutput();
+  keypad->setInputEvent({'\0', UserInputInterface::UserInputAction::None});
+
+  // Simulate CS updating F28 to on
+  csConnection << "<l 1 0 128 268435456>";
+  appOrchestrator->update();
+  ASSERT_TRUE(loco1->isFunctionOn(28));
+
+  // Press 8 again to turn off
+  keypad->setInputEvent({'8', UserInputInterface::UserInputAction::Pressed});
+  appOrchestrator->update();
+  EXPECT_EQ(csConnection.getOutput(), "<F 1 28 0>");
+  csConnection.clearOutput();
+}

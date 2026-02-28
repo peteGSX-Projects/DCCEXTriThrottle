@@ -109,14 +109,19 @@ public:
   static void createMockRoster(DCCEXProtocol *csClient) {
     Loco *rosterLoco1 = new Loco(1, LocoSource::LocoSourceRoster);
     rosterLoco1->setName("Loco1");
+    rosterLoco1->setupFunctions("Func0/*Func1");
     Loco *rosterLoco2 = new Loco(2, LocoSource::LocoSourceRoster);
     rosterLoco2->setName("Loco2");
+    rosterLoco2->setupFunctions("Func0/*Func1");
     Loco *rosterLoco3 = new Loco(3, LocoSource::LocoSourceRoster);
     rosterLoco3->setName("Loco3");
+    rosterLoco3->setupFunctions("Func0/*Func1");
     Loco *rosterLoco4 = new Loco(4, LocoSource::LocoSourceRoster);
     rosterLoco4->setName("Loco4");
+    rosterLoco4->setupFunctions("Func0/*Func1");
     Loco *rosterLoco5 = new Loco(5, LocoSource::LocoSourceRoster);
     rosterLoco5->setName("Loco5");
+    rosterLoco5->setupFunctions("Func0/*Func1");
     csClient->roster = rosterLoco1;
   }
 

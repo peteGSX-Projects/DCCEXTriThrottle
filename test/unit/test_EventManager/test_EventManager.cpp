@@ -212,3 +212,34 @@ TEST_F(EventManagerTests, TestRequestStateChange) {
   // Verify and clear expectations
   Mock::VerifyAndClearExpectations(listener);
 }
+
+/**
+ * @brief Test a ToggleLocoFunction event can be published and received by the listener
+ */
+TEST_F(EventManagerTests, TestToggleLocoFunction) {
+  // Subscribe the listener
+  eventManager->subscribe(listener, EventType::ToggleLocoFunction);
+
+  // Set the context
+  int function = 0;
+  int throttleIndex = 1;
+  UserInputInterface::UserInputAction action = UserInputInterface::UserInputAction::Pressed;
+
+  // Expectation
+  EXPECT_CALL(
+      *listener,
+      onEvent(AllOf(Field(&Event::eventType, EventType::ToggleLocoFunction),
+                    Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::LocoFunctionData)),
+                    Field(&Event::eventData,
+                          Field(&EventData::locoFunctionValue, AllOf(Field(&LocoFunction::function, function),
+                                                                    Field(&LocoFunction::throttleIndex, throttleIndex),
+                                                                    Field(&LocoFunction::action, action)))))))
+      .Times(1);
+
+  // Publish the event
+  EventData eventData(function, throttleIndex, UserInputInterface::UserInputAction::Pressed);
+  eventManager->publish(EventType::ToggleLocoFunction, eventData);
+
+  // Verify and clear expectations
+  Mock::VerifyAndClearExpectations(listener);
+}

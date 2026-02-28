@@ -20,6 +20,7 @@
 #define EVENTSTRUCTURE_H
 
 #include "AppStates.h"
+#include "UserInputInterface.h"
 #include <Arduino.h>
 #include <DCCEXProtocol.h>
 
@@ -46,6 +47,7 @@ enum EventType {
   StartAutomation,         // 13
   RotateTurntable,         // 14
   ForgetLoco,              // 15
+  ToggleLocoFunction,      // 16
   EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin() and bounds checking,
                    // MUST BE LAST
 };
@@ -87,6 +89,15 @@ struct StateRequest {
   int contextIndex; // eg. Throttle index
 };
 
+/**
+ * @brief Structure for receiving LocoFunction event data
+ */
+struct LocoFunction {
+  int function;                               // Loco function to operate
+  int throttleIndex;                          // Throttle index the loco/consist is associated with
+  UserInputInterface::UserInputAction action; // User action performed
+};
+
 /// @brief Structure to enable supporting EventData that has various different
 /// types ByteData - caters for 8 bit unsigned integer data (uint8_t x)
 /// IntegerData - caters for signed integer data (int y)
@@ -108,7 +119,8 @@ struct EventData {
     LocoBroadcastData,
     SelectLocoData,
     LocoAddressData,
-    StateRequestData
+    StateRequestData,
+    LocoFunctionData
   };
   DataType dataType;
 
@@ -121,6 +133,7 @@ struct EventData {
     SelectLoco selectLocoValue;
     LocoAddress locoAddressValue;
     StateRequest stateRequestValue;
+    LocoFunction locoFunctionValue;
   };
 
   /// @brief Constructor for events with a uint8_t parameter
@@ -167,6 +180,15 @@ struct EventData {
    */
   EventData(AppState state, int contextIndex)
       : dataType(DataType::StateRequestData), stateRequestValue{state, contextIndex} {}
+
+  /**
+   * @brief Construct a new Event Data object
+   * @param function Function number to operate
+   * @param throttleIndex Throttle index the Loco/consist is associated with
+   * @param action User action performed
+   */
+  EventData(int function, int throttleIndex, UserInputInterface::UserInputAction action)
+      : dataType(DataType::LocoFunctionData), locoFunctionValue{function, throttleIndex, action} {}
 };
 
 /// @brief Structure for each Event that is published
