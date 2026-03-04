@@ -19,7 +19,7 @@
 #define VERSION_H
 
 #define VERSION "0.1.0"
-// 0.1.0  - Rewrite from scratch using DCCEXProtocol 1.0.0, OOP, and GoogleTest
+// 0.1.0  - Rewrite from scratch using DCCEXProtocol 1.3.2, OOP, and GoogleTest
 // 0.0.16 - Add consist management
 // 0.0.15 - Updated roster selection methods to work with locos
 // 0.0.14 - Updates to coincide with DCCEXProtocol library release readiness

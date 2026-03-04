@@ -35,7 +35,7 @@ protected:
   DCCEXProtocol *csClient;
   Loco *loco3;
   Loco *loco100;
-  Consist *consist;
+  CSConsist *consist;
 
   // Optional setup method
   void SetUp() override {
@@ -47,15 +47,13 @@ protected:
     throttle = new Throttle(0, button, encoder, csClient, nullptr, 1, 2, 5);
     loco3 = new Loco(3, LocoSource::LocoSourceEntry);
     loco100 = new Loco(100, LocoSource::LocoSourceEntry);
-    consist = new Consist;
-    consist->addLoco(loco3, Facing::FacingForward);
-    consist->addLoco(loco100, Facing::FacingReversed);
+    consist = csClient->createCSConsist(3);
+    csClient->addCSConsistMember(consist, 100, true);
   }
 
   // Optional teardown method
   void TearDown() override {
     resetMillis();
-    delete consist;
     delete csClient;
     delete throttle;
     delete encoder;
@@ -263,14 +261,9 @@ TEST_F(ThrottleTests, TestForgetLoco) {
  * @brief Test forget loco deletes consist and unsets from throttle
  */
 TEST_F(ThrottleTests, TestForgetConsist) {
-  // Create and assign mock consist
-  Loco *loco10 = new Loco(10, LocoSource::LocoSourceEntry);
-  Loco *loco11 = new Loco(11, LocoSource::LocoSourceEntry);
-  Consist *mockConsist = new Consist;
-  mockConsist->addLoco(loco10, Facing::FacingForward);
-  mockConsist->addLoco(loco11, Facing::FacingReversed);
-  throttle->setConsist(mockConsist);
-  ASSERT_EQ(throttle->getConsist(), mockConsist);
+  // Assign consist
+  throttle->setConsist(consist);
+  ASSERT_EQ(throttle->getConsist(), consist);
 
   // Forget it
   throttle->forgetLoco();

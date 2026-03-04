@@ -49,16 +49,16 @@ public:
            uint8_t throttleStepFastest);
 
   /**
-   * @brief Set the Consist object
-   * @param consist Pointer to the Consist object
+   * @brief Set the CSConsist object
+   * @param consist Pointer to the CSConsist object
    */
-  void setConsist(Consist *consist);
+  void setConsist(CSConsist *consist);
 
   /**
-   * @brief Get the Consist object
-   * @return Consist* Get the current Consist operated by this throttle, should be nullptr if a Loco is set
+   * @brief Get the CSConsist object
+   * @return CSConsist* Get the current CSConsist operated by this throttle, should be nullptr if a Loco is set
    */
-  Consist *getConsist();
+  CSConsist *getConsist();
 
   /**
    * @brief Set the Loco object
@@ -68,12 +68,12 @@ public:
 
   /**
    * @brief Get the Loco object
-   * @return Loco* Get the current Loco operated by this throttle, should be nullptr if a Consist is set
+   * @return Loco* Get the current Loco operated by this throttle, should be nullptr if a CSConsist is set
    */
   Loco *getLoco();
 
   /**
-   * @brief Forget the currently assigned Loco or Consist, also deletes LocoSourceEntry Loco
+   * @brief Forget the currently assigned Loco or CSConsist, also deletes LocoSourceEntry Loco
    */
   void forgetLoco();
 
@@ -155,7 +155,7 @@ private:
   uint8_t _throttleStep;
   uint8_t _throttleStepFaster;
   uint8_t _throttleStepFastest;
-  Consist *_consist;
+  CSConsist *_consist;
   Loco *_loco;
   int _speed;
   bool _speedChanged;
@@ -182,7 +182,7 @@ private:
   void _setThrottle();
 
   /**
-   * @brief Helper method to deal with syncing user changes with Loco/Consist object
+   * @brief Helper method to deal with syncing user changes with Loco/CSConsist object
    */
   void _sync(UserSelectionInterface::UserSelectionAction action);
 };

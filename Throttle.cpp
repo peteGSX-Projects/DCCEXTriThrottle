@@ -35,19 +35,20 @@ Throttle::Throttle(int index, UserConfirmationInterface *confirmer, UserSelectio
   _lastUserInteraction = 0;
 }
 
-void Throttle::setConsist(Consist *consist) {
+void Throttle::setConsist(CSConsist *consist) {
   if (!consist)
     return;
 
   _loco = nullptr;
   _consist = consist;
   _locoChanged = true;
-  _speed = _consist->getSpeed();
-  _direction = _consist->getDirection();
+  Loco *first = Loco::getByAddress(_consist->getFirstMember()->address);
+  _speed = (first == nullptr) ? 0 : first->getSpeed();
+  _direction = (first == nullptr) ? Direction::Forward : first->getDirection();
   _lastUserInteraction = 0;
 }
 
-Consist *Throttle::getConsist() { return _consist; }
+CSConsist *Throttle::getConsist() { return _consist; }
 
 void Throttle::setLoco(Loco *loco) {
   if (!loco)

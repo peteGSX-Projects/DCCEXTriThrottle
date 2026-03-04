@@ -178,6 +178,22 @@ void CSConsist::setReplicateFunctions(bool replicate) { _replicateFunctions = re
 
 bool CSConsist::getReplicateFunctions() { return _replicateFunctions; }
 
+int CSConsist::getSpeed() {
+  if (!_firstMember)
+    return 0;
+
+  Loco *loco = Loco::getByAddress(_firstMember->address);
+  return (loco != nullptr) ? loco->getSpeed() : 0;
+}
+
+Direction CSConsist::getDirection() {
+  if (!_firstMember)
+    return Direction::Forward;
+
+  Loco *loco = Loco::getByAddress(_firstMember->address);
+  return (loco != nullptr) ? loco->getDirection() : Direction::Forward;
+}
+
 CSConsist::~CSConsist() {
   // Clean up the member list first
   removeAllMembers();

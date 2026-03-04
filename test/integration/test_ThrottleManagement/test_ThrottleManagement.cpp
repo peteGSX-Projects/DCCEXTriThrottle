@@ -220,11 +220,12 @@ TEST_F(IntegrationTestBase, TestConsistLightFunction) {
   ASSERT_FALSE(csClient->isFunctionOn(loco2, 0));
   ASSERT_FALSE(csClient->isFunctionOn(loco3, 0));
 
-  // Create consist
-  Consist *consist = new Consist();
-  consist->addLoco(loco1, Facing::FacingForward);
-  consist->addLoco(loco2, Facing::FacingReversed);
-  consist->addLoco(loco3, Facing::FacingForward);
+  // Create consist with function replication enabled
+  CSConsist *consist = csClient->createCSConsist(loco1->getAddress(), false, true);
+  csClient->addCSConsistMember(consist, loco2->getAddress(), true);
+  csClient->addCSConsistMember(consist, loco3->getAddress());
+  // Clear output after creating CSConsist
+  csConnection.clearOutput();
 
   // Associate consist with throttle 2
   throttles[2]->setConsist(consist);
@@ -334,11 +335,12 @@ TEST_F(IntegrationTestBase, TestConsistHornFunction) {
   ASSERT_FALSE(csClient->isFunctionOn(loco2, 1));
   ASSERT_FALSE(csClient->isFunctionOn(loco3, 1));
 
-  // Create consist
-  Consist *consist = new Consist();
-  consist->addLoco(loco1, Facing::FacingForward);
-  consist->addLoco(loco2, Facing::FacingReversed);
-  consist->addLoco(loco3, Facing::FacingForward);
+  // Create consist with function replication enabled
+  CSConsist *consist = csClient->createCSConsist(loco1->getAddress(), false, true);
+  csClient->addCSConsistMember(consist, loco2->getAddress(), true);
+  csClient->addCSConsistMember(consist, loco3->getAddress());
+  // Clear output after creating CSConsist
+  csConnection.clearOutput();
 
   // Associate consist with throttle 2
   throttles[2]->setConsist(consist);

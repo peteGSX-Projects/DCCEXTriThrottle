@@ -693,14 +693,13 @@ TEST_F(AppOrchestratorTests, TestForgetConsist) {
 
   // Create a consist with the first roster Loco and the local Loco
   Loco *rosterLoco = csClient->roster->getFirst();
-  Consist *consist = new Consist();
-  consist->addLoco(rosterLoco, Facing::FacingForward);
-  consist->addLoco(localLoco, Facing::FacingReversed);
+  CSConsist *consist = csClient->createCSConsist(rosterLoco->getAddress());
+  csClient->addCSConsistMember(consist, localLoco->getAddress(), true);
 
   // Validate consist
   ASSERT_NE(consist, nullptr);
-  ASSERT_EQ(consist->getFirst()->getLoco(), rosterLoco);
-  ASSERT_EQ(consist->getFirst()->getNext()->getLoco(), localLoco);
+  ASSERT_EQ(consist->getFirstMember()->address, rosterLoco->getAddress());
+  ASSERT_EQ(consist->getFirstMember()->next->address, localLoco->getAddress());
 
   // Associate the consist with Throttle index 0
   throttles[0]->setConsist(consist);
@@ -714,7 +713,7 @@ TEST_F(AppOrchestratorTests, TestForgetConsist) {
   // Handle the event
   appOrchestrator->onEvent(event);
 
-  // Validate roster Loco still exists, local Loco is deleted, consist is deleted, and Throttle is clear
+  // Validate Throttle is clear
   EXPECT_EQ(throttles[0]->getConsist(), nullptr);
 }
 
@@ -769,7 +768,7 @@ TEST_F(AppOrchestratorTests, TestForgetLocoInvalidThrottle) {
 }
 
 /**
- * @brief Test changing loco/consist selection when speed > 0 is ignored
+ * @brief Test changing loco selection when speed > 0 is ignored
  */
 TEST_F(AppOrchestratorTests, TestSelectLocoAtSpeed) {
   // Setup mock roster
@@ -923,9 +922,8 @@ TEST_F(AppOrchestratorTests, TestRosterLocoOnMultipleThrottlesConsist) {
   // Build a mock consist with first and second locos
   Loco *firstLoco = csClient->roster->getFirst();
   Loco *secondLoco = firstLoco->getNext();
-  Consist *consist = new Consist();
-  consist->addLoco(firstLoco, Facing::FacingForward);
-  consist->addLoco(secondLoco, Facing::FacingReversed);
+  CSConsist *consist = csClient->createCSConsist(firstLoco->getAddress());
+  csClient->addCSConsistMember(consist, secondLoco->getAddress(), true);
 
   // Associate consist with throttle index 0 and validate
   throttles[0]->setConsist(consist);

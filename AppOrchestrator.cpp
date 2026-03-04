@@ -318,7 +318,7 @@ void AppOrchestrator::_handleLocoSelected(Event &event) {
 
   Loco *newLoco = event.eventData.selectLocoValue.loco;
 
-  // If throttle has an existing Loco or Consist at speed > 0, ignore
+  // If throttle has an existing Loco or CSConsist at speed > 0, ignore
   if (_throttles[throttleIndex]->getLoco() != nullptr || _throttles[throttleIndex]->getConsist() != nullptr) {
     int speed = _throttles[throttleIndex]->getLoco() ? _throttles[throttleIndex]->getLoco()->getSpeed()
                                                      : _throttles[throttleIndex]->getConsist()->getSpeed();
@@ -389,7 +389,7 @@ void AppOrchestrator::_handleLocoAddressEntered(Event &event) {
   if (throttleIndex < 0 || throttleIndex >= _numThrottles)
     return;
 
-  // If throttle has an existing Loco or Consist at speed > 0, ignore
+  // If throttle has an existing Loco or CSConsist at speed > 0, ignore
   if (_throttles[throttleIndex]->getLoco() != nullptr || _throttles[throttleIndex]->getConsist() != nullptr) {
     int speed = _throttles[throttleIndex]->getLoco() ? _throttles[throttleIndex]->getLoco()->getSpeed()
                                                      : _throttles[throttleIndex]->getConsist()->getSpeed();
@@ -436,7 +436,7 @@ void AppOrchestrator::_handleStartAutomation(Event &event) {
   if (!_throttles || throttleIndex < 0 || throttleIndex >= _numThrottles) {
     return;
   }
-  // Must have a Loco, and also never send a Consist
+  // Must have a Loco, and also never send a CSConsist
   if (_throttles[throttleIndex]->getLoco() != nullptr) {
     int address = _throttles[throttleIndex]->getLoco()->getAddress();
     _commandStationClient->handOffLoco(address, automationId);
@@ -549,8 +549,8 @@ bool AppOrchestrator::_isLocoAddressAssociated(int address) {
     if (_throttles[i]->getLoco() && _throttles[i]->getLoco()->getAddress() == address) {
       return true;
     } else if (_throttles[i]->getConsist() != nullptr) {
-      for (ConsistLoco *cLoco = _throttles[i]->getConsist()->getFirst(); cLoco; cLoco = cLoco->getNext()) {
-        if (cLoco->getLoco()->getAddress() == address) {
+      for (CSConsistMember *member = _throttles[i]->getConsist()->getFirstMember(); member; member = member->next) {
+        if (member->address == address) {
           return true;
         }
       }
@@ -563,7 +563,7 @@ void AppOrchestrator::_handleFunction(Throttle *throttle, int function, UserInpu
   // Need the Loco object to check for momentary later, and consist refers to lead loco
   Loco *loco = throttle->getLoco();
   if (!loco && throttle->getConsist()) {
-    loco = throttle->getConsist()->getFirst()->getLoco();
+    loco = Loco::getByAddress(throttle->getConsist()->getFirstMember()->address);
   }
   if (!loco)
     return;
@@ -604,7 +604,7 @@ void AppOrchestrator::_handleLocoFunctionMenu(int throttleIndex) {
   // Get the Loco or lead loco if a consist
   Loco *loco = _throttles[throttleIndex]->getLoco();
   if (!loco && _throttles[throttleIndex]->getConsist()) {
-    loco = _throttles[throttleIndex]->getConsist()->getFirst()->getLoco();
+    loco = Loco::getByAddress(_throttles[throttleIndex]->getConsist()->getFirstMember()->address);
   }
   if (!loco)
     return;

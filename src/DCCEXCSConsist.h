@@ -23,6 +23,7 @@
 #ifndef DCCEXCSCONSIST_H
 #define DCCEXCSCONSIST_H
 
+#include "DCCEXLoco.h"
 #include <Arduino.h>
 
 /**
@@ -175,6 +176,18 @@ public:
    * @return false False if not
    */
   bool getReplicateFunctions();
+
+  /**
+   * @brief Get the speed from the lead Loco
+   * @return int Speed of the lead Loco, 0 always if no Loco object matches
+   */
+  int getSpeed();
+
+  /**
+   * @brief Get the direction from the lead Loco
+   * @return Direction Direction of the lead Loco, Forward always if no Loco object matches
+   */
+  Direction getDirection();
 
   /**
    * @brief Destroy the CSConsist object

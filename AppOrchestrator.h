@@ -295,7 +295,7 @@ private:
   bool _isLocoAddressAssociated(int address);
 
   /**
-   * @brief Helper method to toggle the provided function for the Loco/Consist on the specified Throttle
+   * @brief Helper method to toggle the provided function for the Loco/CSConsist on the specified Throttle
    * @param throttle Pointer to the Throttle object
    * @param function Function to toggle state for
    * @param action UserInputAction - Required to deal with momentary functions (eg. horn)
