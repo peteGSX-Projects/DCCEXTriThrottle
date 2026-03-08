@@ -133,7 +133,8 @@ void AppOrchestrator::onEvent(Event &event) {
       &AppOrchestrator::_handleStartAutomation,         // 13
       &AppOrchestrator::_handleRotateTurntable,         // 14
       &AppOrchestrator::_handleForgetLoco,              // 15
-      &AppOrchestrator::_handleToggleLocoFunction       // 16
+      &AppOrchestrator::_handleToggleLocoFunction,      // 16
+      &AppOrchestrator::_handleManageConsist            // 17
   };
 
   // // Set the type index
@@ -469,6 +470,8 @@ void AppOrchestrator::_handleToggleLocoFunction(Event &event) {
   _handleFunction(_throttles[event.eventData.locoFunctionValue.throttleIndex],
                   event.eventData.locoFunctionValue.function, event.eventData.locoFunctionValue.action);
 }
+
+void AppOrchestrator::_handleManageConsist(Event &event) {}
 
 // General helper methods
 

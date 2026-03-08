@@ -268,6 +268,12 @@ private:
    */
   void _handleToggleLocoFunction(Event &event);
 
+  /**
+   * @brief Handle a ManageConsist event
+   * @param event ManageConsist event
+   */
+  void _handleManageConsist(Event &event);
+
   // General helper methods
 
   /**

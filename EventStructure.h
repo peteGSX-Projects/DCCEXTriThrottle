@@ -48,6 +48,7 @@ enum EventType {
   RotateTurntable,         // 14
   ForgetLoco,              // 15
   ToggleLocoFunction,      // 16
+  ManageConsist,           // 17
   EVENT_TYPE_COUNT // Not an event, simply enables auto subscription in AppOrchestrator::begin() and bounds checking,
                    // MUST BE LAST
 };
@@ -98,6 +99,14 @@ struct LocoFunction {
   UserInputInterface::UserInputAction action; // User action performed
 };
 
+/**
+ * @brief Structure for receiving SelectConsist event data that contains the CSConsist and throttle index
+ */
+struct SelectConsist {
+  CSConsist *consist;
+  int throttleIndex;
+};
+
 /// @brief Structure to enable supporting EventData that has various different
 /// types ByteData - caters for 8 bit unsigned integer data (uint8_t x)
 /// IntegerData - caters for signed integer data (int y)
@@ -120,7 +129,8 @@ struct EventData {
     SelectLocoData,
     LocoAddressData,
     StateRequestData,
-    LocoFunctionData
+    LocoFunctionData,
+    SelectConsistData
   };
   DataType dataType;
 
@@ -134,6 +144,7 @@ struct EventData {
     LocoAddress locoAddressValue;
     StateRequest stateRequestValue;
     LocoFunction locoFunctionValue;
+    SelectConsist selectConsistValue;
   };
 
   /// @brief Constructor for events with a uint8_t parameter
@@ -189,6 +200,14 @@ struct EventData {
    */
   EventData(int function, int throttleIndex, UserInputInterface::UserInputAction action)
       : dataType(DataType::LocoFunctionData), locoFunctionValue{function, throttleIndex, action} {}
+
+  /**
+   * @brief Construct a new Event Data object for a SelectConsist event
+   * @param consist Pointer to the CSConsist selected
+   * @param throttleIndex Index of the throttle that will control this Loco
+   */
+  EventData(CSConsist *consist, int throttleIndex)
+      : dataType(DataType::SelectConsistData), selectConsistValue{consist, throttleIndex} {}
 };
 
 /// @brief Structure for each Event that is published

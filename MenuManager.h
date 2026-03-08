@@ -122,6 +122,13 @@ public:
   void setupFunctionMenu(Loco *loco, int throttleIndex);
 
   /**
+   * @brief Setup the menu of existing CSConsists to select from
+   * @param firstConsist Pointer to the first CSConsist available
+   * @param throttleIndex Index of the Throttle to associate a selected consist with
+   */
+  void setupConsistMenu(CSConsist *firstConsist, int throttleIndex);
+
+  /**
    * @brief Destroy the Menu Manager object
    */
   ~MenuManager();
@@ -149,8 +156,10 @@ private:
   Menu *_routeMenu;
   Menu *_automationMenu;
   Menu *_functionMenu;
+  Menu *_selectConsistMenu;
   int _menuCount;
   static char _functionNameBuffers[29][14];
+  static char _consistNameBuffers[10][6];
 
   /**
    * @brief Handle navigating to the parent item
@@ -185,9 +194,10 @@ private:
   /**
    * @brief Helper method to create and register a menu
    * @param name Menu name
+   * @param itemsPerPage Number of items to display per page on this menu (default 10)
    * @return Menu* Pointer to the created Menu instance
    */
-  Menu *_createManagedMenu(const char *name);
+  Menu *_createManagedMenu(const char *name, int itemsPerPage = 10);
 
   /**
    * @brief Creates a throttle menu for the index provided

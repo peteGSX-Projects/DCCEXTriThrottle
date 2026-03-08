@@ -66,7 +66,7 @@ void U8G2SH1106Display::updateThrottleScreen(int throttleIndex, Throttle *thrott
     if (throttle->getLoco()) {
       _displayThrottleAddress(throttleIndex, throttle->getLoco()->getAddress(), false);
     } else if (throttle->getConsist()) {
-      _displayThrottleAddress(throttleIndex, throttle->getConsist()->getFirst()->getLoco()->getAddress(), true);
+      _displayThrottleAddress(throttleIndex, throttle->getConsist()->getFirstMember()->address, true);
     } else {
       _displayThrottleAddress(throttleIndex, 0, false);
     }

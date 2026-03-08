@@ -18,11 +18,12 @@
 #include "MenuManager.h"
 
 char MenuManager::_functionNameBuffers[29][14];
+char MenuManager::_consistNameBuffers[10][6];
 
 MenuManager::MenuManager(EventManager *eventManager, Logger *logger)
     : _eventManager(eventManager), _logger(logger), _currentMenu(nullptr), _activeThrottleIndex(-1), _historyIndex(-1),
       _rootMenu(nullptr), _rosterMenu(nullptr), _turnoutMenu(nullptr), _turntableMenu(nullptr), _routeMenu(nullptr),
-      _automationMenu(nullptr), _functionMenu(nullptr), _menuCount(0) {}
+      _automationMenu(nullptr), _functionMenu(nullptr), _selectConsistMenu(nullptr), _menuCount(0) {}
 
 void MenuManager::initialise() {
   // Create Menu instances
@@ -34,6 +35,7 @@ void MenuManager::initialise() {
   _routeMenu = _createManagedMenu("Routes");
   _automationMenu = _createManagedMenu("Automations");
   Menu *tracksMenu = _createManagedMenu("Tracks");
+  _selectConsistMenu = _createManagedMenu("Select Consist");
 
   // Create throttle menus
   Menu *throttle0Menu = _createThrottleMenu(0);
@@ -225,7 +227,33 @@ void MenuManager::setupFunctionMenu(Loco *loco, int throttleIndex) {
     functionName[sizeof(functionName) - 1] = '\0';
 
     _functionMenu->addItem(
-        new ActionMenuItem(functionName, EventType::ToggleLocoFunction, EventData(function, throttleIndex, UserInputInterface::UserInputAction::None)));
+        new ActionMenuItem(functionName, EventType::ToggleLocoFunction,
+                           EventData(function, throttleIndex, UserInputInterface::UserInputAction::None)));
+  }
+}
+
+void MenuManager::setupConsistMenu(CSConsist *firstConsist, int throttleIndex) {
+  if (!firstConsist || firstConsist->getFirstMember() == nullptr)
+    return;
+
+  _selectConsistMenu->clearItems();
+
+  int bufferIndex = 0;
+  for (CSConsist *consist = firstConsist; consist; consist = consist->getNext()) {
+    if (bufferIndex >= 10)
+      break;
+
+    Loco *loco = Loco::getByAddress(consist->getFirstMember()->address);
+    const char *displayName = nullptr;
+    if (loco != nullptr && loco->getName() != nullptr) {
+      displayName = loco->getName();
+    } else {
+      displayName = _consistNameBuffers[bufferIndex];
+      itoa(consist->getFirstMember()->address, _consistNameBuffers[bufferIndex], 10);
+      bufferIndex++;
+    }
+    _selectConsistMenu->addItem(
+        new ActionMenuItem(displayName, EventType::LocoSelected, EventData(consist, throttleIndex)));
   }
 }
 
@@ -347,9 +375,9 @@ MenuManager::NavigationNode MenuManager::_pop() {
   return {nullptr, -1};
 }
 
-Menu *MenuManager::_createManagedMenu(const char *name) {
+Menu *MenuManager::_createManagedMenu(const char *name, int itemsPerPage) {
   if (_menuCount < _MAX_MANAGED_MENUS) {
-    Menu *newMenu = new Menu(name);
+    Menu *newMenu = new Menu(name, itemsPerPage);
     _allManagedMenus[_menuCount++] = newMenu;
     return newMenu;
   }
@@ -365,15 +393,26 @@ Menu *MenuManager::_createThrottleMenu(int index) {
   } else if (index == 2) {
     name = "Throttle 3";
   }
+
+  // All throttles need the same Consist menu
+  Menu *consistMenu = _createManagedMenu("Consist");
+
+  consistMenu->addItem(new SubMenuItem(_selectConsistMenu, "Select Consist"));
+  consistMenu->addItem(new ActionMenuItem("Add from Roster", EventType::ManageConsist, EventData()));
+  consistMenu->addItem(new ActionMenuItem("Add from Address", EventType::ManageConsist, EventData()));
+  consistMenu->addItem(new ActionMenuItem("Remove Member", EventType::ManageConsist, EventData()));
+
   Menu *throttleMenu = _createManagedMenu(name);
-  // Add Select Loco as the first item to select from roster
+  // Add Select Loco as the first item to select from roster (0)
   throttleMenu->addItem(new SubMenuItem(_rosterMenu, "Select Loco"));
-  // Add Enter Address as an action item to show the user entry screen
+  // Add Enter Address as an action item to show the user entry screen (1)
   throttleMenu->addItem(
       new ActionMenuItem("Enter Address", EventType::RequestStateChange, EventData(AppState::EnterLocoAddress, index)));
-  // Add Automations menu
+  // Add Automations menu (2)
   throttleMenu->addItem(new SubMenuItem(_automationMenu, "Automations"));
-  // Add Forget action to clear selection
+  // Add Consist menu (3)
+  throttleMenu->addItem(new SubMenuItem(consistMenu, "Consist"));
+  // Add Forget action to clear selection (4)
   throttleMenu->addItem(new ActionMenuItem("Forget", EventType::ForgetLoco, EventData(index)));
   return throttleMenu;
 }

@@ -365,15 +365,37 @@ TEST_F(MenuManagerTests, TestThrottleMenuStructure) {
   BaseMenuItem *item2 = menuManager->getCurrentMenu()->getItemByPageIndex(2);
   ASSERT_NE(item2, nullptr);
   EXPECT_STREQ(item2->getName(), "Automations");
-  // 3 should be Forget
+  // 3 should be Consist
   BaseMenuItem *item3 = menuManager->getCurrentMenu()->getItemByPageIndex(3);
   ASSERT_NE(item3, nullptr);
-  EXPECT_STREQ(item3->getName(), "Forget");
+  EXPECT_STREQ(item3->getName(), "Consist");
+  // 4 should be Forget
+  BaseMenuItem *item4 = menuManager->getCurrentMenu()->getItemByPageIndex(4);
+  ASSERT_NE(item4, nullptr);
+  EXPECT_STREQ(item4->getName(), "Forget");
 
   // First item should be the roster
   menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
   EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Roster");
   EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
+
+  // Navigate back and item 3 should be the consist menu
+  menuManager->handleUserInput({'*', UserInputInterface::UserInputAction::Pressed});
+  menuManager->handleUserInput({'3', UserInputInterface::UserInputAction::Pressed});
+  EXPECT_STREQ(menuManager->getCurrentMenu()->getName(), "Consist");
+  EXPECT_EQ(menuManager->getActiveThrottleIndex(), 1);
+  item0 = menuManager->getCurrentMenu()->getItemByPageIndex(0);
+  ASSERT_NE(item0, nullptr);
+  EXPECT_STREQ(item0->getName(), "Select Consist");
+  item1 = menuManager->getCurrentMenu()->getItemByPageIndex(1);
+  ASSERT_NE(item1, nullptr);
+  EXPECT_STREQ(item1->getName(), "Add from Roster");
+  item2 = menuManager->getCurrentMenu()->getItemByPageIndex(2);
+  ASSERT_NE(item2, nullptr);
+  EXPECT_STREQ(item2->getName(), "Add from Address");
+  item3 = menuManager->getCurrentMenu()->getItemByPageIndex(3);
+  ASSERT_NE(item3, nullptr);
+  EXPECT_STREQ(item3->getName(), "Remove Member");
 }
 
 /**
@@ -796,4 +818,74 @@ TEST_F(MenuManagerTests, TestReplaceFunctionMenu) {
   functionMenu = menuManager->getCurrentMenu();
   ASSERT_STREQ(functionMenu->getName(), "Loco 5");
   EXPECT_STREQ(functionMenu->getItemByPageIndex(2)->getName(), "Bell");
+}
+
+/**
+ * @brief Test setting up the menu of existing CSConsists
+ */
+TEST_F(MenuManagerTests, TestSetupConsistMenu) {
+  // Create some valid CSConsists
+  CSConsist *first = new CSConsist();
+  first->addMember(42, false);
+  first->addMember(24, true);
+  CSConsist *second = new CSConsist();
+  second->addMember(3, false);
+  second->addMember(5, true);
+  CSConsist *third = new CSConsist();
+  third->addMember(123, false);
+  third->addMember(456, true);
+
+  // Setup a mock listener and subscribe to LocoSelected
+  MockEventListener *orchestrator = new MockEventListener();
+  eventManager->subscribe(orchestrator, EventType::LocoSelected);
+
+  // Initialise MenuManager
+  menuManager->initialise();
+
+  // Call setupConsistMenu() - throttle index 2
+  menuManager->setupConsistMenu(first, 2);
+
+  // Should be at the root menu to start with no throttle index
+  ASSERT_EQ(menuManager->getCurrentMenu(), menuManager->getRootMenu());
+  ASSERT_EQ(menuManager->getActiveThrottleIndex(), -1);
+
+  // Navigate to throttle 2 (2), consist (3)
+  menuManager->handleUserInput({'2', UserInputInterface::UserInputAction::Pressed});
+  menuManager->handleUserInput({'3', UserInputInterface::UserInputAction::Pressed});
+
+  // This should now be the current menu, validate
+  Menu *consistMenu = menuManager->getCurrentMenu();
+  ASSERT_NE(consistMenu, menuManager->getRootMenu());
+  EXPECT_STREQ(consistMenu->getName(), "Consist");
+
+  // Now hit select (0) which should show the list of consists
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+  Menu *selectMenu = menuManager->getCurrentMenu();
+  ASSERT_NE(selectMenu, consistMenu);
+  EXPECT_STREQ(selectMenu->getName(), "Select Consist");
+
+  // Validate list of consists is as expected
+  ASSERT_NE(selectMenu->getItemByPageIndex(0), nullptr);
+  EXPECT_STREQ(selectMenu->getItemByPageIndex(0)->getName(), "42");
+  ASSERT_NE(selectMenu->getItemByPageIndex(1), nullptr);
+  EXPECT_STREQ(selectMenu->getItemByPageIndex(1)->getName(), "Loco 3");
+  ASSERT_NE(selectMenu->getItemByPageIndex(2), nullptr);
+  EXPECT_STREQ(selectMenu->getItemByPageIndex(2)->getName(), "123");
+
+  // Setup expectation of the event with the Consist data and ensure the first item does it
+  EXPECT_CALL(
+      *orchestrator,
+      onEvent(AllOf(Field(&Event::eventType, EventType::LocoSelected),
+                    Field(&Event::eventData, Field(&EventData::dataType, EventData::DataType::SelectConsistData)),
+                    Field(&Event::eventData,
+                          Field(&EventData::selectConsistValue,
+                                AllOf(Field(&SelectConsist::consist, first), Field(&SelectConsist::throttleIndex, 2)))))))
+      .Times(1);
+  menuManager->handleUserInput({'0', UserInputInterface::UserInputAction::Pressed});
+
+  // Clean up
+  delete orchestrator;
+  delete third;
+  delete second;
+  delete first;
 }
